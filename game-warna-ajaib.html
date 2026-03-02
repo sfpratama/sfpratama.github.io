@@ -3,10 +3,7 @@
 <meta name="theme-color" content="#f472b6"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
 <script>
-// Auth guard
 (function(){
   try{
     var raw=localStorage.getItem('rmf_session');
@@ -200,51 +197,42 @@ a{text-decoration:none;color:inherit}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* ═══════════════════════════════════════════════════════════
-   MOBILE FIX + PREMIUM POLISH — injected
-   ═══════════════════════════════════════════════════════════ */
-
-/* Safe area + prevent iOS bounce scroll */
+/* ═══════════════════════════════════════ MOBILE FIX v2 ══ */
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
-  --header-h: 54px;
 }
-html { 
-  height: 100%; 
+html {
+  height: 100%;
   overflow: hidden;
   -webkit-text-size-adjust: 100%;
 }
-body { 
+body {
   height: 100%;
   overflow: hidden;
   touch-action: manipulation;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
-/* Fredoka One for display text */
-.h1,.h2,.val,.modal .h2 { font-family: 'Fredoka One', cursive !important; }
-
-/* ── COMPACT GAME TOPBAR (visible on ALL sizes) ── */
+/* ── COMPACT GAME TOPBAR ── */
 .game-topbar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
-  background: rgba(255,255,255,.88);
+  padding: 7px 10px;
+  background: rgba(255,255,255,.9);
   backdrop-filter: blur(14px);
-  border-radius: 20px;
+  border-radius: 18px;
   border: 2px solid rgba(255,255,255,.9);
-  box-shadow: 0 6px 18px rgba(15,23,42,.10);
-  margin-bottom: 8px;
+  box-shadow: 0 4px 14px rgba(15,23,42,.10);
+  margin-bottom: 6px;
   flex-wrap: nowrap;
-  overflow: hidden;
 }
 .game-topbar-title {
-  font-family: 'Fredoka One', cursive;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 900;
   color: #1f2937;
   flex: 1;
   white-space: nowrap;
@@ -255,13 +243,13 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 12px;
   background: white;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 900;
   color: #1f2937;
-  box-shadow: 0 3px 10px rgba(15,23,42,.1);
+  box-shadow: 0 2px 8px rgba(15,23,42,.1);
   text-decoration: none;
   flex-shrink: 0;
   border: none;
@@ -272,8 +260,8 @@ body {
   color: white;
   border: none;
   border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 11px;
+  padding: 5px 10px;
+  font-size: 12px;
   font-weight: 900;
   cursor: pointer;
   flex-shrink: 0;
@@ -283,231 +271,264 @@ body {
 .stats-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 .stat-mini {
-  background: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.9);
   backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 7px 6px;
+  border-radius: 12px;
+  padding: 5px 4px;
   text-align: center;
   border: 1.5px solid rgba(255,255,255,.9);
-  box-shadow: 0 4px 12px rgba(15,23,42,.08);
+  box-shadow: 0 3px 10px rgba(15,23,42,.08);
 }
-.stat-mini .lab { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: #64748b; font-weight: 900; display: block; }
-.stat-mini .val { font-family: 'Fredoka One', cursive; font-size: 20px; font-weight: 900; display: block; line-height: 1.1; }
+.stat-mini .lab {
+  font-size: 8px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 900;
+  display: block;
+}
+.stat-mini .val {
+  font-size: 18px;
+  font-weight: 900;
+  display: block;
+  line-height: 1.15;
+}
 
-/* ── STAGE: FILL REMAINING HEIGHT ── */
+/* ── STAGE: FILL REMAINING VIEWPORT ── */
 .stage {
   position: relative;
   background: rgba(255,255,255,.24);
   backdrop-filter: blur(14px);
   border: 3px solid rgba(255,255,255,.75);
+  border-radius: 22px;
   overflow: hidden;
-  border-radius: 24px;
-  /* Dynamic viewport height: total minus topbar + stats + shell padding + safe areas */
-  height: calc(100dvh - var(--safe-top) - var(--safe-bot) - 54px - 54px - 54px - 24px);
-  min-height: 280px;
+  flex: 1;
+  min-height: 0;
 }
 
-/* Fallback for browsers without dvh */
-@supports not (height: 100dvh) {
-  .stage {
-    height: calc(100vh - 240px);
-    min-height: 280px;
-  }
-}
-
-/* ── HIDE THINGS THAT BREAK MOBILE ── */
-/* Big title header block — replaced by compact topbar */
+/* ── HIDE DESKTOP-ONLY ELEMENTS ── */
 .top { display: none !important; }
-
-/* Old game-top bar — we replace it */
 .game-top { display: none !important; }
-
-/* Old playtop bar — we replace it */
 div.playtop:not(.keep) { display: none !important; }
-
-/* Sidebar — useless on mobile, hidden everywhere now */
 .grid.g2 > aside,
-.play-wrap > aside,
+.play-wrap > aside { display: none !important; }
 .side-stack { display: none !important; }
-
-/* The overlapping helper bottom-left box */
 .helper { display: none !important; }
 
-/* Force single column for game grid */
-.grid.g2 { 
+/* ── LAYOUT: FULL HEIGHT FLEX ── */
+.grid.g2 {
   grid-template-columns: 1fr !important;
   gap: 0 !important;
+  flex: 1;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
 }
-
-/* Shell: full bleed on mobile */
-.shell { 
-  padding: 8px !important;
-  padding-top: calc(8px + var(--safe-top)) !important;
-  padding-bottom: calc(8px + var(--safe-bot)) !important;
-  padding-left: calc(8px + var(--safe-left)) !important;
-  padding-right: calc(8px + var(--safe-right)) !important;
+.shell {
+  padding: 6px !important;
+  padding-top: calc(6px + var(--safe-top)) !important;
+  padding-bottom: calc(6px + var(--safe-bot)) !important;
+  padding-left: calc(6px + var(--safe-left)) !important;
+  padding-right: calc(6px + var(--safe-right)) !important;
   height: 100%;
   display: flex;
   flex-direction: column;
+  max-width: 100% !important;
+  overflow: hidden;
 }
-
-/* play-wrap: flex column, fill shell */
-.play-wrap { 
+.play-wrap {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
+  gap: 6px !important;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* ── GAME ELEMENTS: BETTER TOUCH TARGETS ── */
-.tile, .choice, .piece {
-  min-height: 80px !important;
-  border-radius: 20px !important;
+/* ── STAGE CONTENT: SCROLLABLE INNER ── */
+.stage > [style*="position:absolute"],
+.stage > div[style*="inset:0"] {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ── GAME TILES: COMPACT ON MOBILE ── */
+.tile, .choice, .piece,
+.odd-card, .memory-tile, .math-card, .mix-card, .pair-card,
+.pattern-card, .piece-card {
+  min-height: 64px !important;
+  border-radius: 16px !important;
   touch-action: manipulation;
-  font-size: clamp(12px, 2.5vw, 18px) !important;
-}
-.tile:active, .choice:active, .piece:active {
-  transform: scale(.95) !important;
+  font-size: clamp(11px, 2.5vw, 16px) !important;
 }
 
-.mem, .board4, .mix-grid, .pair-grid, .odd-grid {
-  gap: 10px !important;
+/* ── GRIDS: 2 COLS ON MOBILE ── */
+.mem {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+.board4 {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.mix-grid {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+.pair-grid {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.odd-grid {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
 }
 
-/* ── MAZE: BIGGER CELLS + D-PAD ── */
-.cell { 
-  width: clamp(26px, 7vw, 36px) !important; 
-  height: clamp(26px, 7vw, 36px) !important; 
-  border-radius: 8px !important;
-  font-size: 14px !important;
+/* ── WARNA AJAIB: PAINT AREA ── */
+#paintArea {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+  max-width: 100% !important;
 }
-.maze-board { gap: 3px !important; padding: 8px !important; }
+#paintArea > * {
+  min-height: 80px !important;
+}
+#paletteBoard {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 6px !important;
+  max-width: 100% !important;
+}
+
+/* ── MAZE ── */
+.cell {
+  width: clamp(24px, 7vw, 34px) !important;
+  height: clamp(24px, 7vw, 34px) !important;
+  border-radius: 7px !important;
+  font-size: 13px !important;
+}
+.maze-board { gap: 2px !important; padding: 7px !important; }
 #up, #down, #left, #right {
-  width: 58px !important;
-  height: 58px !important;
+  width: 56px !important;
+  height: 56px !important;
   font-size: 22px !important;
   padding: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 18px !important;
+  border-radius: 16px !important;
   flex-shrink: 0;
   touch-action: manipulation;
 }
 
-/* ── MODAL: PREMIUM STYLE ── */
+/* ── MODAL ── */
 .modal {
-  border-radius: 28px !important;
-  padding: 20px !important;
-  border: 3px solid #fce7f3 !important;
-  max-height: 90vh;
+  border-radius: 24px !important;
+  padding: 18px !important;
+  max-height: 88vh;
   overflow-y: auto;
 }
-.modal .h2 { font-size: clamp(1.3rem, 4vw, 2rem) !important; }
+.modal .h2 { font-size: clamp(1.2rem, 4vw, 1.8rem) !important; }
 .cta {
   border-radius: 999px !important;
-  padding: 14px 24px !important;
-  font-size: 16px !important;
-  box-shadow: 0 8px 20px rgba(14,165,233,.35) !important;
+  padding: 13px 22px !important;
+  font-size: 15px !important;
   touch-action: manipulation;
 }
 .result {
   grid-template-columns: repeat(2, 1fr) !important;
-  gap: 10px !important;
+  gap: 8px !important;
 }
-.res { border-radius: 20px !important; padding: 12px !important; }
-.res .val { font-family: 'Fredoka One', cursive; font-size: 1.6rem; }
+.res { border-radius: 16px !important; padding: 10px !important; }
 
-/* ── BUBBLE: TOUCH FIX ── */
-.bubble { touch-action: manipulation; }
-
-/* ── BANNER: SMALLER ON MOBILE ── */
+/* ── BANNER ── */
 .banner {
-  font-size: 13px !important;
-  padding: 8px 14px !important;
-  border-radius: 999px !important;
-  top: 10px !important;
-  max-width: 85% !important;
+  font-size: 12px !important;
+  padding: 7px 13px !important;
+  top: 8px !important;
+  max-width: 84% !important;
 }
 
-/* ── PREMIUM CONFETTI (added via JS) ── */
+/* ── CAMPUR WARNA: TARGET BOX ── */
+#targetBox {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 20px !important;
+  margin-bottom: 8px !important;
+}
+#prompt[style*="font-size:24px"] {
+  font-size: 15px !important;
+  margin-bottom: 10px !important;
+}
+
+/* ── MEMORY PREVIEW PILLS ── */
+.preview { min-height: 36px !important; gap: 5px !important; margin-bottom: 8px !important; flex-wrap: wrap; }
+.preview-pill { padding: 6px 10px !important; font-size: 11px !important; }
+
+/* ── CONFETTI ── */
 .confetti-piece {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  animation: confettiFall 2.5s ease-in forwards;
-  pointer-events: none;
-  z-index: 999;
+  position: fixed; width: 9px; height: 9px; border-radius: 2px;
+  animation: confettiFall 2.5s ease-in forwards; pointer-events: none; z-index: 999;
 }
 @keyframes confettiFall {
   0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
-/* ── SCORE POPUP ── */
-.score-pop {
-  position: absolute;
-  font-family: 'Fredoka One', cursive;
-  font-size: 24px;
-  font-weight: 900;
-  pointer-events: none;
-  z-index: 50;
-  animation: scorePop .8s ease-out forwards;
-}
-@keyframes scorePop {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-60px) scale(1.4); opacity: 0; }
-}
-
-/* ── DESKTOP: restore original layout ── */
+/* ── DESKTOP RESTORE ── */
 @media(min-width: 900px) {
   html, body { overflow: auto; overflow-x: hidden; }
-  .shell { 
-    height: auto !important;
-    display: block !important;
+  .shell {
+    height: auto !important; display: block !important;
     padding: 16px !important;
-    max-width: 1240px;
-    margin: 0 auto;
+    max-width: 1240px; margin: 0 auto;
   }
   .top { display: block !important; }
   .game-topbar { display: none !important; }
   .stats-bar { display: none !important; }
   .game-top { display: flex !important; }
   div.playtop:not(.keep) { display: flex !important; }
-  .grid.g2 { grid-template-columns: minmax(0,1fr) 340px !important; gap: 18px !important; }
+  .grid.g2 {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 340px !important;
+    gap: 18px !important; flex: none;
+  }
   .grid.g2 > aside { display: block !important; }
   .helper { display: block !important; }
-  .stage { 
-    height: clamp(430px, 64vh, 760px) !important;
-    min-height: clamp(430px, 64vh, 760px) !important;
-  }
-  .play-wrap { display: grid !important; gap: 18px !important; }
+  .stage { flex: none; height: clamp(430px,64vh,760px) !important; }
+  .play-wrap { display: grid !important; gap: 18px !important; flex: none; }
   .side-stack { display: grid !important; }
+  .tile, .choice, .piece, .odd-card, .math-card, .mix-card, .pair-card, .pattern-card {
+    min-height: 118px !important;
+    border-radius: 28px !important;
+    font-size: unset !important;
+  }
+  .mem { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .board4 { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .mix-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .odd-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  #paintArea { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  #paintArea > * { min-height: 140px !important; }
+  #paletteBoard { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  #targetBox { width: 120px !important; height: 120px !important; }
+  .cell { width: 32px !important; height: 32px !important; border-radius: 9px !important; }
 }
-/* ═══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════ */
 
 </style></head><body>
-
 <script>
-// ── MOBILE TOPBAR INJECTION ────────────────────────────────
 (function(){
   function buildTopbar(){
-    // Get game title from <title> tag
-    var title = document.title.replace(' – Rumah Main Fokus','') || 'Game';
-    var backBtn = '<a href="index.html" class="back-btn">← Menu</a>';
-    var soundBtn = '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
-    
-    // Build compact topbar
+    var title = document.title || 'Game';
     var bar = document.createElement('div');
     bar.className = 'game-topbar';
-    bar.innerHTML = backBtn + '<span class="game-topbar-title">' + title + '</span>' + soundBtn;
-    
-    // Build stats bar (clone of existing stats)
+    bar.innerHTML = '<a href="index.html" class="back-btn">← Menu</a>'
+      + '<span class="game-topbar-title">' + title + '</span>'
+      + '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
     var statsBar = document.createElement('div');
     statsBar.className = 'stats-bar';
     statsBar.id = 'mobileStatsBar';
@@ -517,109 +538,67 @@ div.playtop:not(.keep) { display: none !important; }
       {id:'streak',label:'Streak',color:'#ec4899'},
       {id:'timer',label:'Waktu',color:'#0369a1'}
     ].map(function(s){
-      return '<div class="stat-mini"><span class="lab">'+s.label+'</span><span class="val" style="color:'+s.color+'" id="m_'+s.id+'">0</span></div>';
+      return '<div class="stat-mini"><span class="lab">'+s.label+'</span>'
+        +'<span class="val" style="color:'+s.color+'" id="m_'+s.id+'">0</span></div>';
     }).join('');
-    
-    // Inject into shell before play-wrap
     var shell = document.querySelector('.shell');
     if(shell){
-      var playWrap = shell.querySelector('.play-wrap');
-      if(playWrap){
-        shell.insertBefore(statsBar, playWrap);
-        shell.insertBefore(bar, statsBar);
-      }
+      var pw = shell.querySelector('.play-wrap');
+      if(pw){ shell.insertBefore(statsBar, pw); shell.insertBefore(bar, statsBar); }
     }
-    
-    // Sync mobile stats with original stat elements
     function syncStats(){
       ['score','stars','streak','timer'].forEach(function(id){
-        var orig = document.getElementById(id);
-        var mob = document.getElementById('m_'+id);
-        if(orig && mob) mob.textContent = orig.textContent;
+        var orig=document.getElementById(id);
+        var mob=document.getElementById('m_'+id);
+        if(orig&&mob) mob.textContent=orig.textContent;
       });
     }
-    setInterval(syncStats, 100);
-    
-    // Sound toggle
+    setInterval(syncStats, 80);
     window.toggleSoundMini = function(){
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('kids_sound', soundEnabled?'on':'off');
-      document.getElementById('soundMiniBtn').textContent = soundEnabled?'🔊':'🔇';
-      if(soundEnabled && typeof initAudio === 'function') initAudio();
+      soundEnabled=!soundEnabled;
+      localStorage.setItem('kids_sound',soundEnabled?'on':'off');
+      document.getElementById('soundMiniBtn').textContent=soundEnabled?'🔊':'🔇';
+      if(soundEnabled&&typeof initAudio==='function') initAudio();
     };
-    var btn = document.getElementById('soundMiniBtn');
-    if(btn) btn.textContent = localStorage.getItem('kids_sound')==='off'?'🔇':'🔊';
+    var btn=document.getElementById('soundMiniBtn');
+    if(btn) btn.textContent=localStorage.getItem('kids_sound')==='off'?'🔇':'🔊';
   }
-  
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', buildTopbar);
-  } else {
-    buildTopbar();
-  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',buildTopbar);
+  } else { buildTopbar(); }
 })();
 
-// ── CONFETTI on game end ───────────────────────────────────
 function launchConfetti(){
-  var colors = ['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
-  for(var i=0;i<60;i++){
+  var colors=['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
+  for(var i=0;i<55;i++){
     (function(i){
       setTimeout(function(){
-        var c = document.createElement('div');
-        c.className = 'confetti-piece';
-        c.style.left = Math.random()*100+'vw';
-        c.style.top = '-10px';
-        c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.width = (8+Math.random()*8)+'px';
-        c.style.height = (8+Math.random()*8)+'px';
-        c.style.animationDuration = (1.5+Math.random()*2)+'s';
-        c.style.animationDelay = (Math.random()*.5)+'s';
+        var c=document.createElement('div');
+        c.className='confetti-piece';
+        c.style.left=Math.random()*100+'vw';
+        c.style.background=colors[Math.floor(Math.random()*colors.length)];
+        c.style.width=(7+Math.random()*9)+'px';
+        c.style.height=(7+Math.random()*9)+'px';
+        c.style.animationDuration=(1.5+Math.random()*2)+'s';
+        c.style.animationDelay=(Math.random()*.4)+'s';
         document.body.appendChild(c);
-        setTimeout(function(){ c.remove(); }, 4000);
-      }, i*30);
+        setTimeout(function(){ c.remove(); },4000);
+      },i*28);
     })(i);
   }
 }
-
-// ── Score popup ────────────────────────────────────────────
-function showScorePop(x, y, text, color){
-  var pop = document.createElement('div');
-  pop.className = 'score-pop';
-  pop.textContent = text;
-  pop.style.left = x + 'px';
-  pop.style.top = y + 'px';
-  pop.style.color = color || '#f472b6';
-  var stage = document.querySelector('.stage');
-  if(stage){ stage.appendChild(pop); setTimeout(function(){ pop.remove(); }, 900); }
-}
-
-// Intercept finish functions to add confetti
 (function(){
-  var origFinish = window.finishsound;
-  window.finishsound = function(){
-    if(origFinish) origFinish();
-    setTimeout(launchConfetti, 200);
-  };
-  
-  // Watch for end overlay to appear and trigger confetti
-  var observer = new MutationObserver(function(mutations){
+  var observer=new MutationObserver(function(mutations){
     mutations.forEach(function(m){
-      m.addedNodes.forEach(function(n){
-        if(n.classList && n.classList.contains('overlay') && !n.classList.contains('hidden')){
-          launchConfetti();
-        }
-      });
-      // also watch class changes
-      if(m.type === 'attributes' && m.attributeName === 'class'){
-        var el = m.target;
-        if(el.id === 'end' && !el.classList.contains('hidden')){
-          launchConfetti();
-        }
+      if(m.type==='attributes'&&m.attributeName==='class'){
+        var el=m.target;
+        if(el.id==='end'&&!el.classList.contains('hidden')) launchConfetti();
       }
     });
   });
-  document.addEventListener('DOMContentLoaded', function(){
-    var end = document.getElementById('end');
-    if(end) observer.observe(end, {attributes:true, attributeFilter:['class']});
+  document.addEventListener('DOMContentLoaded',function(){
+    var end=document.getElementById('end');
+    if(end) observer.observe(end,{attributes:true,attributeFilter:['class']});
   });
 })();
 </script>
@@ -879,7 +858,32 @@ function warnaEnd(){
   warnaEls.fstars.textContent=warnaState.stars;
   warnaEls.fstreak.textContent=warnaState.best;
   warnaEls.frank.textContent=rank(warnaState.score);
-  finishsound();
+  
+// ── SAVE SCORE TO DASHBOARD ──────────────────────────
+try {
+  var _sess = window.__RMF_SESSION;
+  if(_sess && _sess.userId) {
+    var _skey = 'rmf_scores_' + _sess.userId;
+    var _scores = {};
+    try { _scores = JSON.parse(localStorage.getItem(_skey) || '{}'); } catch(e) {}
+    var _gameId = 'warna-ajaib';
+    var _myScore = (typeof s !== 'undefined' && s.score) || (typeof warnaState !== 'undefined' && warnaState.score) || 0;
+    if(!_scores[_gameId] || _myScore > (_scores[_gameId] || 0)) {
+      _scores[_gameId] = _myScore;
+    }
+    localStorage.setItem(_skey, JSON.stringify(_scores));
+    // weekly activity tracker
+    var _wkey = 'rmf_week_' + _sess.userId;
+    var _week = [0,0,0,0,0,0,0];
+    try { _week = JSON.parse(localStorage.getItem(_wkey) || '[0,0,0,0,0,0,0]'); } catch(e) {}
+    var _d = new Date().getDay(); var _di = _d===0?6:_d-1;
+    _week[_di] = (_week[_di]||0) + 1;
+    localStorage.setItem(_wkey, JSON.stringify(_week));
+  }
+} catch(e) {}
+// ─────────────────────────────────────────────────────
+
+finishsound();
   warnaEls.end.classList.remove('hidden');
 }
 document.getElementById('go').onclick=warnaStart;
