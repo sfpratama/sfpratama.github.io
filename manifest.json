@@ -1,0 +1,25 @@
+{
+  "name": "Rumah Main Fokus",
+  "short_name": "RumahMain",
+  "description": "Brain & Creative Games untuk Anak - Platform edukasi interaktif",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fde68a",
+  "theme_color": "#f472b6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Ccircle cx='96' cy='96' r='96' fill='%23fde68a'/%3E%3Ctext y='.9em' font-size='120' x='50%25' dominant-baseline='middle' text-anchor='middle'%3E🐻%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%23fde68a'/%3E%3Ctext y='.9em' font-size='320' x='50%25' dominant-baseline='middle' text-anchor='middle'%3E🐻%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["education", "games", "kids"],
+  "lang": "id"
+}

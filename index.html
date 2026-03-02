@@ -1,4 +1,29 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rumah Main Fokus, Brain & Creative Games</title><script src="https://cdn.tailwindcss.com"></script><style>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rumah Main Fokus, Brain & Creative Games</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#f472b6"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="description" content="9 mini games edukasi anak: focus, brain & creative games. Platform bermain bersama untuk orang tua dan anak."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet"/>
+<script>
+// Auth check – redirect to login if not logged in
+(function(){
+  try{
+    const raw=localStorage.getItem('rmf_session');
+    if(!raw){location.replace('auth.html?redirect=index.html');throw 0;}
+    const s=JSON.parse(raw);
+    if(Date.now()-s.loginAt>30*24*60*60*1000){
+      localStorage.removeItem('rmf_session');
+      location.replace('auth.html?redirect=index.html');
+      throw 0;
+    }
+    window.__RMF_SESSION=s;
+    window.__RMF_PREMIUM=(s.plan==='premium'||s.plan==='admin');
+  }catch(e){if(e!==0)location.replace('auth.html');}
+})();
+</script>
+<script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -88,7 +113,6 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
-  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -119,7 +143,6 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
-  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -166,6 +189,53 @@ a{text-decoration:none;color:inherit}
 .maze-board{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
 .cell{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-weight:900}
 .wall{background:#334155}.startcell{background:#86efac}.endcell{background:#fca5a5}.playercell{background:#60a5fa;color:#fff}
+/* PREMIUM / AUTH ADDITIONS */
+.topbar-main{
+  background:rgba(255,255,255,.88);backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,.9);border-radius:28px;
+  padding:12px 18px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin-bottom:14px;box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+.topbar-brand{font-family:'Fredoka One',cursive;font-size:1.15rem;color:#1f2937}
+.topbar-brand span{color:#db2777}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tb-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 12px;border-radius:999px;font-size:12px;font-weight:900;
+  background:white;box-shadow:0 4px 12px rgba(15,23,42,.08);
+  cursor:pointer;border:1px solid #fce7f3;transition:transform .12s;text-decoration:none;color:inherit;
+}
+.tb-pill:hover{transform:translateY(-1px)}
+.tb-premium{background:linear-gradient(135deg,#fce7f3,#fef3c7);color:#be185d;border-color:#fbcfe8}
+.tb-free{background:#e0f2fe;color:#0369a1;border-color:#bae6fd}
+.lock-card{
+  position:relative;opacity:.75;cursor:pointer;
+}
+.lock-card .lock-badge{
+  position:absolute;top:10px;right:10px;
+  background:rgba(15,23,42,.65);backdrop-filter:blur(4px);
+  border-radius:999px;padding:4px 10px;font-size:11px;font-weight:900;color:white;z-index:5;
+}
+.lock-card::after{content:none!important}
+.lock-card .lock-dim{
+  position:absolute;inset:0;border-radius:28px;
+  background:rgba(255,255,255,.45);backdrop-filter:blur(1px);z-index:4;
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+}
+.upgrade-banner{
+  background:linear-gradient(135deg,#fce7f3,#fef3c7);
+  border:2px solid #fbcfe8;border-radius:28px;
+  padding:16px 20px;margin-top:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.upgrade-banner-text{font-size:14px;font-weight:800;color:#be185d}
+.upgrade-banner-btn{
+  padding:10px 20px;border-radius:999px;border:none;
+  background:linear-gradient(135deg,#f472b6,#fb7185);color:white;
+  font-family:Arial,sans-serif;font-size:13px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 16px rgba(244,114,182,.35);transition:transform .12s;flex-shrink:0;
+}
+.upgrade-banner-btn:hover{transform:translateY(-2px)}
 .puzzle-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:360px;margin:0 auto 16px}
 .slot{min-height:96px;border-radius:24px;background:rgba(255,255,255,.75);border:2px dashed #f9a8d4;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#64748b}
 .pieces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:360px;margin:0 auto}
@@ -181,97 +251,81 @@ a{text-decoration:none;color:inherit}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
-
-/* mobile-safe responsive patch */
-@media (max-width: 767px){
-  .shell{padding:10px}
-  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
-  .top{padding:12px}
-  .playtop{padding:12px}
-  .stage{
-    min-height:max(620px,74svh);
-    height:max(620px,74svh);
-    border-radius:26px;
-  }
-  .banner{
-    top:10px;
-    left:10px;
-    right:10px;
-    transform:none;
-    max-width:none;
-    width:auto;
-    padding:8px 12px;
-    font-size:12px;
-    line-height:1.25;
-    border-radius:18px;
-  }
-  .helper{
-    left:10px;
-    right:10px;
-    bottom:10px;
-    max-width:none;
-    width:auto;
-    padding:10px 12px;
-    border-radius:18px;
-  }
-  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
-    padding:72px 12px 110px 12px !important;
-    align-items:flex-start !important;
-    justify-content:flex-start !important;
-    overflow:auto;
-  }
-  #arcadeLayer{top:60px !important; bottom:96px !important;}
-  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
-  .preview{min-height:auto}
-  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
-  .choice,.tile,.piece{min-height:96px;border-radius:22px}
-  .modal{padding:18px;border-radius:24px}
-  .result{gap:10px}
-}
-@media (max-width: 480px){
-  .stage{
-    min-height:max(640px,78svh);
-    height:max(640px,78svh);
-  }
-  .banner{font-size:11px;padding:8px 10px}
-  .helper{padding:9px 10px}
-  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
-    padding:70px 10px 108px 10px !important;
-  }
-  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
-}
-
 </style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
-<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus nyaman untuk parent.</div></div><button class="sound"></button></div></div>
+
+<!-- SESSION TOPBAR -->
+<div class="topbar-main">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:20px">🐻</div>
+    <div class="topbar-brand">Rumah Main <span>Fokus</span></div>
+  </div>
+  <div class="topbar-right">
+    <span id="sessionName" class="tb-pill">👤 ...</span>
+    <span id="planBadge" class="tb-pill">...</span>
+    <a href="dashboard.html" class="tb-pill">📊 Dashboard</a>
+    <span class="tb-pill" onclick="doLogout()" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626">🚪 Keluar</span>
+  </div>
+</div>
+
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus informatif untuk parent.</div></div><button class="sound"></button></div></div>
 <div class="grid g2" style="margin-top:18px">
 <section class="card">
   <div class="hero">
-    <div><div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div><div class="h2" style="margin-top:18px">Pilih kategori permainan</div><div class="sub">Master version ini berisi 9 mini games dalam 3 kategori utama dengan halaman terpisah untuk tiap game.</div></div>
-    <div class="panel" style="text-align:center"><div class="mascot" style="margin:0 auto 10px;background:linear-gradient(135deg,#fce7f3,#e0f2fe)">🧸</div><div style="font-weight:900;font-size:20px">9 Mini Games Anak</div><div class="sub" style="margin-top:8px;font-size:14px">Siap untuk dipakai sebagai satu paket game yang lebih rapi dan lengkap.</div></div>
+    <div>
+      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div>
+      <div class="h2" style="margin-top:18px">Pilih kategori permainan</div>
+      <div class="sub">Menu ini dibagi menjadi 3 kategori utama. Parent bisa memilih game sesuai tujuan bermain, sementara anak bisa langsung tertarik karena visualnya cerah, lucu, dan mudah dipahami.</div>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="mascot" style="margin:0 auto 10px;background:linear-gradient(135deg,#fce7f3,#e0f2fe)">🧸</div>
+      <div style="font-weight:900;font-size:20px">9 Mini Games Anak</div>
+      <div class="sub" style="margin-top:8px;font-size:14px">Tersusun dalam kategori yang jelas agar parent mudah memilih, dan tiap game punya halaman tersendiri agar anak lebih fokus bermain.</div>
+    </div>
   </div>
 
-  <div style="margin-top:26px"><div class="section-title">Focus Games</div><div class="grid g3" style="margin-top:12px">
-    <a href="game-pop-warna.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🫧</div><div class="pill" style="color:#be185d">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Pop Warna</div><div class="sub" style="font-size:15px">Tap gelembung dengan warna target secepat mungkin.</div><div class="tags"><div class="tag">Fokus visual</div><div class="tag">Respon cepat</div></div></a>
-    <a href="game-ingat-urutan.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧠</div><div class="pill" style="color:#0369a1">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Ingat Urutan</div><div class="sub" style="font-size:15px">Lihat urutan warna lalu tap kembali sesuai urutannya.</div><div class="tags"><div class="tag">Memori warna</div><div class="tag">Konsentrasi</div></div></a>
-    <a href="game-cari-yang-berbeda.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔎</div><div class="pill" style="color:#7c3aed">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari yang Berbeda</div><div class="sub" style="font-size:15px">Temukan satu kartu yang paling berbeda dari yang lain.</div><div class="tags"><div class="tag">Ketelitian</div><div class="tag">Observasi</div></div></a>
-  </div></div>
+  <div class="panel" style="margin-top:24px">
+    <div class="section-title">Focus Games</div>
+    <div class="grid g3" style="margin-top:12px">
+      <a href="game-pop-warna.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🫧</div><div class="pill" style="color:#be185d">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Pop Warna</div><div class="sub" style="font-size:15px">Tap gelembung dengan warna target secepat mungkin.</div><div class="tags"><div class="tag">Fokus visual</div><div class="tag">Respon cepat</div></div></a>
+      <div class="game-card g-sky lock-card" id="lcard-ingat" onclick="handleLockedGame('game-ingat-urutan.html')"><div class="lock-badge">🔒 Premium</div><div class="lock-dim">🔒</div><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧠</div><div class="pill" style="color:#0369a1">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Ingat Urutan</div><div class="sub" style="font-size:15px">Lihat urutan warna lalu tap kembali sesuai urutannya.</div><div class="tags"><div class="tag">Memori</div><div class="tag">Konsentrasi</div></div></div>
+      <div class="game-card g-violet lock-card" id="lcard-cari" onclick="handleLockedGame('game-cari-yang-berbeda.html')"><div class="lock-badge">🔒 Premium</div><div class="lock-dim">🔒</div><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔎</div><div class="pill" style="color:#7c3aed">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari yang Berbeda</div><div class="sub" style="font-size:15px">Temukan satu kartu yang paling berbeda dari yang lain.</div><div class="tags"><div class="tag">Ketelitian</div><div class="tag">Observasi</div></div></div>
+    </div>
+  </div>
 
-  <div style="margin-top:28px"><div class="section-title">Brain Games</div><div class="grid g3" style="margin-top:12px">
-    <a href="game-temukan-pola.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧩</div><div class="pill" style="color:#0369a1">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Temukan Pola</div><div class="sub" style="font-size:15px">Pilih kartu yang melanjutkan pola yang benar.</div><div class="tags"><div class="tag">Pola</div><div class="tag">Logika ringan</div></div></a>
-    <a href="game-labirin-ringan.html" class="game-card g-lime"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🌀</div><div class="pill" style="color:#3f6212">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Labirin Ringan</div><div class="sub" style="font-size:15px">Arahkan karakter keluar dari labirin kecil dengan panah.</div><div class="tags"><div class="tag">Arah</div><div class="tag">Problem solving</div></div></a>
-    <a href="game-hitung-cepat.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">➕</div><div class="pill" style="color:#a16207">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Hitung Cepat</div><div class="sub" style="font-size:15px">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div><div class="tags"><div class="tag">Angka</div><div class="tag">Kecepatan</div></div></a>
-  </div></div>
+  <div class="panel" style="margin-top:18px">
+    <div class="section-title">Brain Games</div>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="game-card g-sky lock-card" onclick="handleLockedGame('game-temukan-pola.html')"><div class="lock-badge">🔒 Premium</div><div class="lock-dim">🔒</div><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧩</div><div class="pill" style="color:#0369a1">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Temukan Pola</div><div class="sub" style="font-size:15px">Pilih kartu yang melanjutkan pola yang benar.</div><div class="tags"><div class="tag">Pola</div><div class="tag">Logika ringan</div></div></div>
+      <div class="game-card g-lime lock-card" onclick="handleLockedGame('game-labirin-ringan.html')"><div class="lock-badge">🔒 Premium</div><div class="lock-dim">🔒</div><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🌀</div><div class="pill" style="color:#3f6212">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Labirin Ringan</div><div class="sub" style="font-size:15px">Arahkan karakter keluar dari labirin kecil dengan panah.</div><div class="tags"><div class="tag">Arah</div><div class="tag">Problem solving</div></div></div>
+      <a href="game-hitung-cepat.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">➕</div><div class="pill" style="color:#a16207">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Hitung Cepat</div><div class="sub" style="font-size:15px">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div><div class="tags"><div class="tag">Angka</div><div class="tag">Kecepatan</div></div></a>
+    </div>
+  </div>
 
-  <div style="margin-top:28px"><div class="section-title">Creative & Sensory Games</div><div class="grid g3" style="margin-top:12px">
-    <a href="game-campur-warna.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🎨</div><div class="pill" style="color:#c2410c">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Campur Warna</div><div class="sub" style="font-size:15px">Pilih 2 warna untuk menghasilkan warna target yang benar.</div><div class="tags"><div class="tag">Eksplorasi warna</div><div class="tag">Visual kreatif</div></div></a>
-    <a href="game-warna-ajaib.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🪄</div><div class="pill" style="color:#be185d">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Warna Ajaib</div><div class="sub" style="font-size:15px">Pilih warna lalu tap bagian gambar sampai ilustrasi jadi hidup.</div><div class="tags"><div class="tag">Mewarnai</div><div class="tag">Sparkle reward</div></div></a>
-    <a href="game-cari-pasangan-bunyi-gambar.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔊</div><div class="pill" style="color:#7c3aed">Sensory</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari Pasangan Bunyi/Gambar</div><div class="sub" style="font-size:15px">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div><div class="tags"><div class="tag">Sensory play</div><div class="tag">Asosiasi gambar</div></div></a>
-  </div></div>
+  <div class="panel" style="margin-top:18px">
+    <div class="section-title">Creative & Sensory Games</div>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="game-card g-orange lock-card" onclick="handleLockedGame('game-campur-warna.html')"><div class="lock-badge">🔒 Premium</div><div class="lock-dim">🔒</div><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🎨</div><div class="pill" style="color:#c2410c">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Campur Warna</div><div class="sub" style="font-size:15px">Pilih 2 warna untuk menghasilkan warna target yang benar.</div><div class="tags"><div class="tag">Eksplorasi warna</div><div class="tag">Visual kreatif</div></div></div>
+      <a href="game-warna-ajaib.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧸</div><div class="pill" style="color:#be185d">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Warna Ajaib</div><div class="sub" style="font-size:15px">Pilih warna lalu tap bagian gambar sampai ilustrasi jadi berwarna dan hidup.</div><div class="tags"><div class="tag">Mewarnai interaktif</div><div class="tag">Warna & kreativitas</div></div></a>
+      <a href="game-cari-pasangan-bunyi-gambar.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔊</div><div class="pill" style="color:#7c3aed">Sensory</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari Pasangan Bunyi/Gambar</div><div class="sub" style="font-size:15px">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div><div class="tags"><div class="tag">Sensory play</div><div class="tag">Asosiasi gambar</div></div></a>
+    </div>
+  </div>
 </section>
-<aside class="side-stack">
-  <div class="panel"><div style="font-weight:900;color:#0369a1">Verified master pack</div><div class="sub" style="font-size:14px;margin-top:6px">Folder ini berisi 10 HTML: 1 index + 9 game pages.</div></div>
-  <div class="panel"><div style="font-weight:900;color:#be185d">Siap uji lintas device</div><div class="sub" style="font-size:14px;margin-top:6px">Sudah dibuat dengan layout responsif dan halaman game terpisah.</div></div>
-  <div class="panel"><div style="font-weight:900;color:#c2410c">Lebih clean</div><div class="sub" style="font-size:14px;margin-top:6px">Hanya menyertakan halaman yang dipakai di menu final.</div></div>
+<aside class="panel">
+  <div class="side-stack">
+    <!-- UPGRADE CARD -->
+    <div id="upgradeCard" style="background:linear-gradient(135deg,#fce7f3,#fef3c7);border:2px solid #fbcfe8;border-radius:22px;padding:18px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:-8px;font-size:64px;opacity:.12">✨</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:#be185d;margin-bottom:6px">🌟 Upgrade ke Premium</div>
+      <div style="font-size:13px;font-weight:700;color:#475569;line-height:1.6;margin-bottom:12px">Buka semua 9 game + pantau progress anak secara detail!</div>
+      <div style="font-size:12px;font-weight:800;color:#475569;margin-bottom:4px">✅ Semua 9 game aktif</div>
+      <div style="font-size:12px;font-weight:800;color:#475569;margin-bottom:4px">✅ Dashboard progress anak</div>
+      <div style="font-size:12px;font-weight:800;color:#475569;margin-bottom:12px">✅ Laporan skill mingguan</div>
+      <button class="upgrade-banner-btn" onclick="showUpgradeModal()" style="width:100%">Upgrade Sekarang ✨</button>
+    </div>
+    <div class="side-card"><div style="font-weight:900;color:#0369a1">Informative untuk parent</div><div class="sub" style="font-size:14px;margin-top:6px">Kategori dibuat jelas agar parent mudah memahami tujuan bermain: fokus, brain challenge, atau eksplorasi kreatif.</div></div>
+    <div class="side-card"><div style="font-weight:900;color:#be185d">Menarik untuk kids</div><div class="sub" style="font-size:14px;margin-top:6px">Warna pastel, ikon lucu, dan judul besar membantu anak langsung tertarik memilih game favoritnya.</div></div>
+    <div class="side-card"><div style="font-weight:900;color:#c2410c">Siap dimainkan berulang</div><div class="sub" style="font-size:14px;margin-top:6px">Anak bisa kembali ke menu kapan saja dan memilih kategori yang berbeda sesuai mood dan energi bermain hari itu.</div></div>
+  </div>
 </aside>
 </div>
 </div><script>
@@ -288,4 +342,83 @@ function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i
 function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
+
+// ─── SESSION UI ──────────────────────────────────────────────────────────────
+const s=window.__RMF_SESSION||{};
+const isPremium=window.__RMF_PREMIUM||false;
+document.getElementById('sessionName').textContent='👤 '+(s.name||'Parent');
+const planBadge=document.getElementById('planBadge');
+if(isPremium){
+  planBadge.textContent='⭐ Premium';
+  planBadge.className='tb-pill tb-premium';
+  // Unlock all locked game cards
+  document.querySelectorAll('.lock-card').forEach(el=>{
+    el.classList.remove('lock-card');
+    el.style.opacity='1';
+    const lockDim=el.querySelector('.lock-dim');
+    const lockBadge=el.querySelector('.lock-badge');
+    if(lockDim)lockDim.remove();
+    if(lockBadge)lockBadge.remove();
+    const file=el.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    if(file){el.removeAttribute('onclick');el.style.cursor='pointer';el.onclick=()=>location.href=file;}
+  });
+  // Hide upgrade card
+  const uc=document.getElementById('upgradeCard');
+  if(uc)uc.style.display='none';
+}else{
+  planBadge.textContent='🆓 Free Plan';
+  planBadge.className='tb-pill tb-free';
+}
+
+// ─── LOCKED GAME HANDLER ──────────────────────────────────────────────────────
+function handleLockedGame(file){
+  showUpgradeModal();
+}
+
+// ─── UPGRADE MODAL ────────────────────────────────────────────────────────────
+function showUpgradeModal(){
+  const existing=document.getElementById('upgradeModal');
+  if(existing){existing.style.display='flex';return}
+  const m=document.createElement('div');
+  m.id='upgradeModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.4);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML=`
+    <div style="background:white;border-radius:34px;border:3px solid #fce7f3;max-width:420px;width:100%;padding:28px;text-align:center;box-shadow:0 24px 64px rgba(15,23,42,.2)">
+      <div style="font-size:48px;margin-bottom:12px">🌟</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.6rem;color:#be185d;margin-bottom:8px">Upgrade ke Premium!</div>
+      <div style="font-size:14px;font-weight:700;color:#475569;line-height:1.6;margin-bottom:20px">Game ini hanya tersedia untuk akun Premium.<br/>Hubungi kami untuk upgrade sekarang!</div>
+      <div style="background:#fef9f0;border-radius:20px;padding:16px;margin-bottom:20px;text-align:left">
+        <div style="font-size:13px;font-weight:900;color:#475569;margin-bottom:6px">YANG KAMU DAPATKAN:</div>
+        <div style="font-size:13px;font-weight:800;color:#1f2937;margin-bottom:4px">✅ Semua 9 mini game aktif</div>
+        <div style="font-size:13px;font-weight:800;color:#1f2937;margin-bottom:4px">✅ Dashboard progress anak</div>
+        <div style="font-size:13px;font-weight:800;color:#1f2937;margin-bottom:4px">✅ Laporan skill mingguan</div>
+        <div style="font-size:13px;font-weight:800;color:#1f2937">✅ Sampai 3 profil anak</div>
+      </div>
+      <button onclick="location.href='https://wa.me/YOUR_NUMBER?text=Halo+saya+ingin+upgrade+ke+Premium+Rumah+Main+Fokus'" 
+        style="width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#f472b6,#fb7185);color:white;border:none;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(244,114,182,.4);margin-bottom:10px">
+        💬 Hubungi via WhatsApp
+      </button>
+      <button onclick="document.getElementById('upgradeModal').style.display='none'" 
+        style="width:100%;padding:12px;border-radius:999px;background:#f1f5f9;color:#475569;border:none;font-size:14px;font-weight:900;cursor:pointer">
+        Nanti saja
+      </button>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+// ─── LOGOUT ───────────────────────────────────────────────────────────────────
+function doLogout(){
+  if(confirm('Yakin mau keluar?')){
+    localStorage.removeItem('rmf_session');
+    sessionStorage.removeItem('rmf_session');
+    location.replace('auth.html');
+  }
+}
+
+// ─── PWA SERVICE WORKER ───────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
 </script><script>bindsound();</script></body></html>
