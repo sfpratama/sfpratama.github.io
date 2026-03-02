@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Cari Pasangan Bunyi/Gambar</title><script src="https://cdn.tailwindcss.com"></script><style>
+:root{
+  --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
+  --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
+  --shadow-soft:0 18px 48px rgba(15,23,42,.14);
+  --shadow-card:0 12px 28px rgba(15,23,42,.12);
+  --shadow-press:0 6px 16px rgba(15,23,42,.12);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--ink);
+  background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 22%,var(--bg3) 48%,var(--bg4) 72%,#fef3c7 100%);
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+a{text-decoration:none;color:inherit}
+.shell{max-width:1240px;margin:0 auto;padding:16px;position:relative;z-index:1}
+.orb{position:fixed;border-radius:999px;filter:blur(42px);pointer-events:none;opacity:.34;z-index:0}
+.o1{width:160px;height:160px;left:20px;top:20px;background:white}
+.o2{width:180px;height:180px;right:20px;top:120px;background:#f9a8d4}
+.o3{width:160px;height:160px;left:60px;bottom:40px;background:#fde68a}
+.o4{width:180px;height:180px;right:40px;bottom:30px;background:#93c5fd}
+.top,.card,.panel,.playtop,.stage,.side-card{
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(16px);
+  border:2px solid var(--line);
+  box-shadow:var(--shadow-soft);
+}
+.top,.card,.panel,.playtop,.stage,.side-card{border-radius:30px}
+.top{padding:16px}
+.card{padding:22px}
+.panel{padding:18px}
+.playtop{padding:14px 16px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 12px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.04em;
+  animation:badgeFloat 4s ease-in-out infinite;
+}
+.badge:nth-child(2){animation-delay:.12s}.badge:nth-child(3){animation-delay:.24s}.badge:nth-child(4){animation-delay:.36s}
+.b-yellow{background:#fde68a;color:#854d0e}
+.b-pink{background:#fce7f3;color:#be185d}
+.b-sky{background:#e0f2fe;color:#0369a1}
+.b-violet{background:#ede9fe;color:#6d28d9}
+.b-lime{background:#ecfccb;color:#3f6212}
+.b-orange{background:#ffedd5;color:#c2410c}
+.h1{font-size:clamp(2rem,4vw,3.5rem);line-height:1;font-weight:900;margin:12px 0 0}
+.h2{font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.08;font-weight:900;margin:0}
+.sub{margin-top:10px;color:var(--muted);font-weight:700;line-height:1.6}
+.section-title{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+.mascot{
+  width:112px;height:112px;border-radius:28px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#fce7f3,#fef3c7);
+  box-shadow:var(--shadow-card);font-size:58px;
+  animation:mascotBob 2.8s ease-in-out infinite;
+}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1fr}
+.g3{grid-template-columns:1fr}
+.hero{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:900px){
+  .g2{grid-template-columns:minmax(0,1fr) 340px}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hero{grid-template-columns:minmax(0,1.1fr) minmax(220px,.9fr);align-items:center}
+}
+.pressable,.game-card,.btn,.sound,.cta,.choice,.tile,.bubble,.piece,.slot,.navbtn{
+  transition:transform .14s ease, box-shadow .14s ease, filter .14s ease, background .18s ease, opacity .18s ease;
+  will-change:transform;
+}
+.pressable:hover,.game-card:hover,.choice:hover,.tile:hover,.piece:hover,.btn:hover,.cta:hover,.navbtn:hover{transform:translateY(-3px)}
+.pressable:active,.game-card:active,.choice:active,.tile:active,.piece:active,.btn:active,.cta:active,.sound:active,.navbtn:active,.bubble:active{
+  transform:translateY(2px) scale(.97);
+  box-shadow:var(--shadow-press);
+}
+.btn,.sound,.navbtn{
+  border:none;border-radius:999px;padding:10px 16px;font-weight:900;cursor:pointer;
+  box-shadow:var(--shadow-card)
+}
+.btn,.navbtn{background:white;color:var(--ink)}
+.sound{background:#0f172a;color:white;margin-left:auto}
+.secondary-btn{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--ink);border:2px solid #fbcfe8;border-radius:999px;padding:16px 28px;font-weight:900;font-size:20px;box-shadow:var(--shadow-card)}
+.cta{
+  border:none;border-radius:999px;padding:16px 28px;font-weight:900;font-size:20px;cursor:pointer;
+  background:#0ea5e9;color:white;box-shadow:var(--shadow-card)
+}
+.game-card{
+  display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
+  box-shadow:var(--shadow-card);position:relative;overflow:hidden
+}
+.game-card::after{
+  content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:rotate(20deg);animation:shine 6s linear infinite;
+}
+.g-pink{background:linear-gradient(135deg,#fce7f3,#fef3c7)}
+.g-sky{background:linear-gradient(135deg,#e0f2fe,#dcfce7)}
+.g-violet{background:linear-gradient(135deg,#ede9fe,#fce7f3)}
+.g-lime{background:linear-gradient(135deg,#ecfccb,#fef3c7)}
+.g-orange{background:linear-gradient(135deg,#ffedd5,#fef3c7)}
+.pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:999px;background:#fff;font-size:12px;font-weight:900;box-shadow:var(--shadow-card)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{padding:7px 12px;border-radius:999px;background:#fff;font-size:12px;font-weight:900}
+.side-stack{display:grid;gap:12px}
+.side-card{padding:18px}
+.play-wrap{display:grid;gap:18px}
+.playtop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:10px;width:100%}
+@media(min-width:900px){.stats{width:auto;min-width:420px}}
+.stat{
+  background:#fff;border-radius:20px;padding:10px 12px;text-align:center;
+  box-shadow:var(--shadow-card);border:1px solid #fef3c7
+}
+.lab{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#64748b;font-weight:900}
+.val{font-size:26px;font-weight:900}
+.stage{
+  position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
+  background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
+  border:4px solid rgba(255,255,255,.75);overflow:hidden
+}
+@media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
+.banner{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,.94);border:1px solid #fbcfe8;border-radius:999px;
+  padding:10px 16px;font-weight:900;box-shadow:var(--shadow-card);z-index:20;text-align:center;max-width:90%
+}
+.helper{
+  position:absolute;left:16px;bottom:16px;background:rgba(255,255,255,.94);border:2px solid #fce7f3;
+  border-radius:24px;padding:14px;max-width:280px;box-shadow:var(--shadow-card);z-index:20
+}
+.progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:10px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,#f472b6,#fde047,#84cc16);transition:width .2s ease}
+.overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:rgba(15,23,42,.28);backdrop-filter:blur(4px);z-index:30
+}
+.modal{
+  width:100%;max-width:760px;background:white;border-radius:34px;border:3px solid #fce7f3;
+  box-shadow:var(--shadow-soft);padding:24px;text-align:center;animation:popIn .22s ease-out
+}
+.hidden{display:none!important}
+.preview{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:54px;margin:0 0 16px}
+.preview-pill{padding:10px 16px;border-radius:999px;font-weight:900;box-shadow:var(--shadow-card);border:1px solid rgba(255,255,255,.7)}
+.mem,.board4,.mix-grid,.pair-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.odd-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:768px){
+  .mem{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .board4,.mix-grid,.pair-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .odd-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+.tile,.choice,.piece{
+  border:none;border-radius:28px;min-height:118px;color:#fff;font-weight:900;cursor:pointer;
+  box-shadow:var(--shadow-card);border:4px solid rgba(255,255,255,.82)
+}
+.tile.active,.choice.active,.piece.active{transform:scale(1.03);filter:brightness(1.08)}
+.bubble{
+  position:absolute;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:#fff;border:4px solid rgba(255,255,255,.82);box-shadow:var(--shadow-card);
+  animation:floatUp linear forwards;user-select:none;cursor:pointer
+}
+.bubble.bad{background:linear-gradient(135deg,#475569,#0f172a)}
+.maze-wrap{display:flex;align-items:center;justify-content:center;height:100%;padding:16px}
+.maze-board{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
+.cell{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-weight:900}
+.wall{background:#334155}.startcell{background:#86efac}.endcell{background:#fca5a5}.playercell{background:#60a5fa;color:#fff}
+.puzzle-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:360px;margin:0 auto 16px}
+.slot{min-height:96px;border-radius:24px;background:rgba(255,255,255,.75);border:2px dashed #f9a8d4;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#64748b}
+.pieces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:360px;margin:0 auto}
+.result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+@media(min-width:768px){.result{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.res{padding:16px;border-radius:26px;border:2px solid #fce7f3;background:white}
+.flash-correct{animation:flashCorrect .26s ease}
+.flash-wrong{animation:flashWrong .26s ease}
+@keyframes badgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes mascotBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}
+@keyframes shine{0%{transform:translate(-140%,0) rotate(20deg)}100%{transform:translate(260%,0) rotate(20deg)}}
+@keyframes floatUp{from{transform:translateY(0)}to{transform:translateY(-125vh)}}
+@keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
+@keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
+
+/* compatibility aliases */
+.game{display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+.game:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 36px rgba(15,23,42,.16)}
+.game::after{content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(20deg);animation:shine 6s linear infinite}
+.gp{background:linear-gradient(135deg,#fce7f3,#fef3c7)} .gs{background:linear-gradient(135deg,#e0f2fe,#dcfce7)} .gv{background:linear-gradient(135deg,#ede9fe,#fce7f3)} .gl{background:linear-gradient(135deg,#ecfccb,#fef3c7)} .go{background:linear-gradient(135deg,#ffedd5,#fef3c7)}
+.piece-card,.memory-tile,.odd-card,.pattern-card,.math-card,.mix-card,.pair-card{border:none;border-radius:28px;min-height:118px;color:#fff;font-weight:900;cursor:pointer;box-shadow:var(--shadow-card);border:4px solid rgba(255,255,255,.82);transition:transform .14s ease, box-shadow .14s ease, filter .14s ease}
+.piece-card:hover,.memory-tile:hover,.odd-card:hover,.pattern-card:hover,.math-card:hover,.mix-card:hover,.pair-card:hover{transform:translateY(-3px)}
+.piece-card:active,.memory-tile:active,.odd-card:active,.pattern-card:active,.math-card:active,.mix-card:active,.pair-card:active{transform:translateY(2px) scale(.97);box-shadow:var(--shadow-press)}
+.active-press{transform:scale(1.03)!important;filter:brightness(1.08)}
+.side-stack{align-content:start}
+.pulse{animation:pulseGlow 1.2s ease-in-out infinite}
+.slot.current{border-color:#f472b6; box-shadow:0 0 0 6px rgba(244,114,182,.18), var(--shadow-card)}
+.target-preview{opacity:.28;font-size:38px}
+.slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
+.slot.filled .slot-cover{display:none}
+@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
+</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">SENSORY GAME</div><div class="badge s">BUNYI & GAMBAR</div></div><div class="h1">Cari Pasangan Bunyi/Gambar</div><div class="sub">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat secara menyenangkan.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih gambar yang cocok dengan petunjuk</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih gambar yang cocok dengan petunjuk</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih gambar yang cocok dengan petunjuk</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='prompt' style='font-size:clamp(26px,4vw,42px);font-weight:900;margin-bottom:18px;color:#0f172a'>Mana gambar untuk suara “meong”?</div><div class='board4' id='pairChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🔊</div><div class='h2' style='margin-top:10px'>Siap bermain Cari Pasangan Bunyi/Gambar?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Sensory play</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak belajar mencocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Lucu dan komunikatif</div><div class='sub' style='font-size:14px;margin-top:6px'>Prompt dibuat sederhana dan dekat dengan keseharian anak seperti meong, moo, dan kendaraan.</div></div></aside></div></div><script>
+const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
+let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
+function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
+function tone(f=440,d=.12,t='sine',v=.03,w=0){if(!soundEnabled||!audioCtx)return;const n=audioCtx.currentTime+w;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioCtx.destination);o.start(n);o.stop(n+d+.02);}
+function ok(c=1){initAudio();tone(660,.08,'triangle',.028,0);tone(c>=3?988:880,.12,'triangle',.024,.05);}
+function bad(){initAudio();tone(220,.09,'square',.022,0);tone(170,.12,'square',.018,.05);}
+function levelup(){initAudio();tone(523,.08,'triangle',.022,0);tone(659,.08,'triangle',.022,.06);tone(784,.14,'triangle',.022,.12);}
+function startsound(){initAudio();tone(440,.08,'sine',.018,0);tone(554,.08,'sine',.018,.05);tone(659,.12,'sine',.018,.1);}
+function finishsound(){initAudio();tone(784,.08,'triangle',.02,0);tone(988,.12,'triangle',.02,.06);}
+function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i%notes.length],.16,'triangle',.022,0);}
+function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
+
+function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';});}
+function bindsound(){
+  document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
+    b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
+    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
+  });
+  window.addEventListener('pointerdown',initAudio,{once:true});
+}
+</script><script>
+bindsound();
+const pairPool=[["Mana gambar untuk suara “meong”?", "🐱"], ["Mana gambar untuk suara “guk guk”?", "🐶"], ["Mana gambar untuk suara “moo”?", "🐮"], ["Mana gambar untuk suara “kukuruyuk”?", "🐔"], ["Mana gambar untuk suara “beee”?", "🐑"], ["Mana gambar untuk suara “wek wek”?", "🦆"], ["Mana gambar untuk suara “oink”?", "🐷"], ["Mana gambar untuk suara “neigh”?", "🐴"], ["Mana gambar untuk “ikan”?", "🐟"], ["Mana gambar untuk “kelinci”?", "🐰"], ["Mana gambar untuk “gajah”?", "🐘"], ["Mana gambar untuk “singa”?", "🦁"], ["Mana gambar untuk “mobil”?", "🚗"], ["Mana gambar untuk “bus”?", "🚌"], ["Mana gambar untuk “sepeda”?", "🚲"], ["Mana gambar untuk “kereta”?", "🚂"], ["Mana gambar untuk “pesawat”?", "✈️"], ["Mana gambar untuk “kapal”?", "🚢"], ["Mana gambar untuk “matahari”?", "☀️"], ["Mana gambar untuk “bulan”?", "🌙"], ["Mana gambar untuk “awan”?", "☁️"], ["Mana gambar untuk “hujan”?", "🌧️"], ["Mana gambar untuk “pelangi”?", "🌈"], ["Mana gambar untuk “petir”?", "⚡"], ["Mana gambar untuk “apel”?", "🍎"], ["Mana gambar untuk “pisang”?", "🍌"], ["Mana gambar untuk “semangka”?", "🍉"], ["Mana gambar untuk “stroberi”?", "🍓"], ["Mana gambar untuk “wortel”?", "🥕"], ["Mana gambar untuk “jagung”?", "🌽"], ["Mana gambar untuk “bola”?", "⚽"], ["Mana gambar untuk “musik”?", "🎵"], ["Mana gambar untuk “drum”?", "🥁"], ["Mana gambar untuk “gitar”?", "🎸"], ["Mana gambar untuk “hadiah”?", "🎁"], ["Mana gambar untuk “balon”?", "🎈"], ["Mana gambar untuk “bintang”?", "⭐"], ["Mana gambar untuk “hati”?", "❤️"], ["Mana gambar untuk “bunga”?", "🌸"], ["Mana gambar untuk “pohon”?", "🌳"], ["Mana gambar untuk “laut”?", "🌊"], ["Mana gambar untuk “api”?", "🔥"], ["Mana gambar untuk “es krim”?", "🍦"], ["Mana gambar untuk “kue”?", "🍰"], ["Mana gambar untuk “susu”?", "🥛"], ["Mana gambar untuk “air”?", "💧"], ["Mana gambar untuk “dokter”?", "🩺"], ["Mana gambar untuk “sekolah”?", "🏫"], ["Mana gambar untuk “rumah”?", "🏠"], ["Mana gambar untuk “tidur”?", "😴"], ["Mana gambar untuk “senyum”?", "😊"], ["Mana gambar untuk “robot”?", "🤖"], ["Mana gambar untuk “beruang”?", "🐻"], ["Mana gambar untuk “koala”?", "🐨"], ["Mana gambar untuk “katak”?", "🐸"], ["Mana gambar untuk “lebah”?", "🐝"], ["Mana gambar untuk “kupu-kupu”?", "🦋"], ["Mana gambar untuk “jam”?", "⏰"], ["Mana gambar untuk “kacamata”?", "👓"], ["Mana gambar untuk “sikat gigi”?", "🪥"]];
+const optionPool=[...new Set(pairPool.map(x=>x[1]))];
+const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:pairChoices};
+const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null,last:''};
+function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.rb.textContent=`Ronde ${s.round}`;}
+function build(){let cur;let guard=0;do{cur=rand(pairPool);guard++;}while(cur[0]===s.last && guard<20);s.last=cur[0];s.answer=cur[1];e.prompt.textContent=cur[0];const opts=[s.answer];while(opts.length<4){const c=rand(optionPool);if(!opts.includes(c))opts.push(c);}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#fb923c']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b);});}
+function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);hud();ok(s.streak+1);s.round++;setTimeout(build,650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}
+function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;s.last='';start.classList.add('hidden');end.classList.add('hidden');hud();build();clearInterval(s.timerI);s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG();},1000);}
+function endG(){s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
+go.onclick=startG;again.onclick=startG;hud();
+</script></body></html>
