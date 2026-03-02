@@ -6,14 +6,14 @@
 <script>
 (function(){
   try{
-    var raw=localStorage.getItem('rmf_session');
-    if(!raw){location.replace('auth.html?redirect='+encodeURIComponent(location.pathname.split('/').pop()));throw 0;}
+    var raw=localStorage.getItem('spk_session');
+    if(!raw){location.replace('auth.html?redirect=game-warna-ajaib.html');throw 0;}
     var s=JSON.parse(raw);
-    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('rmf_session');location.replace('auth.html');throw 0;}
+    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('spk_session');location.replace('auth.html');throw 0;}
     window.__RMF_SESSION=s;
   }catch(e){if(e!==0)location.replace('auth.html');}
 })();
-</script><title>Warna Ajaib</title><script src="https://cdn.tailwindcss.com"></script><style>
+</script><title>Warna Ajaib – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -197,333 +197,199 @@ a{text-decoration:none;color:inherit}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* ═══════════════════════════════════════ MOBILE FIX v2 ══ */
+/* ══════════════════════ WARNA AJAIB MOBILE FIX ══════════════════════ */
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 }
-html {
-  height: 100%;
-  overflow: hidden;
-  -webkit-text-size-adjust: 100%;
-}
-body {
-  height: 100%;
-  overflow: hidden;
-  touch-action: manipulation;
-  overscroll-behavior: none;
-}
+html { height:100%; overflow:hidden; -webkit-text-size-adjust:100%; }
+body { height:100%; overflow:hidden; touch-action:manipulation; overscroll-behavior:none; }
+
+/* ── HIDE DESKTOP CLUTTER ── */
+.top { display:none !important; }
+div.playtop:not(.keep) { display:none !important; }
+.grid.g2 > aside, .side-stack { display:none !important; }
+.helper { display:none !important; }
+.banner { font-size:12px !important; padding:7px 12px !important; top:8px !important; max-width:85% !important; }
 
 /* ── COMPACT GAME TOPBAR ── */
 .game-topbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(14px);
-  border-radius: 18px;
-  border: 2px solid rgba(255,255,255,.9);
-  box-shadow: 0 4px 14px rgba(15,23,42,.10);
-  margin-bottom: 6px;
-  flex-wrap: nowrap;
+  display:flex; align-items:center; gap:8px; padding:7px 10px;
+  background:rgba(255,255,255,.9); backdrop-filter:blur(14px);
+  border-radius:18px; border:2px solid rgba(255,255,255,.9);
+  box-shadow:0 4px 14px rgba(15,23,42,.10); margin-bottom:6px;
 }
-.game-topbar-title {
-  font-size: 14px;
-  font-weight: 900;
-  color: #1f2937;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.game-topbar-title { font-size:14px; font-weight:900; color:#1f2937; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .game-topbar .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  background: white;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  color: #1f2937;
-  box-shadow: 0 2px 8px rgba(15,23,42,.1);
-  text-decoration: none;
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
+  display:inline-flex; align-items:center; padding:5px 12px;
+  background:white; border-radius:999px; font-size:12px; font-weight:900;
+  color:#1f2937; box-shadow:0 2px 8px rgba(15,23,42,.1);
+  text-decoration:none; flex-shrink:0; border:none; cursor:pointer;
 }
 .sound-mini {
-  background: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-  flex-shrink: 0;
+  background:#0f172a; color:white; border:none; border-radius:999px;
+  padding:5px 10px; font-size:12px; font-weight:900; cursor:pointer; flex-shrink:0;
 }
 
 /* ── STATS BAR ── */
 .stats-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-  margin-bottom: 6px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:6px;
 }
 .stat-mini {
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 5px 4px;
-  text-align: center;
-  border: 1.5px solid rgba(255,255,255,.9);
-  box-shadow: 0 3px 10px rgba(15,23,42,.08);
+  background:rgba(255,255,255,.9); border-radius:12px; padding:5px 4px;
+  text-align:center; border:1.5px solid rgba(255,255,255,.9);
+  box-shadow:0 3px 10px rgba(15,23,42,.08);
 }
-.stat-mini .lab {
-  font-size: 8px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: #64748b;
-  font-weight: 900;
-  display: block;
-}
-.stat-mini .val {
-  font-size: 18px;
-  font-weight: 900;
-  display: block;
-  line-height: 1.15;
-}
+.stat-mini .lab { font-size:8px; letter-spacing:.05em; text-transform:uppercase; color:#64748b; font-weight:900; display:block; }
+.stat-mini .val { font-size:18px; font-weight:900; display:block; line-height:1.15; }
 
-/* ── STAGE: FILL REMAINING VIEWPORT ── */
-.stage {
-  position: relative;
-  background: rgba(255,255,255,.24);
-  backdrop-filter: blur(14px);
-  border: 3px solid rgba(255,255,255,.75);
-  border-radius: 22px;
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-}
-
-/* ── HIDE DESKTOP-ONLY ELEMENTS ── */
-.top { display: none !important; }
-.game-top { display: none !important; }
-div.playtop:not(.keep) { display: none !important; }
-.grid.g2 > aside,
-.play-wrap > aside { display: none !important; }
-.side-stack { display: none !important; }
-.helper { display: none !important; }
-
-/* ── LAYOUT: FULL HEIGHT FLEX ── */
-.grid.g2 {
-  grid-template-columns: 1fr !important;
-  gap: 0 !important;
-  flex: 1;
-  min-height: 0;
-  display: flex !important;
-  flex-direction: column;
-}
+/* ── SHELL + LAYOUT ── */
 .shell {
   padding: 6px !important;
   padding-top: calc(6px + var(--safe-top)) !important;
   padding-bottom: calc(6px + var(--safe-bot)) !important;
-  padding-left: calc(6px + var(--safe-left)) !important;
-  padding-right: calc(6px + var(--safe-right)) !important;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  max-width: 100% !important;
-  overflow: hidden;
+  height:100%; display:flex; flex-direction:column; max-width:100% !important; overflow:hidden;
 }
-.play-wrap {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 6px !important;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
+.play-wrap { display:flex !important; flex-direction:column !important; gap:6px !important; flex:1; min-height:0; overflow:hidden; }
+.grid.g2 { grid-template-columns:1fr !important; gap:0 !important; flex:1; min-height:0; display:flex !important; flex-direction:column; }
 
-/* ── STAGE CONTENT: SCROLLABLE INNER ── */
-.stage > [style*="position:absolute"],
+/* ── STAGE ── */
+.stage { position:relative; background:rgba(255,255,255,.24); backdrop-filter:blur(14px); border:3px solid rgba(255,255,255,.75); border-radius:22px; overflow:hidden; flex:1; min-height:0; }
+
+/* ── KEY FIX: The inner absolute-positioned content div must scroll ── */
+.stage > div[style*="position:absolute"],
 .stage > div[style*="inset:0"] {
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  padding: 10px 10px 14px !important;
+}
+.stage > div[style*="position:absolute"] > div,
+.stage > div[style*="inset:0"] > div {
+  max-width: 100% !important;
+  padding: 0 !important;
 }
 
-/* ── GAME TILES: COMPACT ON MOBILE ── */
-.tile, .choice, .piece,
-.odd-card, .memory-tile, .math-card, .mix-card, .pair-card,
-.pattern-card, .piece-card {
-  min-height: 64px !important;
-  border-radius: 16px !important;
-  touch-action: manipulation;
-  font-size: clamp(11px, 2.5vw, 16px) !important;
+/* ── TARGET ROW: horizontal scroll strip ── */
+#targetRow {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  gap: 6px !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 4px;
+  min-height: auto !important;
+  align-items: stretch;
+  scrollbar-width: none;
+}
+#targetRow::-webkit-scrollbar { display:none; }
+#targetRow .preview-pill {
+  flex-shrink: 0 !important;
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  border-radius: 14px !important;
+  min-width: 80px !important;
+  text-align: center;
 }
 
-/* ── GRIDS: 2 COLS ON MOBILE ── */
-.mem {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-.board4 {
-  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  gap: 8px !important;
-}
-.mix-grid {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-.pair-grid {
-  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  gap: 8px !important;
-}
-.odd-grid {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-
-/* ── WARNA AJAIB: PAINT AREA ── */
+/* ── PAINT AREA: 2x2 GRID, COMPACT CARDS ── */
 #paintArea {
+  display: grid !important;
   grid-template-columns: repeat(2, minmax(0,1fr)) !important;
   gap: 8px !important;
   max-width: 100% !important;
+  margin: 0 0 10px !important;
 }
-#paintArea > * {
-  min-height: 80px !important;
+/* CRITICAL: override inline min-height:140px set by partCardStyle() in JS */
+#paintArea button {
+  min-height: 72px !important;
+  border-radius: 18px !important;
+  font-size: 32px !important;
+  padding: 8px 4px !important;
 }
+#paintArea button div:first-child { font-size: 32px !important; }
+#paintArea button div:last-child { font-size: 11px !important; margin-top:4px !important; }
+
+/* ── PALETTE BOARD: 4 cols compact ── */
 #paletteBoard {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0,1fr)) !important;
   gap: 6px !important;
   max-width: 100% !important;
+  margin: 0 !important;
 }
-
-/* ── MAZE ── */
-.cell {
-  width: clamp(24px, 7vw, 34px) !important;
-  height: clamp(24px, 7vw, 34px) !important;
-  border-radius: 7px !important;
-  font-size: 13px !important;
+#paletteBoard .choice {
+  min-height: 56px !important;
+  border-radius: 14px !important;
+  padding: 4px 2px !important;
+  font-size: 10px !important;
 }
-.maze-board { gap: 2px !important; padding: 7px !important; }
-#up, #down, #left, #right {
-  width: 56px !important;
-  height: 56px !important;
-  font-size: 22px !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 16px !important;
-  flex-shrink: 0;
-  touch-action: manipulation;
-}
+#paletteBoard .choice > div:first-child { font-size: 20px !important; margin-bottom: 2px !important; }
+#paletteBoard .choice > div:last-child { font-size: 10px !important; }
 
 /* ── MODAL ── */
-.modal {
-  border-radius: 24px !important;
-  padding: 18px !important;
-  max-height: 88vh;
-  overflow-y: auto;
-}
-.modal .h2 { font-size: clamp(1.2rem, 4vw, 1.8rem) !important; }
-.cta {
-  border-radius: 999px !important;
-  padding: 13px 22px !important;
-  font-size: 15px !important;
-  touch-action: manipulation;
-}
-.result {
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 8px !important;
-}
-.res { border-radius: 16px !important; padding: 10px !important; }
-
-/* ── BANNER ── */
-.banner {
-  font-size: 12px !important;
-  padding: 7px 13px !important;
-  top: 8px !important;
-  max-width: 84% !important;
-}
-
-/* ── CAMPUR WARNA: TARGET BOX ── */
-#targetBox {
-  width: 80px !important;
-  height: 80px !important;
-  border-radius: 20px !important;
-  margin-bottom: 8px !important;
-}
-#prompt[style*="font-size:24px"] {
-  font-size: 15px !important;
-  margin-bottom: 10px !important;
-}
-
-/* ── MEMORY PREVIEW PILLS ── */
-.preview { min-height: 36px !important; gap: 5px !important; margin-bottom: 8px !important; flex-wrap: wrap; }
-.preview-pill { padding: 6px 10px !important; font-size: 11px !important; }
+.modal { border-radius:24px !important; padding:18px !important; max-height:88vh; overflow-y:auto; }
+.cta { border-radius:999px !important; padding:13px 22px !important; font-size:15px !important; touch-action:manipulation; }
+.result { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+.res { border-radius:16px !important; padding:10px !important; }
 
 /* ── CONFETTI ── */
 .confetti-piece {
-  position: fixed; width: 9px; height: 9px; border-radius: 2px;
-  animation: confettiFall 2.5s ease-in forwards; pointer-events: none; z-index: 999;
+  position:fixed; width:9px; height:9px; border-radius:2px;
+  animation:confettiFall 2.5s ease-in forwards; pointer-events:none; z-index:999;
 }
 @keyframes confettiFall {
-  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  0% { transform:translateY(-10px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+}
+
+/* ── SPARKLE ── */
+.sparkle-burst {
+  position:absolute; width:8px; height:8px; border-radius:50%;
+  background:#fde047; pointer-events:none;
+  animation:sparklePop .6s ease-out forwards;
+}
+@keyframes sparklePop {
+  0% { transform:translate(0,0) scale(1); opacity:1; }
+  100% { transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; }
 }
 
 /* ── DESKTOP RESTORE ── */
-@media(min-width: 900px) {
-  html, body { overflow: auto; overflow-x: hidden; }
-  .shell {
-    height: auto !important; display: block !important;
-    padding: 16px !important;
-    max-width: 1240px; margin: 0 auto;
-  }
-  .top { display: block !important; }
-  .game-topbar { display: none !important; }
-  .stats-bar { display: none !important; }
-  .game-top { display: flex !important; }
-  div.playtop:not(.keep) { display: flex !important; }
-  .grid.g2 {
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) 340px !important;
-    gap: 18px !important; flex: none;
-  }
-  .grid.g2 > aside { display: block !important; }
-  .helper { display: block !important; }
-  .stage { flex: none; height: clamp(430px,64vh,760px) !important; }
-  .play-wrap { display: grid !important; gap: 18px !important; flex: none; }
-  .side-stack { display: grid !important; }
-  .tile, .choice, .piece, .odd-card, .math-card, .mix-card, .pair-card, .pattern-card {
-    min-height: 118px !important;
-    border-radius: 28px !important;
-    font-size: unset !important;
-  }
-  .mem { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .board4 { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .mix-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .odd-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  #paintArea { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-  #paintArea > * { min-height: 140px !important; }
-  #paletteBoard { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  #targetBox { width: 120px !important; height: 120px !important; }
-  .cell { width: 32px !important; height: 32px !important; border-radius: 9px !important; }
+@media(min-width:900px){
+  html,body { overflow:auto; overflow-x:hidden; }
+  .shell { height:auto !important; display:block !important; padding:16px !important; max-width:1240px; margin:0 auto; }
+  .top { display:block !important; }
+  .game-topbar { display:none !important; }
+  .stats-bar { display:none !important; }
+  div.playtop:not(.keep) { display:flex !important; }
+  .grid.g2 { display:grid !important; grid-template-columns:minmax(0,1fr) 340px !important; gap:18px !important; flex:none; }
+  .grid.g2 > aside { display:block !important; }
+  .helper { display:block !important; }
+  .stage { flex:none; height:clamp(430px,64vh,760px) !important; }
+  .play-wrap { display:grid !important; gap:18px !important; flex:none; }
+  .side-stack { display:grid !important; }
+  .stage > div[style*="position:absolute"] { overflow-y:hidden !important; padding:16px !important; }
+  #paintArea { gap:14px !important; }
+  #paintArea button { min-height:140px !important; border-radius:28px !important; font-size:52px !important; padding:0 !important; }
+  #paintArea button div:first-child { font-size:52px !important; }
+  #paintArea button div:last-child { font-size:14px !important; margin-top:8px !important; }
+  #paletteBoard { grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
+  #paletteBoard .choice { min-height:100px !important; border-radius:20px !important; padding:12px 8px !important; }
+  #paletteBoard .choice > div:first-child { font-size:28px !important; }
+  #paletteBoard .choice > div:last-child { font-size:14px !important; }
+  #targetRow { flex-wrap:wrap !important; overflow-x:visible !important; gap:8px !important; margin-bottom:14px !important; }
+  #targetRow .preview-pill { padding:10px 16px !important; font-size:13px !important; }
 }
-/* ══════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════ */
 
 </style></head><body>
 <script>
 (function(){
   function buildTopbar(){
-    var title = document.title || 'Game';
+    var title = 'Warna Ajaib';
     var bar = document.createElement('div');
     bar.className = 'game-topbar';
     bar.innerHTML = '<a href="index.html" class="back-btn">← Menu</a>'
@@ -531,7 +397,6 @@ div.playtop:not(.keep) { display: none !important; }
       + '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
     var statsBar = document.createElement('div');
     statsBar.className = 'stats-bar';
-    statsBar.id = 'mobileStatsBar';
     statsBar.innerHTML = [
       {id:'score',label:'Skor',color:'#1f2937'},
       {id:'stars',label:'Bintang',color:'#eab308'},
@@ -546,14 +411,13 @@ div.playtop:not(.keep) { display: none !important; }
       var pw = shell.querySelector('.play-wrap');
       if(pw){ shell.insertBefore(statsBar, pw); shell.insertBefore(bar, statsBar); }
     }
-    function syncStats(){
+    setInterval(function(){
       ['score','stars','streak','timer'].forEach(function(id){
         var orig=document.getElementById(id);
         var mob=document.getElementById('m_'+id);
         if(orig&&mob) mob.textContent=orig.textContent;
       });
-    }
-    setInterval(syncStats, 80);
+    }, 80);
     window.toggleSoundMini = function(){
       soundEnabled=!soundEnabled;
       localStorage.setItem('kids_sound',soundEnabled?'on':'off');
@@ -854,36 +718,28 @@ function warnaStart(){
 function warnaEnd(){
   warnaState.run=false;
   clearInterval(warnaState.timerI);
+
+  // ── save to dashboard ──
+  try {
+    var _sess = window.__RMF_SESSION;
+    if(_sess && _sess.userId) {
+      var _sk = 'spk_scores_' + _sess.userId;
+      var _sc = {}; try { _sc = JSON.parse(localStorage.getItem(_sk)||'{}'); } catch(e){}
+      if(!_sc['warna-ajaib'] || warnaState.score > _sc['warna-ajaib']) _sc['warna-ajaib'] = warnaState.score;
+      localStorage.setItem(_sk, JSON.stringify(_sc));
+      var _wk = 'spk_week_' + _sess.userId;
+      var _ww = [0,0,0,0,0,0,0]; try { _ww = JSON.parse(localStorage.getItem(_wk)||'[0,0,0,0,0,0,0]'); } catch(e){}
+      var _d=new Date().getDay(); _ww[_d===0?6:_d-1]++;
+      localStorage.setItem(_wk, JSON.stringify(_ww));
+    }
+  } catch(e) {}
+  // ───────────────────────
+
   warnaEls.fscore.textContent=warnaState.score;
   warnaEls.fstars.textContent=warnaState.stars;
   warnaEls.fstreak.textContent=warnaState.best;
   warnaEls.frank.textContent=rank(warnaState.score);
-  
-// ── SAVE SCORE TO DASHBOARD ──────────────────────────
-try {
-  var _sess = window.__RMF_SESSION;
-  if(_sess && _sess.userId) {
-    var _skey = 'rmf_scores_' + _sess.userId;
-    var _scores = {};
-    try { _scores = JSON.parse(localStorage.getItem(_skey) || '{}'); } catch(e) {}
-    var _gameId = 'warna-ajaib';
-    var _myScore = (typeof s !== 'undefined' && s.score) || (typeof warnaState !== 'undefined' && warnaState.score) || 0;
-    if(!_scores[_gameId] || _myScore > (_scores[_gameId] || 0)) {
-      _scores[_gameId] = _myScore;
-    }
-    localStorage.setItem(_skey, JSON.stringify(_scores));
-    // weekly activity tracker
-    var _wkey = 'rmf_week_' + _sess.userId;
-    var _week = [0,0,0,0,0,0,0];
-    try { _week = JSON.parse(localStorage.getItem(_wkey) || '[0,0,0,0,0,0,0]'); } catch(e) {}
-    var _d = new Date().getDay(); var _di = _d===0?6:_d-1;
-    _week[_di] = (_week[_di]||0) + 1;
-    localStorage.setItem(_wkey, JSON.stringify(_week));
-  }
-} catch(e) {}
-// ─────────────────────────────────────────────────────
-
-finishsound();
+  finishsound();
   warnaEls.end.classList.remove('hidden');
 }
 document.getElementById('go').onclick=warnaStart;
