@@ -1,4 +1,22 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Warna Ajaib</title><script src="https://cdn.tailwindcss.com"></script><style>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#f472b6"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<script>
+// Auth guard
+(function(){
+  try{
+    var raw=localStorage.getItem('rmf_session');
+    if(!raw){location.replace('auth.html?redirect='+encodeURIComponent(location.pathname.split('/').pop()));throw 0;}
+    var s=JSON.parse(raw);
+    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('rmf_session');location.replace('auth.html');throw 0;}
+    window.__RMF_SESSION=s;
+  }catch(e){if(e!==0)location.replace('auth.html');}
+})();
+</script><title>Warna Ajaib</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -88,7 +106,6 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
-  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -119,7 +136,6 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
-  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -144,7 +160,7 @@ a{text-decoration:none;color:inherit}
 .hidden{display:none!important}
 .preview{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:54px;margin:0 0 16px}
 .preview-pill{padding:10px 16px;border-radius:999px;font-weight:900;box-shadow:var(--shadow-card);border:1px solid rgba(255,255,255,.7)}
-.mem,.board4,.mix-grid,.pair-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.mem,.board4,.mix-grid,.pair-grid,.palette-grid{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
 .odd-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(min-width:768px){
   .mem{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -179,69 +195,435 @@ a{text-decoration:none;color:inherit}
 @keyframes shine{0%{transform:translate(-140%,0) rotate(20deg)}100%{transform:translate(260%,0) rotate(20deg)}}
 @keyframes floatUp{from{transform:translateY(0)}to{transform:translateY(-125vh)}}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.sparkle-burst{position:absolute;width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 0 12px rgba(255,255,255,.9);pointer-events:none;animation:sparkleOut .7s ease-out forwards}
+@keyframes sparkleOut{0%{transform:translate(0,0) scale(.7);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.7);opacity:0}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* mobile-safe responsive patch */
-@media (max-width: 767px){
-  .shell{padding:10px}
-  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
-  .top{padding:12px}
-  .playtop{padding:12px}
-  .stage{
-    min-height:max(620px,74svh);
-    height:max(620px,74svh);
-    border-radius:26px;
-  }
-  .banner{
-    top:10px;
-    left:10px;
-    right:10px;
-    transform:none;
-    max-width:none;
-    width:auto;
-    padding:8px 12px;
-    font-size:12px;
-    line-height:1.25;
-    border-radius:18px;
-  }
-  .helper{
-    left:10px;
-    right:10px;
-    bottom:10px;
-    max-width:none;
-    width:auto;
-    padding:10px 12px;
-    border-radius:18px;
-  }
-  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
-    padding:72px 12px 110px 12px !important;
-    align-items:flex-start !important;
-    justify-content:flex-start !important;
-    overflow:auto;
-  }
-  #arcadeLayer{top:60px !important; bottom:96px !important;}
-  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
-  .preview{min-height:auto}
-  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
-  .choice,.tile,.piece{min-height:96px;border-radius:22px}
-  .modal{padding:18px;border-radius:24px}
-  .result{gap:10px}
+/* ═══════════════════════════════════════════════════════════
+   MOBILE FIX + PREMIUM POLISH — injected
+   ═══════════════════════════════════════════════════════════ */
+
+/* Safe area + prevent iOS bounce scroll */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --header-h: 54px;
 }
-@media (max-width: 480px){
-  .stage{
-    min-height:max(640px,78svh);
-    height:max(640px,78svh);
-  }
-  .banner{font-size:11px;padding:8px 10px}
-  .helper{padding:9px 10px}
-  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
-    padding:70px 10px 108px 10px !important;
-  }
-  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+html { 
+  height: 100%; 
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+body { 
+  height: 100%;
+  overflow: hidden;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
-</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
+/* Fredoka One for display text */
+.h1,.h2,.val,.modal .h2 { font-family: 'Fredoka One', cursive !important; }
+
+/* ── COMPACT GAME TOPBAR (visible on ALL sizes) ── */
+.game-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 6px 18px rgba(15,23,42,.10);
+  margin-bottom: 8px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+.game-topbar-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  color: #1f2937;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.game-topbar .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: white;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #1f2937;
+  box-shadow: 0 3px 10px rgba(15,23,42,.1);
+  text-decoration: none;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+}
+.sound-mini {
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.stat-mini {
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 7px 6px;
+  text-align: center;
+  border: 1.5px solid rgba(255,255,255,.9);
+  box-shadow: 0 4px 12px rgba(15,23,42,.08);
+}
+.stat-mini .lab { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: #64748b; font-weight: 900; display: block; }
+.stat-mini .val { font-family: 'Fredoka One', cursive; font-size: 20px; font-weight: 900; display: block; line-height: 1.1; }
+
+/* ── STAGE: FILL REMAINING HEIGHT ── */
+.stage {
+  position: relative;
+  background: rgba(255,255,255,.24);
+  backdrop-filter: blur(14px);
+  border: 3px solid rgba(255,255,255,.75);
+  overflow: hidden;
+  border-radius: 24px;
+  /* Dynamic viewport height: total minus topbar + stats + shell padding + safe areas */
+  height: calc(100dvh - var(--safe-top) - var(--safe-bot) - 54px - 54px - 54px - 24px);
+  min-height: 280px;
+}
+
+/* Fallback for browsers without dvh */
+@supports not (height: 100dvh) {
+  .stage {
+    height: calc(100vh - 240px);
+    min-height: 280px;
+  }
+}
+
+/* ── HIDE THINGS THAT BREAK MOBILE ── */
+/* Big title header block — replaced by compact topbar */
+.top { display: none !important; }
+
+/* Old game-top bar — we replace it */
+.game-top { display: none !important; }
+
+/* Old playtop bar — we replace it */
+div.playtop:not(.keep) { display: none !important; }
+
+/* Sidebar — useless on mobile, hidden everywhere now */
+.grid.g2 > aside,
+.play-wrap > aside,
+.side-stack { display: none !important; }
+
+/* The overlapping helper bottom-left box */
+.helper { display: none !important; }
+
+/* Force single column for game grid */
+.grid.g2 { 
+  grid-template-columns: 1fr !important;
+  gap: 0 !important;
+}
+
+/* Shell: full bleed on mobile */
+.shell { 
+  padding: 8px !important;
+  padding-top: calc(8px + var(--safe-top)) !important;
+  padding-bottom: calc(8px + var(--safe-bot)) !important;
+  padding-left: calc(8px + var(--safe-left)) !important;
+  padding-right: calc(8px + var(--safe-right)) !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* play-wrap: flex column, fill shell */
+.play-wrap { 
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  flex: 1;
+}
+
+/* ── GAME ELEMENTS: BETTER TOUCH TARGETS ── */
+.tile, .choice, .piece {
+  min-height: 80px !important;
+  border-radius: 20px !important;
+  touch-action: manipulation;
+  font-size: clamp(12px, 2.5vw, 18px) !important;
+}
+.tile:active, .choice:active, .piece:active {
+  transform: scale(.95) !important;
+}
+
+.mem, .board4, .mix-grid, .pair-grid, .odd-grid {
+  gap: 10px !important;
+}
+
+/* ── MAZE: BIGGER CELLS + D-PAD ── */
+.cell { 
+  width: clamp(26px, 7vw, 36px) !important; 
+  height: clamp(26px, 7vw, 36px) !important; 
+  border-radius: 8px !important;
+  font-size: 14px !important;
+}
+.maze-board { gap: 3px !important; padding: 8px !important; }
+#up, #down, #left, #right {
+  width: 58px !important;
+  height: 58px !important;
+  font-size: 22px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 18px !important;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+/* ── MODAL: PREMIUM STYLE ── */
+.modal {
+  border-radius: 28px !important;
+  padding: 20px !important;
+  border: 3px solid #fce7f3 !important;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal .h2 { font-size: clamp(1.3rem, 4vw, 2rem) !important; }
+.cta {
+  border-radius: 999px !important;
+  padding: 14px 24px !important;
+  font-size: 16px !important;
+  box-shadow: 0 8px 20px rgba(14,165,233,.35) !important;
+  touch-action: manipulation;
+}
+.result {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+.res { border-radius: 20px !important; padding: 12px !important; }
+.res .val { font-family: 'Fredoka One', cursive; font-size: 1.6rem; }
+
+/* ── BUBBLE: TOUCH FIX ── */
+.bubble { touch-action: manipulation; }
+
+/* ── BANNER: SMALLER ON MOBILE ── */
+.banner {
+  font-size: 13px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  top: 10px !important;
+  max-width: 85% !important;
+}
+
+/* ── PREMIUM CONFETTI (added via JS) ── */
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 2.5s ease-in forwards;
+  pointer-events: none;
+  z-index: 999;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── SCORE POPUP ── */
+.score-pop {
+  position: absolute;
+  font-family: 'Fredoka One', cursive;
+  font-size: 24px;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 50;
+  animation: scorePop .8s ease-out forwards;
+}
+@keyframes scorePop {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.4); opacity: 0; }
+}
+
+/* ── DESKTOP: restore original layout ── */
+@media(min-width: 900px) {
+  html, body { overflow: auto; overflow-x: hidden; }
+  .shell { 
+    height: auto !important;
+    display: block !important;
+    padding: 16px !important;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .top { display: block !important; }
+  .game-topbar { display: none !important; }
+  .stats-bar { display: none !important; }
+  .game-top { display: flex !important; }
+  div.playtop:not(.keep) { display: flex !important; }
+  .grid.g2 { grid-template-columns: minmax(0,1fr) 340px !important; gap: 18px !important; }
+  .grid.g2 > aside { display: block !important; }
+  .helper { display: block !important; }
+  .stage { 
+    height: clamp(430px, 64vh, 760px) !important;
+    min-height: clamp(430px, 64vh, 760px) !important;
+  }
+  .play-wrap { display: grid !important; gap: 18px !important; }
+  .side-stack { display: grid !important; }
+}
+/* ═══════════════════════════════════════════════════════════ */
+
+</style></head><body>
+
+<script>
+// ── MOBILE TOPBAR INJECTION ────────────────────────────────
+(function(){
+  function buildTopbar(){
+    // Get game title from <title> tag
+    var title = document.title.replace(' – Rumah Main Fokus','') || 'Game';
+    var backBtn = '<a href="index.html" class="back-btn">← Menu</a>';
+    var soundBtn = '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
+    
+    // Build compact topbar
+    var bar = document.createElement('div');
+    bar.className = 'game-topbar';
+    bar.innerHTML = backBtn + '<span class="game-topbar-title">' + title + '</span>' + soundBtn;
+    
+    // Build stats bar (clone of existing stats)
+    var statsBar = document.createElement('div');
+    statsBar.className = 'stats-bar';
+    statsBar.id = 'mobileStatsBar';
+    statsBar.innerHTML = [
+      {id:'score',label:'Skor',color:'#1f2937'},
+      {id:'stars',label:'Bintang',color:'#eab308'},
+      {id:'streak',label:'Streak',color:'#ec4899'},
+      {id:'timer',label:'Waktu',color:'#0369a1'}
+    ].map(function(s){
+      return '<div class="stat-mini"><span class="lab">'+s.label+'</span><span class="val" style="color:'+s.color+'" id="m_'+s.id+'">0</span></div>';
+    }).join('');
+    
+    // Inject into shell before play-wrap
+    var shell = document.querySelector('.shell');
+    if(shell){
+      var playWrap = shell.querySelector('.play-wrap');
+      if(playWrap){
+        shell.insertBefore(statsBar, playWrap);
+        shell.insertBefore(bar, statsBar);
+      }
+    }
+    
+    // Sync mobile stats with original stat elements
+    function syncStats(){
+      ['score','stars','streak','timer'].forEach(function(id){
+        var orig = document.getElementById(id);
+        var mob = document.getElementById('m_'+id);
+        if(orig && mob) mob.textContent = orig.textContent;
+      });
+    }
+    setInterval(syncStats, 100);
+    
+    // Sound toggle
+    window.toggleSoundMini = function(){
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('kids_sound', soundEnabled?'on':'off');
+      document.getElementById('soundMiniBtn').textContent = soundEnabled?'🔊':'🔇';
+      if(soundEnabled && typeof initAudio === 'function') initAudio();
+    };
+    var btn = document.getElementById('soundMiniBtn');
+    if(btn) btn.textContent = localStorage.getItem('kids_sound')==='off'?'🔇':'🔊';
+  }
+  
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', buildTopbar);
+  } else {
+    buildTopbar();
+  }
+})();
+
+// ── CONFETTI on game end ───────────────────────────────────
+function launchConfetti(){
+  var colors = ['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
+  for(var i=0;i<60;i++){
+    (function(i){
+      setTimeout(function(){
+        var c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = Math.random()*100+'vw';
+        c.style.top = '-10px';
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.width = (8+Math.random()*8)+'px';
+        c.style.height = (8+Math.random()*8)+'px';
+        c.style.animationDuration = (1.5+Math.random()*2)+'s';
+        c.style.animationDelay = (Math.random()*.5)+'s';
+        document.body.appendChild(c);
+        setTimeout(function(){ c.remove(); }, 4000);
+      }, i*30);
+    })(i);
+  }
+}
+
+// ── Score popup ────────────────────────────────────────────
+function showScorePop(x, y, text, color){
+  var pop = document.createElement('div');
+  pop.className = 'score-pop';
+  pop.textContent = text;
+  pop.style.left = x + 'px';
+  pop.style.top = y + 'px';
+  pop.style.color = color || '#f472b6';
+  var stage = document.querySelector('.stage');
+  if(stage){ stage.appendChild(pop); setTimeout(function(){ pop.remove(); }, 900); }
+}
+
+// Intercept finish functions to add confetti
+(function(){
+  var origFinish = window.finishsound;
+  window.finishsound = function(){
+    if(origFinish) origFinish();
+    setTimeout(launchConfetti, 200);
+  };
+  
+  // Watch for end overlay to appear and trigger confetti
+  var observer = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      m.addedNodes.forEach(function(n){
+        if(n.classList && n.classList.contains('overlay') && !n.classList.contains('hidden')){
+          launchConfetti();
+        }
+      });
+      // also watch class changes
+      if(m.type === 'attributes' && m.attributeName === 'class'){
+        var el = m.target;
+        if(el.id === 'end' && !el.classList.contains('hidden')){
+          launchConfetti();
+        }
+      }
+    });
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    var end = document.getElementById('end');
+    if(end) observer.observe(end, {attributes:true, attributeFilter:['class']});
+  });
+})();
+</script>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
 <div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge b-yellow">← KEMBALI KE MENU</a><div class="badge b-pink">CREATIVE GAME</div><div class="badge b-sky">WARNA AJAIB</div></div><div class="h1">Warna Ajaib</div><div class="sub">Pilih warna yang tepat lalu tap bagian gambar sampai ilustrasi berubah jadi cantik dan penuh warna. Ini terasa lebih kreatif, jelas, dan beda dari game lainnya.</div></div><button class="sound"></button></div></div>
 
 <div class="play-wrap" style="margin-top:18px">
@@ -271,7 +653,7 @@ a{text-decoration:none;color:inherit}
         <div style="width:100%;max-width:980px;text-align:center">
           <div id="targetRow" class="preview" style="margin-bottom:12px"></div>
           <div id="paintArea" style="max-width:520px;margin:0 auto 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px"></div>
-          <div class="mix-grid" id="paletteBoard" style="max-width:760px;margin:0 auto"></div>
+          <div class="mix-grid" id="paletteBoard" class="palette-grid" style="max-width:860px;margin:0 auto"></div>
         </div>
       </div>
 
@@ -342,12 +724,16 @@ const warnaEls={
   fstreak:document.getElementById('fstreak'),
   frank:document.getElementById('frank')
 };
+const palette8=[...colorPool,{name:'MERAH',bg:'#ef4444',txt:'#b91c1c',emoji:'❤️'},{name:'ORANYE',bg:'#fb923c',txt:'#c2410c',emoji:'🧡'},{name:'CYAN',bg:'#06b6d4',txt:'#0e7490',emoji:'🩵'}];
 const sceneSet=[
-  {title:'Pelangi Ceria', parts:[{emoji:'☁️', need:'BIRU'},{emoji:'☀️', need:'KUNING'},{emoji:'🌈', need:'UNGU'},{emoji:'🌱', need:'HIJAU'}]},
-  {title:'Taman Lucu', parts:[{emoji:'🌸', need:'MERAH MUDA'},{emoji:'🍀', need:'HIJAU'},{emoji:'☀️', need:'KUNING'},{emoji:'💧', need:'BIRU'}]},
-  {title:'Laut Cerah', parts:[{emoji:'🐟', need:'BIRU'},{emoji:'⭐', need:'KUNING'},{emoji:'🪸', need:'MERAH MUDA'},{emoji:'🐚', need:'UNGU'}]},
-  {title:'Fantasi Manis', parts:[{emoji:'🦄', need:'UNGU'},{emoji:'🍭', need:'MERAH MUDA'},{emoji:'⭐', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
-  {title:'Hari Hujan', parts:[{emoji:'☁️', need:'BIRU'},{emoji:'🌧️', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'☀️', need:'KUNING'}]}
+  {title:'Pelangi Ceria', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'☀️', need:'KUNING'},{emoji:'🌈', need:'UNGU'},{emoji:'🌱', need:'HIJAU'}]},
+  {title:'Taman Lucu', parts:[{emoji:'🌸', need:'MERAH MUDA'},{emoji:'🍀', need:'HIJAU'},{emoji:'☀️', need:'KUNING'},{emoji:'💧', need:'CYAN'}]},
+  {title:'Laut Cerah', parts:[{emoji:'🐟', need:'BIRU'},{emoji:'⭐', need:'KUNING'},{emoji:'🪸', need:'ORANYE'},{emoji:'🐚', need:'UNGU'}]},
+  {title:'Fantasi Manis', parts:[{emoji:'🦄', need:'UNGU'},{emoji:'🍭', need:'MERAH'},{emoji:'⭐', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
+  {title:'Hari Hujan', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🌧️', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'☀️', need:'KUNING'}]},
+  {title:'Api & Senja', parts:[{emoji:'🔥', need:'MERAH'},{emoji:'🧡', need:'ORANYE'},{emoji:'☀️', need:'KUNING'},{emoji:'🌊', need:'CYAN'}]},
+  {title:'Buah Ceria', parts:[{emoji:'🍎', need:'MERAH'},{emoji:'🍊', need:'ORANYE'},{emoji:'🍋', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
+  {title:'Magic Sky', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🦋', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'🌸', need:'MERAH MUDA'}]}
 ];
 const warnaState={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,current:null,selected:null,painted:0};
 function warnaHud(){
@@ -360,9 +746,23 @@ function warnaHud(){
 function partCardStyle(bg){
   return `background:${bg};display:flex;align-items:center;justify-content:center;font-size:52px;min-height:140px;color:white;border:4px solid rgba(255,255,255,.82);border-radius:28px;box-shadow:var(--shadow-card);cursor:pointer;transition:transform .14s ease,filter .14s ease,box-shadow .14s ease`;
 }
+function sparkleBurst(target){
+  const rect=target.getBoundingClientRect();
+  const parent=target.parentElement.getBoundingClientRect();
+  for(let i=0;i<10;i++){
+    const s=document.createElement('div');
+    s.className='sparkle-burst';
+    s.style.left=`${rect.left-parent.left+rect.width/2}px`;
+    s.style.top=`${rect.top-parent.top+rect.height/2}px`;
+    s.style.setProperty('--dx', `${(Math.random()*120-60).toFixed(0)}px`);
+    s.style.setProperty('--dy', `${(Math.random()*120-60).toFixed(0)}px`);
+    warnaEls.paintArea.appendChild(s);
+    setTimeout(()=>s.remove(),700);
+  }
+}
 function renderPalette(){
   warnaEls.paletteBoard.innerHTML='';
-  colorPool.forEach(c=>{
+  palette8.forEach(c=>{
     const b=document.createElement('button');
     b.className='choice pressable';
     b.style.background=c.bg;
@@ -386,7 +786,7 @@ function renderTarget(){
   title.innerHTML=`<div style="font-size:14px;opacity:.7;margin-bottom:4px">Target gambar</div><div style="font-size:20px;font-weight:900">${warnaState.current.title}</div>`;
   warnaEls.targetRow.appendChild(title);
   warnaState.current.parts.forEach((p,idx)=>{
-    const c=colorPool.find(x=>x.name===p.need);
+    const c=palette8.find(x=>x.name===p.need);
     const pill=document.createElement('div');
     pill.className='preview-pill';
     pill.style.background='white';
@@ -420,7 +820,7 @@ function paintPart(card,p){
   card.classList.add('active');
   setTimeout(()=>card.classList.remove('active'),180);
   if(correct){
-    const c=colorPool.find(x=>x.name===p.need);
+    const c=palette8.find(x=>x.name===p.need);
     card.style.cssText=partCardStyle(c.bg);
     card.dataset.done='1';
     card.innerHTML=`<div style="text-align:center"><div style="font-size:56px;filter:none">${p.emoji}</div><div style="margin-top:8px;font-size:14px;font-weight:900;color:white">${p.need}</div></div>`;
@@ -430,7 +830,7 @@ function paintPart(card,p){
     warnaState.best=Math.max(warnaState.best,warnaState.streak);
     warnaState.painted+=1;
     warnaHud();
-    ok(warnaState.streak+1);
+    ok(warnaState.streak+1); sparkleBurst(card);
     if(warnaState.painted>=warnaState.current.parts.length){
       warnaState.score+=12;
       warnaState.stars+=2;
