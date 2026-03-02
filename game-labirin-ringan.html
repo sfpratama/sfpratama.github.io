@@ -88,6 +88,7 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
+  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -118,6 +119,7 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
+  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -161,7 +163,7 @@ a{text-decoration:none;color:inherit}
 }
 .bubble.bad{background:linear-gradient(135deg,#475569,#0f172a)}
 .maze-wrap{display:flex;align-items:center;justify-content:center;height:100%;padding:16px}
-.maze-board,.maze{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
+.maze-board{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
 .cell{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-weight:900}
 .wall{background:#334155}.startcell{background:#86efac}.endcell{background:#fca5a5}.playercell{background:#60a5fa;color:#fff}
 .puzzle-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:360px;margin:0 auto 16px}
@@ -180,23 +182,93 @@ a{text-decoration:none;color:inherit}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* compatibility aliases */
-.game{display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
-.game:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 36px rgba(15,23,42,.16)}
-.game::after{content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(20deg);animation:shine 6s linear infinite}
-.gp{background:linear-gradient(135deg,#fce7f3,#fef3c7)} .gs{background:linear-gradient(135deg,#e0f2fe,#dcfce7)} .gv{background:linear-gradient(135deg,#ede9fe,#fce7f3)} .gl{background:linear-gradient(135deg,#ecfccb,#fef3c7)} .go{background:linear-gradient(135deg,#ffedd5,#fef3c7)}
-.piece-card,.memory-tile,.odd-card,.pattern-card,.math-card,.mix-card,.pair-card{border:none;border-radius:28px;min-height:118px;color:#fff;font-weight:900;cursor:pointer;box-shadow:var(--shadow-card);border:4px solid rgba(255,255,255,.82);transition:transform .14s ease, box-shadow .14s ease, filter .14s ease}
-.piece-card:hover,.memory-tile:hover,.odd-card:hover,.pattern-card:hover,.math-card:hover,.mix-card:hover,.pair-card:hover{transform:translateY(-3px)}
-.piece-card:active,.memory-tile:active,.odd-card:active,.pattern-card:active,.math-card:active,.mix-card:active,.pair-card:active{transform:translateY(2px) scale(.97);box-shadow:var(--shadow-press)}
-.active-press{transform:scale(1.03)!important;filter:brightness(1.08)}
-.side-stack{align-content:start}
-.pulse{animation:pulseGlow 1.2s ease-in-out infinite}
-.slot.current{border-color:#f472b6; box-shadow:0 0 0 6px rgba(244,114,182,.18), var(--shadow-card)}
-.target-preview{opacity:.28;font-size:38px}
-.slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
-.slot.filled .slot-cover{display:none}
-@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
-</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">BRAIN GAME</div><div class="badge s">MAZE MINI</div></div><div class="h1">Labirin Ringan</div><div class="sub">Arahkan karakter menuju tujuan dengan labirin kecil yang ringan dan mudah dimainkan.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge l" id="rb">Level 1</div><div style="font-weight:900">Gunakan tombol panah untuk keluar dari labirin</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner">Arahkan karakter menuju tujuan 🌀</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Gunakan tombol panah di bawah untuk bergerak</div></div><div class="maze-wrap"><div><div id="maze" class="maze-board"></div><div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap"><button class="btn" id="up">⬆️</button><button class="btn" id="left">⬅️</button><button class="btn" id="down">⬇️</button><button class="btn" id="right">➡️</button></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🌀</div><div class='h2' style='margin-top:10px'>Siap bermain Labirin Ringan?</div><div class='sub'>Arahkan karakter biru dari titik awal ke tujuan merah dengan tombol panah.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#3f6212'>Arah & problem solving</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak belajar memilih arah yang tepat untuk keluar dari labirin kecil.</div></div><div class='side-card'><div style='font-weight:900;color:#0369a1'>Ringan dan tidak bikin pusing</div><div class='sub' style='font-size:14px;margin-top:6px'>Maze dibuat singkat dan sederhana agar tetap terasa seru untuk anak.</div></div></aside></div></div><script>
+/* mobile-safe responsive patch */
+@media (max-width: 767px){
+  .shell{padding:10px}
+  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
+  .top{padding:12px}
+  .playtop{padding:12px}
+  .stage{
+    min-height:max(620px,74svh);
+    height:max(620px,74svh);
+    border-radius:26px;
+  }
+  .banner{
+    top:10px;
+    left:10px;
+    right:10px;
+    transform:none;
+    max-width:none;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:18px;
+  }
+  .helper{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:auto;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:72px 12px 110px 12px !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    overflow:auto;
+  }
+  #arcadeLayer{top:60px !important; bottom:96px !important;}
+  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
+  .preview{min-height:auto}
+  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
+  .choice,.tile,.piece{min-height:96px;border-radius:22px}
+  .modal{padding:18px;border-radius:24px}
+  .result{gap:10px}
+}
+@media (max-width: 480px){
+  .stage{
+    min-height:max(640px,78svh);
+    height:max(640px,78svh);
+  }
+  .banner{font-size:11px;padding:8px 10px}
+  .helper{padding:9px 10px}
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:70px 10px 108px 10px !important;
+  }
+  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+}
+
+</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge b-yellow">← KEMBALI KE MENU</a><div class="badge b-pink">BRAIN GAME</div><div class="badge b-sky">MAZE MINI</div></div><div class="h1">Labirin Ringan</div><div class="sub">Arahkan karakter menuju tujuan dengan labirin kecil yang ringan dan mudah dimainkan.</div></div><button class="sound"></button></div></div>
+<div class="play-wrap" style="margin-top:18px">
+
+<div class="panel playtop">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge b-lime" id="roundBadge">Level 1</div><div style="font-weight:900">Gunakan tombol panah untuk keluar dari labirin</div></div>
+  <div class="stats">
+    <div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div>
+    <div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div>
+    <div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div>
+    <div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div>
+  </div>
+</div>
+<div class="grid g2">
+<section class="stage">
+  <div class="banner">Arahkan karakter menuju tujuan 🌀</div>
+  <div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Gunakan tombol panah di bawah untuk bergerak</div></div>
+  <div class="maze-wrap"><div><div id="maze" class="maze-board"></div><div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap"><button class="btn" id="up">⬆️</button><button class="btn" id="left">⬅️</button><button class="btn" id="down">⬇️</button><button class="btn" id="right">➡️</button></div></div></div>
+  <div class="overlay" id="start"><div class="modal"><div style="font-size:56px">🌀</div><div class="h2" style="margin-top:10px">Siap bermain Labirin Ringan?</div><div class="sub">Arahkan karakter biru dari titik awal ke tujuan merah.</div><div style="margin-top:20px"><button class="cta" id="go">Mulai Main 🚀</button></div></div></div>
+  <div class="overlay hidden" id="end"><div class="modal"><div style="font-size:56px">🏆</div><div class="h2" style="margin-top:10px">Hebat Sekali!</div><div class="result"><div class="res"><div class="lab">Skor</div><div class="val" id="fscore">0</div></div><div class="res"><div class="lab">Bintang</div><div class="val" id="fstars">0</div></div><div class="res"><div class="lab">Streak</div><div class="val" id="fstreak">0</div></div><div class="res"><div class="lab">Peringkat</div><div class="val" id="frank">A</div></div></div><div style="margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap"><button class="cta" id="again">Main Lagi 🎈</button><a class="btn navbtn" href="index.html">Kembali ke Menu 🎮</a></div></div></div>
+</section>
+
+<aside class="side-stack">
+<div class="side-card"><div style="font-weight:900;color:#3f6212">Arah & problem solving</div><div class="sub" style="font-size:14px;margin-top:6px">Anak belajar memilih arah yang tepat untuk keluar dari labirin kecil.</div></div>
+<div class="side-card"><div style="font-weight:900;color:#0369a1">Ringan dan jelas</div><div class="sub" style="font-size:14px;margin-top:6px">Kontrol panah besar dan grid tetap rapi di layar kecil.</div></div>
+</aside>
+</div>
+</div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
@@ -210,139 +282,17 @@ function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i
 function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
-
-function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';});}
-function bindsound(){
-  document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
-    b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
-    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
-  });
-  window.addEventListener('pointerdown',initAudio,{once:true});
-}
 </script><script>
 bindsound();
-const mazeEls={
-  rb:document.getElementById('rb'),
-  maze:document.getElementById('maze'),
-  score:document.getElementById('score'),
-  stars:document.getElementById('stars'),
-  streak:document.getElementById('streak'),
-  timer:document.getElementById('timer'),
-  start:document.getElementById('start'),
-  end:document.getElementById('end'),
-  fscore:document.getElementById('fscore'),
-  fstars:document.getElementById('fstars'),
-  fstreak:document.getElementById('fstreak'),
-  frank:document.getElementById('frank'),
-  up:document.getElementById('up'),
-  down:document.getElementById('down'),
-  left:document.getElementById('left'),
-  right:document.getElementById('right')
-};
-const mazeSet=[
-  {r:5,c:5,w:[[1,1],[1,3],[2,3],[3,1]],s:[0,0],e:[4,4]},
-  {r:5,c:5,w:[[0,2],[1,2],[3,1],[3,3]],s:[0,0],e:[4,4]},
-  {r:6,c:6,w:[[0,3],[1,1],[1,3],[2,3],[3,0],[3,1],[4,4]],s:[0,0],e:[5,5]},
-  {r:6,c:6,w:[[0,2],[1,2],[2,2],[2,4],[3,1],[4,1],[4,3]],s:[0,0],e:[5,5]}
-];
-const mazeState={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,m:null,p:[0,0]};
-function mazeHud(){
-  mazeEls.score.textContent=mazeState.score;
-  mazeEls.stars.textContent=mazeState.stars;
-  mazeEls.streak.textContent=mazeState.streak;
-  mazeEls.timer.textContent=mazeState.time;
-  mazeEls.rb.textContent=`Level ${mazeState.round}`;
-}
-function mkey(r,c){ return `${r},${c}`; }
-function mazeLoad(){
-  mazeState.m = mazeSet[(mazeState.round-1) % mazeSet.length];
-  mazeState.p = [...mazeState.m.s];
-  mazeDraw();
-}
-function mazeDraw(){
-  const m = mazeState.m;
-  mazeEls.maze.style.gridTemplateColumns = `repeat(${m.c},34px)`;
-  mazeEls.maze.innerHTML = '';
-  const walls = new Set(m.w.map(([r,c])=>mkey(r,c)));
-  for(let r=0;r<m.r;r++){
-    for(let c=0;c<m.c;c++){
-      const d=document.createElement('div');
-      d.className='cell';
-      if(walls.has(mkey(r,c))) d.classList.add('wall');
-      else if(r===m.s[0] && c===m.s[1]) d.classList.add('startcell');
-      else if(r===m.e[0] && c===m.e[1]) d.classList.add('endcell');
-      if(r===mazeState.p[0] && c===mazeState.p[1]){
-        d.classList.add('playercell');
-        d.textContent='🙂';
-      }
-      mazeEls.maze.appendChild(d);
-    }
-  }
-}
-function mazeMove(dr,dc){
-  if(!mazeState.run) return;
-  const m=mazeState.m;
-  const nr=mazeState.p[0]+dr, nc=mazeState.p[1]+dc;
-  const walls = new Set(m.w.map(([r,c])=>mkey(r,c)));
-  if(nr<0||nc<0||nr>=m.r||nc>=m.c||walls.has(mkey(nr,nc))){
-    bad();
-    return;
-  }
-  mazeState.p=[nr,nc];
-  mazeDraw();
-  if(nr===m.e[0] && nc===m.e[1]){
-    mazeState.score+=12;
-    mazeState.stars+=2;
-    mazeState.streak+=1;
-    mazeState.best=Math.max(mazeState.best,mazeState.streak);
-    mazeHud();
-    ok(mazeState.streak+1);
-    mazeState.round+=1;
-    setTimeout(()=>{
-      if(!mazeState.run) return;
-      levelup();
-      mazeLoad();
-      mazeHud();
-    },500);
-  }
-}
-function mazeStart(){
-  initAudio();
-  startsound();
-  mazeState.score=0; mazeState.stars=0; mazeState.streak=0; mazeState.best=0; mazeState.time=60; mazeState.round=1; mazeState.run=true;
-  mazeEls.start.classList.add('hidden');
-  mazeEls.end.classList.add('hidden');
-  mazeLoad();
-  mazeHud();
-  clearInterval(mazeState.timerI);
-  mazeState.timerI=setInterval(()=>{
-    mazeState.time-=1;
-    mazeHud();
-    if(mazeState.time<=0) mazeEnd();
-  },1000);
-}
-function mazeEnd(){
-  mazeState.run=false;
-  clearInterval(mazeState.timerI);
-  mazeEls.fscore.textContent=mazeState.score;
-  mazeEls.fstars.textContent=mazeState.stars;
-  mazeEls.fstreak.textContent=mazeState.best;
-  mazeEls.frank.textContent=rank(mazeState.score);
-  finishsound();
-  mazeEls.end.classList.remove('hidden');
-}
-document.getElementById('go').onclick=mazeStart;
-document.getElementById('again').onclick=mazeStart;
-mazeEls.up.onclick=()=>mazeMove(-1,0);
-mazeEls.down.onclick=()=>mazeMove(1,0);
-mazeEls.left.onclick=()=>mazeMove(0,-1);
-mazeEls.right.onclick=()=>mazeMove(0,1);
-window.addEventListener('keydown',(ev)=>{
-  if(ev.key==='ArrowUp') mazeMove(-1,0);
-  if(ev.key==='ArrowDown') mazeMove(1,0);
-  if(ev.key==='ArrowLeft') mazeMove(0,-1);
-  if(ev.key==='ArrowRight') mazeMove(0,1);
-});
-mazeHud();
-mazeLoad();
+const Z={roundBadge:roundBadge,maze:maze,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,up:up,down:down,left:left,right:right};
+const mazes=[{r:5,c:5,w:[[1,1],[1,3],[2,3],[3,1]],s:[0,0],e:[4,4]},{r:5,c:5,w:[[0,2],[1,2],[3,1],[3,3]],s:[0,0],e:[4,4]},{r:6,c:6,w:[[0,3],[1,1],[1,3],[2,3],[3,0],[3,1],[4,4]],s:[0,0],e:[5,5]},{r:6,c:6,w:[[0,2],[1,2],[2,2],[2,4],[3,1],[4,1],[4,3]],s:[0,0],e:[5,5]}];
+const state={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,m:null,p:[0,0]};
+function hud(){Z.score.textContent=state.score;Z.stars.textContent=state.stars;Z.streak.textContent=state.streak;Z.timer.textContent=state.time;Z.roundBadge.textContent=`Level ${state.round}`;}
+function key(r,c){return `${r},${c}`;}
+function load(){state.m=mazes[(state.round-1)%mazes.length];state.p=[...state.m.s];draw();}
+function draw(){Z.maze.style.gridTemplateColumns=`repeat(${state.m.c},34px)`;Z.maze.innerHTML='';const walls=new Set(state.m.w.map(([r,c])=>key(r,c)));for(let r=0;r<state.m.r;r++){for(let c=0;c<state.m.c;c++){const d=document.createElement('div');d.className='cell';if(walls.has(key(r,c))) d.classList.add('wall'); else if(r===state.m.s[0]&&c===state.m.s[1]) d.classList.add('startcell'); else if(r===state.m.e[0]&&c===state.m.e[1]) d.classList.add('endcell'); if(r===state.p[0]&&c===state.p[1]){d.classList.add('playercell');d.textContent='🙂'} Z.maze.appendChild(d)}}}
+function move(dr,dc){if(!state.run)return;const nr=state.p[0]+dr,nc=state.p[1]+dc;const walls=new Set(state.m.w.map(([r,c])=>key(r,c)));if(nr<0||nc<0||nr>=state.m.r||nc>=state.m.c||walls.has(key(nr,nc))){bad();return}state.p=[nr,nc];draw();if(nr===state.m.e[0]&&nc===state.m.e[1]){state.score+=12;state.stars+=2;state.streak++;state.best=Math.max(state.best,state.streak);hud();ok(state.streak+1);state.round++;setTimeout(()=>{if(state.run){load();hud()}},450)}}
+function startG(){initAudio();startsound();state.score=0;state.stars=0;state.streak=0;state.best=0;state.time=60;state.round=1;state.run=true;Z.start.classList.add('hidden');Z.end.classList.add('hidden');load();hud();clearInterval(state.timerI);state.timerI=setInterval(()=>{state.time--;hud();if(state.time<=0)endG()},1000)}
+function endG(){state.run=false;clearInterval(state.timerI);Z.fscore.textContent=state.score;Z.fstars.textContent=state.stars;Z.fstreak.textContent=state.best;Z.frank.textContent=rank(state.score);finishsound();Z.end.classList.remove('hidden')}
+go.onclick=startG;again.onclick=startG;Z.up.onclick=()=>move(-1,0);Z.down.onclick=()=>move(1,0);Z.left.onclick=()=>move(0,-1);Z.right.onclick=()=>move(0,1);window.addEventListener('keydown',e=>{if(e.key==='ArrowUp')move(-1,0);if(e.key==='ArrowDown')move(1,0);if(e.key==='ArrowLeft')move(0,-1);if(e.key==='ArrowRight')move(0,1)});hud();load();
 </script></body></html>

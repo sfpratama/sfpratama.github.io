@@ -88,6 +88,7 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
+  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -118,6 +119,7 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
+  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -180,23 +182,98 @@ a{text-decoration:none;color:inherit}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* compatibility aliases */
-.game{display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
-.game:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 36px rgba(15,23,42,.16)}
-.game::after{content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(20deg);animation:shine 6s linear infinite}
-.gp{background:linear-gradient(135deg,#fce7f3,#fef3c7)} .gs{background:linear-gradient(135deg,#e0f2fe,#dcfce7)} .gv{background:linear-gradient(135deg,#ede9fe,#fce7f3)} .gl{background:linear-gradient(135deg,#ecfccb,#fef3c7)} .go{background:linear-gradient(135deg,#ffedd5,#fef3c7)}
-.piece-card,.memory-tile,.odd-card,.pattern-card,.math-card,.mix-card,.pair-card{border:none;border-radius:28px;min-height:118px;color:#fff;font-weight:900;cursor:pointer;box-shadow:var(--shadow-card);border:4px solid rgba(255,255,255,.82);transition:transform .14s ease, box-shadow .14s ease, filter .14s ease}
-.piece-card:hover,.memory-tile:hover,.odd-card:hover,.pattern-card:hover,.math-card:hover,.mix-card:hover,.pair-card:hover{transform:translateY(-3px)}
-.piece-card:active,.memory-tile:active,.odd-card:active,.pattern-card:active,.math-card:active,.mix-card:active,.pair-card:active{transform:translateY(2px) scale(.97);box-shadow:var(--shadow-press)}
-.active-press{transform:scale(1.03)!important;filter:brightness(1.08)}
-.side-stack{align-content:start}
-.pulse{animation:pulseGlow 1.2s ease-in-out infinite}
-.slot.current{border-color:#f472b6; box-shadow:0 0 0 6px rgba(244,114,182,.18), var(--shadow-card)}
-.target-preview{opacity:.28;font-size:38px}
-.slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
-.slot.filled .slot-cover{display:none}
-@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
-</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">SENSORY GAME</div><div class="badge s">BUNYI & GAMBAR</div></div><div class="h1">Cari Pasangan Bunyi/Gambar</div><div class="sub">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat secara menyenangkan.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih gambar yang cocok dengan petunjuk</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih gambar yang cocok dengan petunjuk</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih gambar yang cocok dengan petunjuk</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='prompt' style='font-size:clamp(26px,4vw,42px);font-weight:900;margin-bottom:18px;color:#0f172a'>Mana gambar untuk suara “meong”?</div><div class='board4' id='pairChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🔊</div><div class='h2' style='margin-top:10px'>Siap bermain Cari Pasangan Bunyi/Gambar?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Sensory play</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak belajar mencocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Lucu dan komunikatif</div><div class='sub' style='font-size:14px;margin-top:6px'>Prompt dibuat sederhana dan dekat dengan keseharian anak seperti meong, moo, dan kendaraan.</div></div></aside></div></div><script>
+/* mobile-safe responsive patch */
+@media (max-width: 767px){
+  .shell{padding:10px}
+  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
+  .top{padding:12px}
+  .playtop{padding:12px}
+  .stage{
+    min-height:max(620px,74svh);
+    height:max(620px,74svh);
+    border-radius:26px;
+  }
+  .banner{
+    top:10px;
+    left:10px;
+    right:10px;
+    transform:none;
+    max-width:none;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:18px;
+  }
+  .helper{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:auto;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:72px 12px 110px 12px !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    overflow:auto;
+  }
+  #arcadeLayer{top:60px !important; bottom:96px !important;}
+  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
+  .preview{min-height:auto}
+  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
+  .choice,.tile,.piece{min-height:96px;border-radius:22px}
+  .modal{padding:18px;border-radius:24px}
+  .result{gap:10px}
+}
+@media (max-width: 480px){
+  .stage{
+    min-height:max(640px,78svh);
+    height:max(640px,78svh);
+  }
+  .banner{font-size:11px;padding:8px 10px}
+  .helper{padding:9px 10px}
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:70px 10px 108px 10px !important;
+  }
+  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+}
+
+</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge b-yellow">← KEMBALI KE MENU</a><div class="badge b-pink">SENSORY GAME</div><div class="badge b-sky">BUNYI & GAMBAR</div></div><div class="h1">Cari Pasangan Bunyi/Gambar</div><div class="sub">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat secara menyenangkan.</div></div><button class="sound"></button></div></div>
+<div class="play-wrap" style="margin-top:18px">
+
+<div class="panel playtop">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge b-orange" id="roundBadge">Ronde 1</div><div style="font-weight:900">Pilih gambar yang cocok dengan petunjuk</div></div>
+  <div class="stats">
+    <div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div>
+    <div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div>
+    <div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div>
+    <div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div>
+  </div>
+</div>
+<div class="grid g2">
+<section class="stage">
+  <div class="banner">Cari pasangan yang tepat 🔊</div>
+  <div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Baca petunjuk lalu pilih gambar yang cocok</div></div>
+  <div style="position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center">
+    <div style="width:100%;max-width:900px;text-align:center">
+      <div id="prompt" style="font-size:clamp(26px,4vw,42px);font-weight:900;margin-bottom:18px;color:#0f172a">Mana gambar untuk suara “meong”?</div>
+      <div class="board4" id="choices"></div>
+    </div>
+  </div>
+  <div class="overlay" id="start"><div class="modal"><div style="font-size:56px">🔊</div><div class="h2" style="margin-top:10px">Siap bermain Cari Pasangan Bunyi/Gambar?</div><div class="sub">Lihat petunjuk bunyi atau kata, lalu pilih gambar yang paling tepat.</div><div style="margin-top:20px"><button class="cta" id="go">Mulai Main 🚀</button></div></div></div>
+  <div class="overlay hidden" id="end"><div class="modal"><div style="font-size:56px">🏆</div><div class="h2" style="margin-top:10px">Hebat Sekali!</div><div class="result"><div class="res"><div class="lab">Skor</div><div class="val" id="fscore">0</div></div><div class="res"><div class="lab">Bintang</div><div class="val" id="fstars">0</div></div><div class="res"><div class="lab">Streak</div><div class="val" id="fstreak">0</div></div><div class="res"><div class="lab">Peringkat</div><div class="val" id="frank">A</div></div></div><div style="margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap"><button class="cta" id="again">Main Lagi 🎈</button><a class="btn navbtn" href="index.html">Kembali ke Menu 🎮</a></div></div></div>
+</section>
+
+<aside class="side-stack">
+<div class="side-card"><div style="font-weight:900;color:#7c3aed">Sensory play</div><div class="sub" style="font-size:14px;margin-top:6px">Anak belajar mencocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div></div>
+<div class="side-card"><div style="font-weight:900;color:#c2410c">Bank soal besar</div><div class="sub" style="font-size:14px;margin-top:6px">Prompt dibangkitkan dari banyak pasangan agar tidak cepat berulang.</div></div>
+</aside>
+</div>
+</div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
@@ -210,25 +287,17 @@ function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i
 function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
-
-function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';});}
-function bindsound(){
-  document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
-    b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
-    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
-  });
-  window.addEventListener('pointerdown',initAudio,{once:true});
-}
 </script><script>
 bindsound();
-const pairPool=[["Mana gambar untuk suara “meong”?", "🐱"], ["Mana gambar untuk suara “guk guk”?", "🐶"], ["Mana gambar untuk suara “moo”?", "🐮"], ["Mana gambar untuk suara “kukuruyuk”?", "🐔"], ["Mana gambar untuk suara “beee”?", "🐑"], ["Mana gambar untuk suara “wek wek”?", "🦆"], ["Mana gambar untuk suara “oink”?", "🐷"], ["Mana gambar untuk suara “neigh”?", "🐴"], ["Mana gambar untuk “ikan”?", "🐟"], ["Mana gambar untuk “kelinci”?", "🐰"], ["Mana gambar untuk “gajah”?", "🐘"], ["Mana gambar untuk “singa”?", "🦁"], ["Mana gambar untuk “mobil”?", "🚗"], ["Mana gambar untuk “bus”?", "🚌"], ["Mana gambar untuk “sepeda”?", "🚲"], ["Mana gambar untuk “kereta”?", "🚂"], ["Mana gambar untuk “pesawat”?", "✈️"], ["Mana gambar untuk “kapal”?", "🚢"], ["Mana gambar untuk “matahari”?", "☀️"], ["Mana gambar untuk “bulan”?", "🌙"], ["Mana gambar untuk “awan”?", "☁️"], ["Mana gambar untuk “hujan”?", "🌧️"], ["Mana gambar untuk “pelangi”?", "🌈"], ["Mana gambar untuk “petir”?", "⚡"], ["Mana gambar untuk “apel”?", "🍎"], ["Mana gambar untuk “pisang”?", "🍌"], ["Mana gambar untuk “semangka”?", "🍉"], ["Mana gambar untuk “stroberi”?", "🍓"], ["Mana gambar untuk “wortel”?", "🥕"], ["Mana gambar untuk “jagung”?", "🌽"], ["Mana gambar untuk “bola”?", "⚽"], ["Mana gambar untuk “musik”?", "🎵"], ["Mana gambar untuk “drum”?", "🥁"], ["Mana gambar untuk “gitar”?", "🎸"], ["Mana gambar untuk “hadiah”?", "🎁"], ["Mana gambar untuk “balon”?", "🎈"], ["Mana gambar untuk “bintang”?", "⭐"], ["Mana gambar untuk “hati”?", "❤️"], ["Mana gambar untuk “bunga”?", "🌸"], ["Mana gambar untuk “pohon”?", "🌳"], ["Mana gambar untuk “laut”?", "🌊"], ["Mana gambar untuk “api”?", "🔥"], ["Mana gambar untuk “es krim”?", "🍦"], ["Mana gambar untuk “kue”?", "🍰"], ["Mana gambar untuk “susu”?", "🥛"], ["Mana gambar untuk “air”?", "💧"], ["Mana gambar untuk “dokter”?", "🩺"], ["Mana gambar untuk “sekolah”?", "🏫"], ["Mana gambar untuk “rumah”?", "🏠"], ["Mana gambar untuk “tidur”?", "😴"], ["Mana gambar untuk “senyum”?", "😊"], ["Mana gambar untuk “robot”?", "🤖"], ["Mana gambar untuk “beruang”?", "🐻"], ["Mana gambar untuk “koala”?", "🐨"], ["Mana gambar untuk “katak”?", "🐸"], ["Mana gambar untuk “lebah”?", "🐝"], ["Mana gambar untuk “kupu-kupu”?", "🦋"], ["Mana gambar untuk “jam”?", "⏰"], ["Mana gambar untuk “kacamata”?", "👓"], ["Mana gambar untuk “sikat gigi”?", "🪥"]];
-const optionPool=[...new Set(pairPool.map(x=>x[1]))];
-const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:pairChoices};
-const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null,last:''};
-function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.rb.textContent=`Ronde ${s.round}`;}
-function build(){let cur;let guard=0;do{cur=rand(pairPool);guard++;}while(cur[0]===s.last && guard<20);s.last=cur[0];s.answer=cur[1];e.prompt.textContent=cur[0];const opts=[s.answer];while(opts.length<4){const c=rand(optionPool);if(!opts.includes(c))opts.push(c);}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#fb923c']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b);});}
-function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);hud();ok(s.streak+1);s.round++;setTimeout(build,650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}
-function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;s.last='';start.classList.add('hidden');end.classList.add('hidden');hud();build();clearInterval(s.timerI);s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG();},1000);}
-function endG(){s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
+const R={roundBadge:roundBadge,prompt:prompt,choices:choices,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank};
+const pairs=[['meong','🐱'],['moo','🐮'],['guk guk','🐶'],['kukuruyuk','🐔'],['ikan','🐟'],['mobil','🚗'],['bus','🚌'],['sepeda','🚲'],['apel','🍎'],['jeruk','🍊'],['pisang','🍌'],['stroberi','🍓'],['pelangi','🌈'],['awan','☁️'],['matahari','☀️'],['bintang','⭐'],['bunga','🌸'],['daun','🍀'],['roti','🍞'],['es krim','🍦']];
+const distractors=['🐱','🐮','🐶','🐔','🐟','🚗','🚌','🚲','🍎','🍊','🍌','🍓','🌈','☁️','☀️','⭐','🌸','🍀','🍞','🍦'];
+const state={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:'',run:false,timerI:null};
+function hud(){R.score.textContent=state.score;R.stars.textContent=state.stars;R.streak.textContent=state.streak;R.timer.textContent=state.time;R.roundBadge.textContent=`Ronde ${state.round}`;}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function build(){const [word,ans]=rand(pairs);state.answer=ans;R.prompt.textContent=`Mana gambar untuk "${word}"?`;const opts=shuffle([ans,...shuffle(distractors.filter(x=>x!==ans)).slice(0,3)]);R.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice pressable';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#fb923c']);b.innerHTML=`<div style="font-size:44px">${o}</div>`;b.onclick=()=>pick(o,b);R.choices.appendChild(b)})}
+function pick(v,b){if(!state.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===state.answer){state.score+=10;state.stars+=2;state.streak++;state.best=Math.max(state.best,state.streak);ok(state.streak+1);state.round++;hud();setTimeout(()=>{if(state.run)build()},550)}else{state.score=Math.max(0,state.score-3);state.streak=0;hud();bad();setTimeout(()=>{if(state.run)build()},550)}}
+function startG(){initAudio();startsound();state.score=0;state.stars=0;state.streak=0;state.best=0;state.time=60;state.round=1;state.run=true;R.start.classList.add('hidden');R.end.classList.add('hidden');hud();build();clearInterval(state.timerI);state.timerI=setInterval(()=>{state.time--;hud();if(state.time<=0)endG()},1000)}
+function endG(){state.run=false;clearInterval(state.timerI);R.fscore.textContent=state.score;R.fstars.textContent=state.stars;R.fstreak.textContent=state.best;R.frank.textContent=rank(state.score);finishsound();R.end.classList.remove('hidden')}
 go.onclick=startG;again.onclick=startG;hud();
 </script></body></html>

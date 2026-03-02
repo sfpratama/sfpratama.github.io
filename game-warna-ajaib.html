@@ -88,6 +88,7 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
+  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -118,6 +119,7 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
+  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -142,7 +144,7 @@ a{text-decoration:none;color:inherit}
 .hidden{display:none!important}
 .preview{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:54px;margin:0 0 16px}
 .preview-pill{padding:10px 16px;border-radius:999px;font-weight:900;box-shadow:var(--shadow-card);border:1px solid rgba(255,255,255,.7)}
-.mem,.board4,.mix-grid,.pair-grid,.palette-grid{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.mem,.board4,.mix-grid,.pair-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .odd-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(min-width:768px){
   .mem{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -177,10 +179,68 @@ a{text-decoration:none;color:inherit}
 @keyframes shine{0%{transform:translate(-140%,0) rotate(20deg)}100%{transform:translate(260%,0) rotate(20deg)}}
 @keyframes floatUp{from{transform:translateY(0)}to{transform:translateY(-125vh)}}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
-.sparkle-burst{position:absolute;width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 0 12px rgba(255,255,255,.9);pointer-events:none;animation:sparkleOut .7s ease-out forwards}
-@keyframes sparkleOut{0%{transform:translate(0,0) scale(.7);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.7);opacity:0}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
+
+/* mobile-safe responsive patch */
+@media (max-width: 767px){
+  .shell{padding:10px}
+  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
+  .top{padding:12px}
+  .playtop{padding:12px}
+  .stage{
+    min-height:max(620px,74svh);
+    height:max(620px,74svh);
+    border-radius:26px;
+  }
+  .banner{
+    top:10px;
+    left:10px;
+    right:10px;
+    transform:none;
+    max-width:none;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:18px;
+  }
+  .helper{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:auto;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:72px 12px 110px 12px !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    overflow:auto;
+  }
+  #arcadeLayer{top:60px !important; bottom:96px !important;}
+  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
+  .preview{min-height:auto}
+  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
+  .choice,.tile,.piece{min-height:96px;border-radius:22px}
+  .modal{padding:18px;border-radius:24px}
+  .result{gap:10px}
+}
+@media (max-width: 480px){
+  .stage{
+    min-height:max(640px,78svh);
+    height:max(640px,78svh);
+  }
+  .banner{font-size:11px;padding:8px 10px}
+  .helper{padding:9px 10px}
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:70px 10px 108px 10px !important;
+  }
+  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+}
+
 </style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
 <div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge b-yellow">← KEMBALI KE MENU</a><div class="badge b-pink">CREATIVE GAME</div><div class="badge b-sky">WARNA AJAIB</div></div><div class="h1">Warna Ajaib</div><div class="sub">Pilih warna yang tepat lalu tap bagian gambar sampai ilustrasi berubah jadi cantik dan penuh warna. Ini terasa lebih kreatif, jelas, dan beda dari game lainnya.</div></div><button class="sound"></button></div></div>
 
@@ -211,7 +271,7 @@ a{text-decoration:none;color:inherit}
         <div style="width:100%;max-width:980px;text-align:center">
           <div id="targetRow" class="preview" style="margin-bottom:12px"></div>
           <div id="paintArea" style="max-width:520px;margin:0 auto 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px"></div>
-          <div class="mix-grid" id="paletteBoard" class="palette-grid" style="max-width:860px;margin:0 auto"></div>
+          <div class="mix-grid" id="paletteBoard" style="max-width:760px;margin:0 auto"></div>
         </div>
       </div>
 
@@ -282,16 +342,12 @@ const warnaEls={
   fstreak:document.getElementById('fstreak'),
   frank:document.getElementById('frank')
 };
-const palette8=[...colorPool,{name:'MERAH',bg:'#ef4444',txt:'#b91c1c',emoji:'❤️'},{name:'ORANYE',bg:'#fb923c',txt:'#c2410c',emoji:'🧡'},{name:'CYAN',bg:'#06b6d4',txt:'#0e7490',emoji:'🩵'}];
 const sceneSet=[
-  {title:'Pelangi Ceria', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'☀️', need:'KUNING'},{emoji:'🌈', need:'UNGU'},{emoji:'🌱', need:'HIJAU'}]},
-  {title:'Taman Lucu', parts:[{emoji:'🌸', need:'MERAH MUDA'},{emoji:'🍀', need:'HIJAU'},{emoji:'☀️', need:'KUNING'},{emoji:'💧', need:'CYAN'}]},
-  {title:'Laut Cerah', parts:[{emoji:'🐟', need:'BIRU'},{emoji:'⭐', need:'KUNING'},{emoji:'🪸', need:'ORANYE'},{emoji:'🐚', need:'UNGU'}]},
-  {title:'Fantasi Manis', parts:[{emoji:'🦄', need:'UNGU'},{emoji:'🍭', need:'MERAH'},{emoji:'⭐', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
-  {title:'Hari Hujan', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🌧️', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'☀️', need:'KUNING'}]},
-  {title:'Api & Senja', parts:[{emoji:'🔥', need:'MERAH'},{emoji:'🧡', need:'ORANYE'},{emoji:'☀️', need:'KUNING'},{emoji:'🌊', need:'CYAN'}]},
-  {title:'Buah Ceria', parts:[{emoji:'🍎', need:'MERAH'},{emoji:'🍊', need:'ORANYE'},{emoji:'🍋', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
-  {title:'Magic Sky', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🦋', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'🌸', need:'MERAH MUDA'}]}
+  {title:'Pelangi Ceria', parts:[{emoji:'☁️', need:'BIRU'},{emoji:'☀️', need:'KUNING'},{emoji:'🌈', need:'UNGU'},{emoji:'🌱', need:'HIJAU'}]},
+  {title:'Taman Lucu', parts:[{emoji:'🌸', need:'MERAH MUDA'},{emoji:'🍀', need:'HIJAU'},{emoji:'☀️', need:'KUNING'},{emoji:'💧', need:'BIRU'}]},
+  {title:'Laut Cerah', parts:[{emoji:'🐟', need:'BIRU'},{emoji:'⭐', need:'KUNING'},{emoji:'🪸', need:'MERAH MUDA'},{emoji:'🐚', need:'UNGU'}]},
+  {title:'Fantasi Manis', parts:[{emoji:'🦄', need:'UNGU'},{emoji:'🍭', need:'MERAH MUDA'},{emoji:'⭐', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
+  {title:'Hari Hujan', parts:[{emoji:'☁️', need:'BIRU'},{emoji:'🌧️', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'☀️', need:'KUNING'}]}
 ];
 const warnaState={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,current:null,selected:null,painted:0};
 function warnaHud(){
@@ -304,23 +360,9 @@ function warnaHud(){
 function partCardStyle(bg){
   return `background:${bg};display:flex;align-items:center;justify-content:center;font-size:52px;min-height:140px;color:white;border:4px solid rgba(255,255,255,.82);border-radius:28px;box-shadow:var(--shadow-card);cursor:pointer;transition:transform .14s ease,filter .14s ease,box-shadow .14s ease`;
 }
-function sparkleBurst(target){
-  const rect=target.getBoundingClientRect();
-  const parent=target.parentElement.getBoundingClientRect();
-  for(let i=0;i<10;i++){
-    const s=document.createElement('div');
-    s.className='sparkle-burst';
-    s.style.left=`${rect.left-parent.left+rect.width/2}px`;
-    s.style.top=`${rect.top-parent.top+rect.height/2}px`;
-    s.style.setProperty('--dx', `${(Math.random()*120-60).toFixed(0)}px`);
-    s.style.setProperty('--dy', `${(Math.random()*120-60).toFixed(0)}px`);
-    warnaEls.paintArea.appendChild(s);
-    setTimeout(()=>s.remove(),700);
-  }
-}
 function renderPalette(){
   warnaEls.paletteBoard.innerHTML='';
-  palette8.forEach(c=>{
+  colorPool.forEach(c=>{
     const b=document.createElement('button');
     b.className='choice pressable';
     b.style.background=c.bg;
@@ -344,7 +386,7 @@ function renderTarget(){
   title.innerHTML=`<div style="font-size:14px;opacity:.7;margin-bottom:4px">Target gambar</div><div style="font-size:20px;font-weight:900">${warnaState.current.title}</div>`;
   warnaEls.targetRow.appendChild(title);
   warnaState.current.parts.forEach((p,idx)=>{
-    const c=palette8.find(x=>x.name===p.need);
+    const c=colorPool.find(x=>x.name===p.need);
     const pill=document.createElement('div');
     pill.className='preview-pill';
     pill.style.background='white';
@@ -378,7 +420,7 @@ function paintPart(card,p){
   card.classList.add('active');
   setTimeout(()=>card.classList.remove('active'),180);
   if(correct){
-    const c=palette8.find(x=>x.name===p.need);
+    const c=colorPool.find(x=>x.name===p.need);
     card.style.cssText=partCardStyle(c.bg);
     card.dataset.done='1';
     card.innerHTML=`<div style="text-align:center"><div style="font-size:56px;filter:none">${p.emoji}</div><div style="margin-top:8px;font-size:14px;font-weight:900;color:white">${p.need}</div></div>`;
@@ -388,7 +430,7 @@ function paintPart(card,p){
     warnaState.best=Math.max(warnaState.best,warnaState.streak);
     warnaState.painted+=1;
     warnaHud();
-    ok(warnaState.streak+1); sparkleBurst(card);
+    ok(warnaState.streak+1);
     if(warnaState.painted>=warnaState.current.parts.length){
       warnaState.score+=12;
       warnaState.stars+=2;

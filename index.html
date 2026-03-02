@@ -88,6 +88,7 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
+  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -118,6 +119,7 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
+  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -179,56 +181,97 @@ a{text-decoration:none;color:inherit}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
+
+/* mobile-safe responsive patch */
+@media (max-width: 767px){
+  .shell{padding:10px}
+  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
+  .top{padding:12px}
+  .playtop{padding:12px}
+  .stage{
+    min-height:max(620px,74svh);
+    height:max(620px,74svh);
+    border-radius:26px;
+  }
+  .banner{
+    top:10px;
+    left:10px;
+    right:10px;
+    transform:none;
+    max-width:none;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:18px;
+  }
+  .helper{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:auto;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:72px 12px 110px 12px !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    overflow:auto;
+  }
+  #arcadeLayer{top:60px !important; bottom:96px !important;}
+  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
+  .preview{min-height:auto}
+  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
+  .choice,.tile,.piece{min-height:96px;border-radius:22px}
+  .modal{padding:18px;border-radius:24px}
+  .result{gap:10px}
+}
+@media (max-width: 480px){
+  .stage{
+    min-height:max(640px,78svh);
+    height:max(640px,78svh);
+  }
+  .banner{font-size:11px;padding:8px 10px}
+  .helper{padding:9px 10px}
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:70px 10px 108px 10px !important;
+  }
+  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+}
+
 </style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
-<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus informatif untuk parent.</div></div><button class="sound"></button></div></div>
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus nyaman untuk parent.</div></div><button class="sound"></button></div></div>
 <div class="grid g2" style="margin-top:18px">
 <section class="card">
   <div class="hero">
-    <div>
-      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div>
-      <div class="h2" style="margin-top:18px">Pilih kategori permainan</div>
-      <div class="sub">Menu ini dibagi menjadi 3 kategori utama. Parent bisa memilih game sesuai tujuan bermain, sementara anak bisa langsung tertarik karena visualnya cerah, lucu, dan mudah dipahami.</div>
-    </div>
-    <div class="panel" style="text-align:center">
-      <div class="mascot" style="margin:0 auto 10px;background:linear-gradient(135deg,#fce7f3,#e0f2fe)">🧸</div>
-      <div style="font-weight:900;font-size:20px">9 Mini Games Anak</div>
-      <div class="sub" style="margin-top:8px;font-size:14px">Tersusun dalam kategori yang jelas agar parent mudah memilih, dan tiap game punya halaman tersendiri agar anak lebih fokus bermain.</div>
-    </div>
+    <div><div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div><div class="h2" style="margin-top:18px">Pilih kategori permainan</div><div class="sub">Master version ini berisi 9 mini games dalam 3 kategori utama dengan halaman terpisah untuk tiap game.</div></div>
+    <div class="panel" style="text-align:center"><div class="mascot" style="margin:0 auto 10px;background:linear-gradient(135deg,#fce7f3,#e0f2fe)">🧸</div><div style="font-weight:900;font-size:20px">9 Mini Games Anak</div><div class="sub" style="margin-top:8px;font-size:14px">Siap untuk dipakai sebagai satu paket game yang lebih rapi dan lengkap.</div></div>
   </div>
 
-  <div class="panel" style="margin-top:24px">
-    <div class="section-title">Focus Games</div>
-    <div class="grid g3" style="margin-top:12px">
-      <a href="game-pop-warna.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🫧</div><div class="pill" style="color:#be185d">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Pop Warna</div><div class="sub" style="font-size:15px">Tap gelembung dengan warna target secepat mungkin.</div><div class="tags"><div class="tag">Fokus visual</div><div class="tag">Respon cepat</div></div></a>
-      <a href="game-ingat-urutan.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧠</div><div class="pill" style="color:#0369a1">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Ingat Urutan</div><div class="sub" style="font-size:15px">Lihat urutan warna lalu tap kembali sesuai urutannya.</div><div class="tags"><div class="tag">Memori</div><div class="tag">Konsentrasi</div></div></a>
-      <a href="game-cari-yang-berbeda.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔎</div><div class="pill" style="color:#7c3aed">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari yang Berbeda</div><div class="sub" style="font-size:15px">Temukan satu kartu yang paling berbeda dari yang lain.</div><div class="tags"><div class="tag">Ketelitian</div><div class="tag">Observasi</div></div></a>
-    </div>
-  </div>
+  <div style="margin-top:26px"><div class="section-title">Focus Games</div><div class="grid g3" style="margin-top:12px">
+    <a href="game-pop-warna.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🫧</div><div class="pill" style="color:#be185d">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Pop Warna</div><div class="sub" style="font-size:15px">Tap gelembung dengan warna target secepat mungkin.</div><div class="tags"><div class="tag">Fokus visual</div><div class="tag">Respon cepat</div></div></a>
+    <a href="game-ingat-urutan.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧠</div><div class="pill" style="color:#0369a1">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Ingat Urutan</div><div class="sub" style="font-size:15px">Lihat urutan warna lalu tap kembali sesuai urutannya.</div><div class="tags"><div class="tag">Memori warna</div><div class="tag">Konsentrasi</div></div></a>
+    <a href="game-cari-yang-berbeda.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔎</div><div class="pill" style="color:#7c3aed">Focus</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari yang Berbeda</div><div class="sub" style="font-size:15px">Temukan satu kartu yang paling berbeda dari yang lain.</div><div class="tags"><div class="tag">Ketelitian</div><div class="tag">Observasi</div></div></a>
+  </div></div>
 
-  <div class="panel" style="margin-top:18px">
-    <div class="section-title">Brain Games</div>
-    <div class="grid g3" style="margin-top:12px">
-      <a href="game-temukan-pola.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧩</div><div class="pill" style="color:#0369a1">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Temukan Pola</div><div class="sub" style="font-size:15px">Pilih kartu yang melanjutkan pola yang benar.</div><div class="tags"><div class="tag">Pola</div><div class="tag">Logika ringan</div></div></a>
-      <a href="game-labirin-ringan.html" class="game-card g-lime"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🌀</div><div class="pill" style="color:#3f6212">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Labirin Ringan</div><div class="sub" style="font-size:15px">Arahkan karakter keluar dari labirin kecil dengan panah.</div><div class="tags"><div class="tag">Arah</div><div class="tag">Problem solving</div></div></a>
-      <a href="game-hitung-cepat.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">➕</div><div class="pill" style="color:#a16207">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Hitung Cepat</div><div class="sub" style="font-size:15px">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div><div class="tags"><div class="tag">Angka</div><div class="tag">Kecepatan</div></div></a>
-    </div>
-  </div>
+  <div style="margin-top:28px"><div class="section-title">Brain Games</div><div class="grid g3" style="margin-top:12px">
+    <a href="game-temukan-pola.html" class="game-card g-sky"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧩</div><div class="pill" style="color:#0369a1">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Temukan Pola</div><div class="sub" style="font-size:15px">Pilih kartu yang melanjutkan pola yang benar.</div><div class="tags"><div class="tag">Pola</div><div class="tag">Logika ringan</div></div></a>
+    <a href="game-labirin-ringan.html" class="game-card g-lime"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🌀</div><div class="pill" style="color:#3f6212">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Labirin Ringan</div><div class="sub" style="font-size:15px">Arahkan karakter keluar dari labirin kecil dengan panah.</div><div class="tags"><div class="tag">Arah</div><div class="tag">Problem solving</div></div></a>
+    <a href="game-hitung-cepat.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">➕</div><div class="pill" style="color:#a16207">Brain</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Hitung Cepat</div><div class="sub" style="font-size:15px">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div><div class="tags"><div class="tag">Angka</div><div class="tag">Kecepatan</div></div></a>
+  </div></div>
 
-  <div class="panel" style="margin-top:18px">
-    <div class="section-title">Creative & Sensory Games</div>
-    <div class="grid g3" style="margin-top:12px">
-      <a href="game-campur-warna.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🎨</div><div class="pill" style="color:#c2410c">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Campur Warna</div><div class="sub" style="font-size:15px">Pilih 2 warna untuk menghasilkan warna target yang benar.</div><div class="tags"><div class="tag">Eksplorasi warna</div><div class="tag">Visual kreatif</div></div></a>
-      <a href="game-warna-ajaib.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🧸</div><div class="pill" style="color:#be185d">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Warna Ajaib</div><div class="sub" style="font-size:15px">Pilih warna lalu tap bagian gambar sampai ilustrasi jadi berwarna dan hidup.</div><div class="tags"><div class="tag">Mewarnai interaktif</div><div class="tag">Warna & kreativitas</div></div></a>
-      <a href="game-cari-pasangan-bunyi-gambar.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔊</div><div class="pill" style="color:#7c3aed">Sensory</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari Pasangan Bunyi/Gambar</div><div class="sub" style="font-size:15px">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div><div class="tags"><div class="tag">Sensory play</div><div class="tag">Asosiasi gambar</div></div></a>
-    </div>
-  </div>
+  <div style="margin-top:28px"><div class="section-title">Creative & Sensory Games</div><div class="grid g3" style="margin-top:12px">
+    <a href="game-campur-warna.html" class="game-card g-orange"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🎨</div><div class="pill" style="color:#c2410c">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Campur Warna</div><div class="sub" style="font-size:15px">Pilih 2 warna untuk menghasilkan warna target yang benar.</div><div class="tags"><div class="tag">Eksplorasi warna</div><div class="tag">Visual kreatif</div></div></a>
+    <a href="game-warna-ajaib.html" class="game-card g-pink"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🪄</div><div class="pill" style="color:#be185d">Creative</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Warna Ajaib</div><div class="sub" style="font-size:15px">Pilih warna lalu tap bagian gambar sampai ilustrasi jadi hidup.</div><div class="tags"><div class="tag">Mewarnai</div><div class="tag">Sparkle reward</div></div></a>
+    <a href="game-cari-pasangan-bunyi-gambar.html" class="game-card g-violet"><div style="display:flex;justify-content:space-between"><div style="font-size:48px">🔊</div><div class="pill" style="color:#7c3aed">Sensory</div></div><div style="font-size:30px;font-weight:900;margin-top:16px">Cari Pasangan Bunyi/Gambar</div><div class="sub" style="font-size:15px">Cocokkan petunjuk bunyi atau kata dengan gambar yang tepat.</div><div class="tags"><div class="tag">Sensory play</div><div class="tag">Asosiasi gambar</div></div></a>
+  </div></div>
 </section>
-<aside class="panel">
-  <div class="side-stack">
-    <div class="side-card"><div style="font-weight:900;color:#0369a1">Informative untuk parent</div><div class="sub" style="font-size:14px;margin-top:6px">Kategori dibuat jelas agar parent mudah memahami tujuan bermain: fokus, brain challenge, atau eksplorasi kreatif.</div></div>
-    <div class="side-card"><div style="font-weight:900;color:#be185d">Menarik untuk kids</div><div class="sub" style="font-size:14px;margin-top:6px">Warna pastel, ikon lucu, dan judul besar membantu anak langsung tertarik memilih game favoritnya.</div></div>
-    <div class="side-card"><div style="font-weight:900;color:#c2410c">Siap dimainkan berulang</div><div class="sub" style="font-size:14px;margin-top:6px">Anak bisa kembali ke menu kapan saja dan memilih kategori yang berbeda sesuai mood dan energi bermain hari itu.</div></div>
-  </div>
+<aside class="side-stack">
+  <div class="panel"><div style="font-weight:900;color:#0369a1">Verified master pack</div><div class="sub" style="font-size:14px;margin-top:6px">Folder ini berisi 10 HTML: 1 index + 9 game pages.</div></div>
+  <div class="panel"><div style="font-weight:900;color:#be185d">Siap uji lintas device</div><div class="sub" style="font-size:14px;margin-top:6px">Sudah dibuat dengan layout responsif dan halaman game terpisah.</div></div>
+  <div class="panel"><div style="font-weight:900;color:#c2410c">Lebih clean</div><div class="sub" style="font-size:14px;margin-top:6px">Hanya menyertakan halaman yang dipakai di menu final.</div></div>
 </aside>
 </div>
 </div><script>

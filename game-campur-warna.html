@@ -88,6 +88,7 @@ a{text-decoration:none;color:inherit}
 .game-card{
   display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);
   box-shadow:var(--shadow-card);position:relative;overflow:hidden
+  isolation:isolate;
 }
 .game-card::after{
   content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;
@@ -118,6 +119,7 @@ a{text-decoration:none;color:inherit}
   position:relative;min-height:clamp(430px,64vh,760px);height:clamp(430px,64vh,760px);
   background:rgba(255,255,255,.24);backdrop-filter:blur(14px);
   border:4px solid rgba(255,255,255,.75);overflow:hidden
+  isolation:isolate;
 }
 @media(max-width:767px){.stage{min-height:min(62vh,560px);height:min(62vh,560px)}}
 .banner{
@@ -196,6 +198,66 @@ a{text-decoration:none;color:inherit}
 .slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
 .slot.filled .slot-cover{display:none}
 @keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
+
+/* mobile-safe responsive patch */
+@media (max-width: 767px){
+  .shell{padding:10px}
+  .top,.card,.panel,.playtop,.side-card{border-radius:24px}
+  .top{padding:12px}
+  .playtop{padding:12px}
+  .stage{
+    min-height:max(620px,74svh);
+    height:max(620px,74svh);
+    border-radius:26px;
+  }
+  .banner{
+    top:10px;
+    left:10px;
+    right:10px;
+    transform:none;
+    max-width:none;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:18px;
+  }
+  .helper{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:auto;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:72px 12px 110px 12px !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    overflow:auto;
+  }
+  #arcadeLayer{top:60px !important; bottom:96px !important;}
+  #memoryLayer{top:60px !important; bottom:96px !important; padding:12px !important;}
+  .preview{min-height:auto}
+  .board4,.mix-grid,.pair-grid,.mem,.odd-grid,.palette-grid{gap:10px}
+  .choice,.tile,.piece{min-height:96px;border-radius:22px}
+  .modal{padding:18px;border-radius:24px}
+  .result{gap:10px}
+}
+@media (max-width: 480px){
+  .stage{
+    min-height:max(640px,78svh);
+    height:max(640px,78svh);
+  }
+  .banner{font-size:11px;padding:8px 10px}
+  .helper{padding:9px 10px}
+  .stage > div[style*="position:absolute;inset:0;padding:16px"]{
+    padding:70px 10px 108px 10px !important;
+  }
+  .stats{grid-template-columns:repeat(2,minmax(72px,1fr)); width:100% !important; min-width:0 !important}
+}
+
 </style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">CREATIVE GAME</div><div class="badge s">WARNA & EKSPLORASI</div></div><div class="h1">Campur Warna</div><div class="sub">Pilih 2 warna untuk menghasilkan warna target yang benar dengan cara yang seru dan visual.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih 2 warna untuk mendapatkan target</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih 2 warna untuk mendapatkan target</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih 2 warna untuk mendapatkan target</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='targetBox' style='width:120px;height:120px;border-radius:28px;margin:0 auto 12px;border:4px solid rgba(255,255,255,.85);box-shadow:0 10px 28px rgba(15,23,42,.12)'></div><div id='prompt' style='font-weight:900;font-size:24px;margin-bottom:14px'>Pilih 2 warna untuk membuat target</div><div class='board4' id='mixChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🎨</div><div class='h2' style='margin-top:10px'>Siap bermain Campur Warna?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Eksplorasi warna</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak mencoba kombinasi warna dasar dengan cara yang visual dan menyenangkan.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Kreatif tapi simpel</div><div class='sub' style='font-size:14px;margin-top:6px'>Game ini terasa seperti bereksperimen sambil bermain, bukan belajar berat.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
@@ -221,7 +283,13 @@ function bindsound(){
 }
 </script><script>
 bindsound();
-const recipes=[{"target":"HIJAU","color":"#84cc16","combo":["KUNING","BIRU"]},{"target":"HIJAU DAUN","color":"#65a30d","combo":["KUNING","BIRU"]},{"target":"HIJAU RUMPUT","color":"#4d7c0f","combo":["KUNING","BIRU"]},{"target":"HIJAU CERAH","color":"#a3e635","combo":["KUNING","BIRU"]},{"target":"HIJAU KEBUN","color":"#6b8f1a","combo":["KUNING","BIRU"]},{"target":"HIJAU SEGAR","color":"#7fbf3f","combo":["KUNING","BIRU"]},{"target":"BIRU MUDA","color":"#7dd3fc","combo":["BIRU","PUTIH"]},{"target":"BIRU LANGIT","color":"#93c5fd","combo":["BIRU","PUTIH"]},{"target":"BIRU AWAN","color":"#bae6fd","combo":["BIRU","PUTIH"]},{"target":"BIRU ES","color":"#67e8f9","combo":["BIRU","PUTIH"]},{"target":"BIRU PASTEL","color":"#bfdbfe","combo":["BIRU","PUTIH"]},{"target":"BIRU LEMBUT","color":"#a5f3fc","combo":["BIRU","PUTIH"]},{"target":"UNGU MUDA","color":"#c4b5fd","combo":["UNGU","PUTIH"]},{"target":"LAVENDER","color":"#ddd6fe","combo":["UNGU","PUTIH"]},{"target":"UNGU PASTEL","color":"#e9d5ff","combo":["UNGU","PUTIH"]},{"target":"UNGU LEMBUT","color":"#d8b4fe","combo":["UNGU","PUTIH"]},{"target":"UNGU KAPAS","color":"#f3e8ff","combo":["UNGU","PUTIH"]},{"target":"UNGU MANIS","color":"#d946ef","combo":["UNGU","PUTIH"]},{"target":"HIJAU MUDA","color":"#bef264","combo":["HIJAU","PUTIH"]},{"target":"HIJAU MINT","color":"#bbf7d0","combo":["HIJAU","PUTIH"]},{"target":"HIJAU PASTEL","color":"#d9f99d","combo":["HIJAU","PUTIH"]},{"target":"HIJAU LEMBUT","color":"#dcfce7","combo":["HIJAU","PUTIH"]},{"target":"HIJAU LUMUT MUDA","color":"#c7d2a4","combo":["HIJAU","PUTIH"]},{"target":"HIJAU KAPAS","color":"#ecfccb","combo":["HIJAU","PUTIH"]},{"target":"ABU-ABU","color":"#9ca3af","combo":["PUTIH","HITAM"]},{"target":"ABU MUDA","color":"#d1d5db","combo":["PUTIH","HITAM"]},{"target":"ABU BATU","color":"#94a3b8","combo":["PUTIH","HITAM"]},{"target":"ABU ASAP","color":"#6b7280","combo":["PUTIH","HITAM"]},{"target":"ABU SILVER","color":"#cbd5e1","combo":["PUTIH","HITAM"]},{"target":"ABU KABUT","color":"#e5e7eb","combo":["PUTIH","HITAM"]},{"target":"EMAS","color":"#fbbf24","combo":["KUNING","ORANYE"]},{"target":"KUNING KEEMASAN","color":"#f59e0b","combo":["KUNING","ORANYE"]},{"target":"AMBER","color":"#f59e0b","combo":["KUNING","ORANYE"]},{"target":"MADU","color":"#f59e0b","combo":["KUNING","ORANYE"]},{"target":"JINGGA EMAS","color":"#f6ad1b","combo":["KUNING","ORANYE"]},{"target":"SUNSET GOLD","color":"#ffb703","combo":["KUNING","ORANYE"]},{"target":"COKELAT","color":"#92400e","combo":["ORANYE","HITAM"]},{"target":"COKELAT TUA","color":"#78350f","combo":["ORANYE","HITAM"]},{"target":"COKELAT KAYU","color":"#8b5e34","combo":["ORANYE","HITAM"]},{"target":"COKELAT KOPI","color":"#6f4e37","combo":["ORANYE","HITAM"]},{"target":"COKELAT TANAH","color":"#7c4a21","combo":["ORANYE","HITAM"]},{"target":"COKELAT CARAMEL","color":"#b45309","combo":["ORANYE","HITAM"]},{"target":"PINK MUDA","color":"#fbcfe8","combo":["MERAH MUDA","PUTIH"]},{"target":"PINK PASTEL","color":"#f9a8d4","combo":["MERAH MUDA","PUTIH"]},{"target":"PINK LEMBUT","color":"#fce7f3","combo":["MERAH MUDA","PUTIH"]},{"target":"ROSE MUDA","color":"#fda4af","combo":["MERAH MUDA","PUTIH"]},{"target":"PINK KAPAS","color":"#ffe4e6","combo":["MERAH MUDA","PUTIH"]},{"target":"PINK PERMEN","color":"#f9a8d4","combo":["MERAH MUDA","PUTIH"]},{"target":"MAGENTA","color":"#d946ef","combo":["MERAH MUDA","UNGU"]},{"target":"FUCHSIA","color":"#c026d3","combo":["MERAH MUDA","UNGU"]},{"target":"BUNGA UNGU","color":"#e879f9","combo":["MERAH MUDA","UNGU"]},{"target":"PINK UNGU","color":"#ec4899","combo":["MERAH MUDA","UNGU"]},{"target":"ORKID","color":"#da70d6","combo":["MERAH MUDA","UNGU"]},{"target":"VIOLET PINK","color":"#db2777","combo":["MERAH MUDA","UNGU"]},{"target":"BIRU TUA","color":"#1e3a8a","combo":["BIRU","HITAM"]},{"target":"NAVY","color":"#1e40af","combo":["BIRU","HITAM"]},{"target":"BIRU MALAM","color":"#172554","combo":["BIRU","HITAM"]},{"target":"BIRU LAUT TUA","color":"#1d4ed8","combo":["BIRU","HITAM"]},{"target":"BIRU PETIR","color":"#1e3a8a","combo":["BIRU","HITAM"]},{"target":"BIRU DEEP","color":"#1e293b","combo":["BIRU","HITAM"]},{"target":"HIJAU TUA","color":"#3f6212","combo":["HIJAU","HITAM"]},{"target":"HIJAU HUTAN","color":"#365314","combo":["HIJAU","HITAM"]},{"target":"HIJAU LUMUT","color":"#4d7c0f","combo":["HIJAU","HITAM"]},{"target":"HIJAU GELAP","color":"#166534","combo":["HIJAU","HITAM"]},{"target":"HIJAU BOTOL","color":"#14532d","combo":["HIJAU","HITAM"]},{"target":"HIJAU DAUN TUA","color":"#365314","combo":["HIJAU","HITAM"]}];
+const recipes=[{"target":"HIJAU","color":"#84cc16","combo":["KUNING","BIRU"]},
+{"target":"BIRU MUDA","color":"#7dd3fc","combo":["BIRU","PUTIH"]},
+{"target":"UNGU MUDA","color":"#c4b5fd","combo":["UNGU","PUTIH"]},
+{"target":"HIJAU MUDA","color":"#bef264","combo":["HIJAU","PUTIH"]},
+{"target":"ABU-ABU","color":"#9ca3af","combo":["PUTIH","HITAM"]},
+{"target":"EMAS","color":"#fbbf24","combo":["KUNING","ORANYE"]},
+{"target":"COKELAT","color":"#92400e","combo":["ORANYE","HITAM"]}];
 const palette=[{"name": "MERAH MUDA", "bg": "#f472b6", "emoji": "🌸"}, {"name": "BIRU", "bg": "#38bdf8", "emoji": "🌊"}, {"name": "KUNING", "bg": "#facc15", "emoji": "🌟"}, {"name": "HIJAU", "bg": "#84cc16", "emoji": "🍀"}, {"name": "UNGU", "bg": "#a78bfa", "emoji": "🪻"}, {"name": "PUTIH", "bg": "#f8fafc", "emoji": "☁️"}, {"name": "HITAM", "bg": "#111827", "emoji": "🌑"}, {"name": "ORANYE", "bg": "#fb923c", "emoji": "🍊"}];
 const targetBox=document.getElementById('targetBox');
 const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:mixChoices};
