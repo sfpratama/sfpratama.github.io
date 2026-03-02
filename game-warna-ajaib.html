@@ -6,11 +6,11 @@
 <script>
 (function(){
   try{
-    var raw=localStorage.getItem('spk_session');
+    var raw=localStorage.getItem('sparkids_session');
     if(!raw){location.replace('auth.html?redirect=game-warna-ajaib.html');throw 0;}
     var s=JSON.parse(raw);
-    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('spk_session');location.replace('auth.html');throw 0;}
-    window.__RMF_SESSION=s;
+    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('sparkids_session');location.replace('auth.html');throw 0;}
+    window.__SPARKIDS_SESSION=s;
   }catch(e){if(e!==0)location.replace('auth.html');}
 })();
 </script><title>Warna Ajaib – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
@@ -420,12 +420,12 @@ div.playtop:not(.keep) { display:none !important; }
     }, 80);
     window.toggleSoundMini = function(){
       soundEnabled=!soundEnabled;
-      localStorage.setItem('kids_sound',soundEnabled?'on':'off');
+      localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');
       document.getElementById('soundMiniBtn').textContent=soundEnabled?'🔊':'🔇';
       if(soundEnabled&&typeof initAudio==='function') initAudio();
     };
     var btn=document.getElementById('soundMiniBtn');
-    if(btn) btn.textContent=localStorage.getItem('kids_sound')==='off'?'🔇':'🔊';
+    if(btn) btn.textContent=localStorage.getItem('sparkids_sound')==='off'?'🔇':'🔊';
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',buildTopbar);
@@ -535,7 +535,7 @@ function launchConfetti(){
 </div>
 </div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
-let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
+let soundEnabled=localStorage.getItem('sparkids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
 function tone(f=440,d=.12,t='sine',v=.03,w=0){if(!soundEnabled||!audioCtx)return;const n=audioCtx.currentTime+w;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioCtx.destination);o.start(n);o.stop(n+d+.02);}
 function ok(c=1){initAudio();tone(660,.08,'triangle',.028,0);tone(c>=3?988:880,.12,'triangle',.024,.05);}
@@ -544,7 +544,7 @@ function levelup(){initAudio();tone(523,.08,'triangle',.022,0);tone(659,.08,'tri
 function startsound(){initAudio();tone(440,.08,'sine',.018,0);tone(554,.08,'sine',.018,.05);tone(659,.12,'sine',.018,.1);}
 function finishsound(){initAudio();tone(784,.08,'triangle',.02,0);tone(988,.12,'triangle',.02,.06);}
 function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i%notes.length],.16,'triangle',.022,0);}
-function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
+function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
 </script><script>
@@ -721,13 +721,13 @@ function warnaEnd(){
 
   // ── save to dashboard ──
   try {
-    var _sess = window.__RMF_SESSION;
+    var _sess = window.__SPARKIDS_SESSION;
     if(_sess && _sess.userId) {
-      var _sk = 'spk_scores_' + _sess.userId;
+      var _sk = 'sparkids_scores_' + _sess.userId;
       var _sc = {}; try { _sc = JSON.parse(localStorage.getItem(_sk)||'{}'); } catch(e){}
       if(!_sc['warna-ajaib'] || warnaState.score > _sc['warna-ajaib']) _sc['warna-ajaib'] = warnaState.score;
       localStorage.setItem(_sk, JSON.stringify(_sc));
-      var _wk = 'spk_week_' + _sess.userId;
+      var _wk = 'sparkids_week_' + _sess.userId;
       var _ww = [0,0,0,0,0,0,0]; try { _ww = JSON.parse(localStorage.getItem(_wk)||'[0,0,0,0,0,0,0]'); } catch(e){}
       var _d=new Date().getDay(); _ww[_d===0?6:_d-1]++;
       localStorage.setItem(_wk, JSON.stringify(_ww));
