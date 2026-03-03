@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Login – Rumah Main Fokus</title>
+<title>Login – Sparkids</title>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#f472b6"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -146,6 +146,7 @@ body{
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 .wrap{animation:popIn .3s ease-out}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
@@ -155,8 +156,8 @@ body{
   <div class="left">
     <div class="logo-box">🐻</div>
     <div>
-      <div class="brand">Rumah Main<br/><span>Fokus</span></div>
-      <div class="tagline">Platform game edukasi untuk anak yang menyenangkan & seru!</div>
+      <div class="brand">Spark<span>kids</span></div>
+      <div class="tagline">Platform edukasi interaktif untuk anak – belajar sambil bermain!</div>
     </div>
     <div class="badges-col">
       <div class="badge-item"><div class="badge-dot dot-pink"></div>9 Mini Games Seru</div>
@@ -208,131 +209,96 @@ body{
         Belum punya akun? <a href="#" onclick="showBuyHelp()">Lihat cara berlangganan</a>
       </div>
       <div class="support-link" style="margin-top:-8px">
-        Butuh bantuan? <a href="mailto:support@rumahmainfokus.com">Hubungi kami</a>
+        Butuh bantuan? <a href="/cdn-cgi/l/email-protection#9ae9efeaeaf5e8eedae8eff7fbf2f7fbf3f4fcf5f1efe9b4f9f5f7">Hubungi kami</a>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-// ─── CORE AUTH SYSTEM ──────────────────────────────────────────────────────
-// Users are stored in localStorage under key 'rmf_users'
-// Format: [{id, username, email, password, name, plan, createdAt, children:[]}]
-// Session stored under 'rmf_session': {userId, name, plan, loginAt}
-//
-// NOTE: For production, replace localStorage with Supabase/Firebase Auth
-// See: https://supabase.com/docs/guides/auth for upgrade path
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ─── SPARKIDS AUTH – powered by Supabase ──────────────────────────────────
+const { createClient } = window.supabase;
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
 
-function getUsers(){
-  try{return JSON.parse(localStorage.getItem('rmf_users')||'[]')}catch{return[]}
-}
-
-function getSession(){
-  try{
-    const raw=localStorage.getItem('rmf_session');
-    if(!raw)return null;
-    const s=JSON.parse(raw);
-    // Session expires in 30 days
-    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('rmf_session');return null}
-    return s;
-  }catch{return null}
-}
-
-// ─── REDIRECT IF ALREADY LOGGED IN ────────────────────────────────────────
-;(function(){
-  const s=getSession();
-  if(s){
-    const dest=new URLSearchParams(location.search).get('redirect')||'index.html';
+// ─── CHECK IF ALREADY LOGGED IN ────────────────────────────────────────────
+(async function(){
+  const { data: { session } } = await _db.auth.getSession();
+  if(session){
+    const dest = new URLSearchParams(location.search).get('redirect') || 'index.html';
     location.replace(dest);
   }
 })();
 
 // ─── LOGIN ─────────────────────────────────────────────────────────────────
-function doLogin(){
-  const username=document.getElementById('usernameInput').value.trim().toLowerCase();
-  const password=document.getElementById('passwordInput').value;
-  const remember=document.getElementById('rememberMe').checked;
+async function doLogin(){
+  const emailOrUser = document.getElementById('usernameInput').value.trim().toLowerCase();
+  const password    = document.getElementById('passwordInput').value;
 
-  if(!username||!password){showAlert('error','⚠️ Isi username dan password dulu ya!');return}
+  if(!emailOrUser || !password){
+    showAlert('error','⚠️ Isi email dan password dulu ya!'); return;
+  }
+
+  // Accept either email or username@sparkids.id format
+  const email = emailOrUser.includes('@') ? emailOrUser : emailOrUser + '@sparkids.id';
 
   setLoading(true);
 
+  const { data, error } = await _db.auth.signInWithPassword({ email, password });
+
+  if(error){
+    let msg = '❌ Email atau password salah. Cek kembali ya!';
+    if(error.message.includes('Email not confirmed')) msg = '⚠️ Email belum dikonfirmasi. Hubungi admin Sparkids.';
+    if(error.message.includes('Invalid login')) msg = '❌ Email atau password salah.';
+    showAlert('error', msg);
+    setLoading(false);
+    return;
+  }
+
+  showAlert('success','✅ Login berhasil! Mengalihkan...');
   setTimeout(()=>{
-    const users=getUsers();
-    const user=users.find(u=>
-      (u.username?.toLowerCase()===username||u.email?.toLowerCase()===username)
-      &&u.password===password
-    );
+    const dest = new URLSearchParams(location.search).get('redirect') || 'index.html';
+    location.replace(dest);
+  }, 700);
+}
 
-    if(!user){
-      showAlert('error','❌ Username atau password salah. Cek kembali ya!');
-      setLoading(false);
-      return;
-    }
-
-    // Create session
-    const session={
-      userId:user.id,
-      username:user.username,
-      name:user.name,
-      email:user.email,
-      plan:user.plan||'free',
-      loginAt:Date.now()
-    };
-
-    if(remember){
-      localStorage.setItem('rmf_session',JSON.stringify(session));
-    }else{
-      sessionStorage.setItem('rmf_session',JSON.stringify(session));
-      // Also set in local for cross-page access
-      localStorage.setItem('rmf_session',JSON.stringify(session));
-    }
-
-    showAlert('success','✅ Login berhasil! Mengalihkan...');
-
-    setTimeout(()=>{
-      const dest=new URLSearchParams(location.search).get('redirect')||'index.html';
-      location.replace(dest);
-    },800);
-
-  },600); // Simulate network delay
+// ─── LOGOUT (called from other pages) ──────────────────────────────────────
+async function doLogout(){
+  await _db.auth.signOut();
+  location.replace('auth.html');
 }
 
 // ─── UI HELPERS ─────────────────────────────────────────────────────────────
-function showAlert(type,msg){
-  const el=document.getElementById('alertBox');
-  el.className='alert alert-'+type;
-  el.style.display='flex';
-  el.textContent=msg;
+function showAlert(type, msg){
+  const el = document.getElementById('alertBox');
+  el.className = 'alert alert-' + type;
+  el.style.display = 'flex';
+  el.textContent = msg;
 }
-
 function setLoading(on){
-  document.getElementById('loginBtn').disabled=on;
-  document.getElementById('btnText').style.display=on?'none':'inline';
-  document.getElementById('spinner').style.display=on?'inline-block':'none';
+  document.getElementById('loginBtn').disabled = on;
+  document.getElementById('btnText').style.display = on ? 'none' : 'inline';
+  document.getElementById('spinner').style.display = on ? 'inline-block' : 'none';
 }
-
 function togglePass(){
-  const inp=document.getElementById('passwordInput');
-  const btn=document.getElementById('eyeBtn');
-  if(inp.type==='password'){inp.type='text';btn.textContent='🙈'}
-  else{inp.type='password';btn.textContent='👁️'}
+  const inp = document.getElementById('passwordInput');
+  const btn = document.getElementById('eyeBtn');
+  if(inp.type==='password'){ inp.type='text'; btn.textContent='🙈'; }
+  else{ inp.type='password'; btn.textContent='👁️'; }
 }
-
 function showForgotHelp(){
-  showAlert('error','🔑 Lupa password? Kirim email ke support@rumahmainfokus.com dengan subject "Reset Password" dan nama kamu.');
+  showAlert('error','🔑 Lupa password? Hubungi admin Sparkids via WhatsApp atau email support@sparkids.id');
 }
-
 function showBuyHelp(){
-  showAlert('success','🛒 Untuk berlangganan, kunjungi link bio kami di Instagram atau hubungi WhatsApp admin. Setelah pembayaran, akun akan dikirim dalam 1x24 jam.');
+  showAlert('success','🛒 Untuk berlangganan hubungi admin via WhatsApp atau Instagram. Akun akan aktif dalam 1x24 jam!');
 }
 
-// ─── PWA SERVICE WORKER ────────────────────────────────────────────────────
+// ─── ENTER KEY ────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ─── PWA SERVICE WORKER ──────────────────────────────────────────────────
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg=>console.log('[PWA] SW registered',reg.scope))
-      .catch(err=>console.warn('[PWA] SW failed',err));
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
   });
 }
 </script>

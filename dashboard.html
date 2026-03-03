@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dashboard – Rumah Main Fokus</title>
+<title>Dashboard – Sparkids</title>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#f472b6"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -268,6 +268,7 @@ a{text-decoration:none;color:inherit}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fade-slide{animation:fadeSlide .4s ease-out}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
@@ -290,7 +291,7 @@ a{text-decoration:none;color:inherit}
   <nav class="topbar">
     <div class="brand-nav">
       <div class="brand-icon">🐻</div>
-      <div class="brand-name">Rumah Main <span>Fokus</span></div>
+      <div class="brand-name">Spark<span>kids</span></div>
     </div>
     <div class="nav-right">
       <a href="index.html" class="nav-pill">🎮 Main Sekarang</a>
@@ -485,223 +486,208 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <script>
-// ─── AUTH CHECK ─────────────────────────────────────────────────────────────
-function getSession(){
-  try{
-    const raw=localStorage.getItem('rmf_session');
-    if(!raw)return null;
-    const s=JSON.parse(raw);
-    if(Date.now()-s.loginAt>30*24*60*60*1000){localStorage.removeItem('rmf_session');return null}
-    return s;
-  }catch{return null}
-}
-function getUsers(){try{return JSON.parse(localStorage.getItem('rmf_users')||'[]')}catch{return[]}}
+// ─── SPARKIDS DASHBOARD – Supabase ──────────────────────────────────────────
+const { createClient } = window.supabase;
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
 
-const session=getSession();
-if(!session){location.replace('auth.html?redirect=dashboard.html');throw 0}
-
-// Get full user data
-const users=getUsers();
-const user=users.find(u=>u.id===session.userId)||{name:session.name,plan:session.plan,children:[],scores:{}};
-const isPremium=session.plan==='premium'||session.plan==='admin';
-
-// ─── POPULATE UI ─────────────────────────────────────────────────────────────
-document.getElementById('welcomeName').textContent=`Halo, ${session.name||'Parent'}! 👋`;
-document.getElementById('welcomeSub').textContent=`Akun: ${session.email||session.username} · ${isPremium?'Premium ⭐':'Free Plan'}`;
-document.getElementById('planBadge').textContent=isPremium?'⭐ Premium':'🆓 Free';
-document.getElementById('planBadge').className='nav-pill '+(isPremium?'plan-premium':'plan-free');
-if(!isPremium)document.getElementById('upgradeCard').style.display='block';
-
-// ─── SCORES & STATS ──────────────────────────────────────────────────────────
-const scoreKey='rmf_scores_'+(session.userId||'guest');
-let scores={};
-try{scores=JSON.parse(localStorage.getItem(scoreKey)||'{}')}catch{}
-
-const allGames=[
-  {id:'pop-warna',name:'Pop Warna',emoji:'🫧',color:'#fce7f3',cat:'focus',catColor:'#be185d',free:true},
-  {id:'ingat-urutan',name:'Ingat Urutan',emoji:'🧠',color:'#e0f2fe',cat:'focus',catColor:'#0369a1',free:false},
-  {id:'cari-yang-berbeda',name:'Cari Berbeda',emoji:'🔎',color:'#ede9fe',cat:'focus',catColor:'#7c3aed',free:false},
-  {id:'temukan-pola',name:'Temukan Pola',emoji:'🧩',color:'#e0f2fe',cat:'brain',catColor:'#0369a1',free:false},
-  {id:'labirin-ringan',name:'Labirin Ringan',emoji:'🌀',color:'#ecfccb',cat:'brain',catColor:'#3f6212',free:false},
-  {id:'hitung-cepat',name:'Hitung Cepat',emoji:'➕',color:'#ffedd5',cat:'brain',catColor:'#a16207',free:true},
-  {id:'campur-warna',name:'Campur Warna',emoji:'🎨',color:'#ffedd5',cat:'creative',catColor:'#c2410c',free:false},
-  {id:'warna-ajaib',name:'Warna Ajaib',emoji:'🧸',color:'#fce7f3',cat:'creative',catColor:'#be185d',free:false},
-  {id:'cari-pasangan',name:'Cari Pasangan',emoji:'🔊',color:'#ede9fe',cat:'sensory',catColor:'#7c3aed',free:true},
+const allGames = [
+  {id:'pop-warna',       name:'Pop Warna',     emoji:'🫧', color:'#fce7f3', cat:'focus',   catColor:'#be185d', free:true,  file:'game-pop-warna.html'},
+  {id:'ingat-urutan',    name:'Ingat Urutan',  emoji:'🧠', color:'#e0f2fe', cat:'focus',   catColor:'#0369a1', free:false, file:'game-ingat-urutan.html'},
+  {id:'cari-yang-berbeda',name:'Cari Berbeda', emoji:'🔎', color:'#ede9fe', cat:'focus',   catColor:'#7c3aed', free:false, file:'game-cari-yang-berbeda.html'},
+  {id:'temukan-pola',    name:'Temukan Pola',  emoji:'🧩', color:'#e0f2fe', cat:'brain',   catColor:'#0369a1', free:false, file:'game-temukan-pola.html'},
+  {id:'labirin-ringan',  name:'Labirin',       emoji:'🌀', color:'#ecfccb', cat:'brain',   catColor:'#3f6212', free:false, file:'game-labirin-ringan.html'},
+  {id:'hitung-cepat',    name:'Hitung Cepat',  emoji:'➕', color:'#ffedd5', cat:'brain',   catColor:'#a16207', free:true,  file:'game-hitung-cepat-baseline.html'},
+  {id:'campur-warna',    name:'Campur Warna',  emoji:'🎨', color:'#ffedd5', cat:'creative',catColor:'#c2410c', free:false, file:'game-campur-warna.html'},
+  {id:'warna-ajaib',     name:'Warna Ajaib',   emoji:'🧸', color:'#fce7f3', cat:'creative',catColor:'#be185d', free:false, file:'game-warna-ajaib.html'},
+  {id:'cari-pasangan',   name:'Cari Pasangan', emoji:'🔊', color:'#ede9fe', cat:'sensory', catColor:'#7c3aed', free:true,  file:'game-cari-pasangan-bunyi-gambar.html'},
 ];
 
-// Compute stats
-const playedGames=allGames.filter(g=>scores[g.id]!=null);
-const totalPlayed=Object.keys(scores).length;
-const bestScore=totalPlayed>0?Math.max(...Object.values(scores)):0;
-const totalMinutes=Object.values(scores).reduce((a,v)=>a+Math.round((v||0)/10),0);
-function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'–'}
+function rank(s){ if(s>=140)return'A+'; if(s>=110)return'A'; if(s>=80)return'B'; if(s>=50)return'C'; return'–'; }
 
-document.getElementById('statGamesPlayed').textContent=totalPlayed;
-document.getElementById('statMinutes').textContent=totalMinutes+'m';
-document.getElementById('statBestScore').textContent=bestScore||'–';
-document.getElementById('statRank').textContent=rank(bestScore);
-document.getElementById('totalGames').textContent=totalPlayed;
-document.getElementById('streakCount').textContent=Math.min(totalPlayed,7);
+// ─── MAIN LOAD ────────────────────────────────────────────────────────────────
+(async function(){
+  const { data:{ session } } = await _db.auth.getSession();
+  if(!session){ location.replace('auth.html?redirect=dashboard.html'); return; }
 
-// ─── SKILL BARS ──────────────────────────────────────────────────────────────
-const focusGames=['pop-warna','ingat-urutan','cari-yang-berbeda'];
-const brainGames=['temukan-pola','labirin-ringan','hitung-cepat'];
-const creativeGames=['campur-warna','warna-ajaib','cari-pasangan'];
+  const uid = session.user.id;
 
-function catPct(ids){
-  const played=ids.filter(id=>scores[id]!=null).length;
-  const avgScore=ids.reduce((a,id)=>a+(scores[id]||0),0)/ids.length;
-  return Math.min(100,Math.round((played/ids.length)*60+(avgScore/2)));
-}
-const focusPct=catPct(focusGames);
-const brainPct=catPct(brainGames);
-const creativePct=catPct(creativeGames);
-const speedPct=Math.min(100,Math.round((bestScore/200)*100));
+  // Fetch profile (includes scores + weekly as JSONB columns)
+  const { data: profile, error: profErr } = await _db
+    .from('profiles')
+    .select('name, plan, children, scores, weekly')
+    .eq('id', uid)
+    .single();
 
-setTimeout(()=>{
-  document.getElementById('barFocus').style.width=focusPct+'%';
-  document.getElementById('skillFocus').textContent=focusPct+'%';
-  document.getElementById('barBrain').style.width=brainPct+'%';
-  document.getElementById('skillBrain').textContent=brainPct+'%';
-  document.getElementById('barCreative').style.width=creativePct+'%';
-  document.getElementById('skillCreative').textContent=creativePct+'%';
-  document.getElementById('barSpeed').style.width=speedPct+'%';
-  document.getElementById('skillSpeed').textContent=speedPct+'%';
-},200);
-
-// ─── WEEKLY CHART ─────────────────────────────────────────────────────────────
-const weekData=JSON.parse(localStorage.getItem('rmf_week_'+(session.userId||'guest'))||'[0,0,0,0,0,0,0]');
-const maxW=Math.max(...weekData,1);
-const bars=document.querySelectorAll('.week-bar');
-setTimeout(()=>{
-  bars.forEach((b,i)=>{
-    const pct=Math.max(5,(weekData[i]/maxW)*100);
-    b.style.height=pct+'%';
-    b.setAttribute('data-val',weekData[i]+' game');
-  });
-},300);
-
-// ─── RECENT GAMES ─────────────────────────────────────────────────────────────
-const recentEl=document.getElementById('recentGames');
-const recentKeys=Object.keys(scores);
-if(recentKeys.length>0){
-  recentEl.innerHTML='';
-  const recent=allGames.filter(g=>scores[g.id]!=null).slice(0,5);
-  recent.forEach(g=>{
-    recentEl.innerHTML+=`
-      <div class="game-row">
-        <div class="game-icon" style="background:${g.color}">${g.emoji}</div>
-        <div class="game-info">
-          <div class="game-name">${g.name}</div>
-          <div class="game-meta">${g.cat.toUpperCase()} · ${rank(scores[g.id])} rank</div>
-        </div>
-        <div class="game-score" style="color:${g.catColor}">${scores[g.id]||0}</div>
-      </div>`;
-  });
-}
-
-// ─── GAMES MINI GRID ──────────────────────────────────────────────────────────
-const miniEl=document.getElementById('gamesMini');
-const noticeEl=document.getElementById('gamesPlanNotice');
-if(!isPremium){
-  noticeEl.innerHTML='<div style="font-size:12px;font-weight:800;color:#be185d;margin-bottom:12px;padding:8px 12px;background:rgba(252,231,243,.6);border-radius:12px">🔒 3 dari 9 game tersedia di Free Plan</div>';
-}
-allGames.forEach(g=>{
-  const canPlay=isPremium||g.free;
-  const fileMap={'pop-warna':'game-pop-warna.html','ingat-urutan':'game-ingat-urutan.html','cari-yang-berbeda':'game-cari-yang-berbeda.html','temukan-pola':'game-temukan-pola.html','labirin-ringan':'game-labirin-ringan.html','hitung-cepat':'game-hitung-cepat-baseline.html','campur-warna':'game-campur-warna.html','warna-ajaib':'game-warna-ajaib.html','cari-pasangan':'game-cari-pasangan-bunyi-gambar.html'};
-  const href=fileMap[g.id]||'index.html';
-  miniEl.innerHTML+=`
-    <div class="game-mini" style="background:${g.color}" onclick="${canPlay?`location.href='${href}'`:`showUpgradeInfo()`}">
-      <div class="game-mini-emoji">${g.emoji}</div>
-      <div class="game-mini-name">${g.name}</div>
-      ${scores[g.id]!=null?`<div style="font-size:10px;font-weight:900;margin-top:4px;color:${g.catColor}">${scores[g.id]} pts</div>`:''}
-      ${!canPlay?'<div class="lock-overlay">🔒</div>':''}
-    </div>`;
-});
-
-// ─── CHILD PROFILES ───────────────────────────────────────────────────────────
-let children=user.children||[];
-let activeChild=0;
-
-function renderChildren(){
-  const el=document.getElementById('childList');
-  if(children.length===0){
-    el.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--muted);padding:10px 0;margin-bottom:8px">Tambahkan profil anak untuk mulai tracking</div>';
-    return;
+  if(profErr && profErr.code !== 'PGRST116') {
+    console.warn('Profile fetch error:', profErr);
   }
-  el.innerHTML='';
-  children.forEach((c,i)=>{
-    el.innerHTML+=`
-      <div class="child-card ${i===activeChild?'active':''}" onclick="selectChild(${i})">
-        <div class="child-avatar" style="background:linear-gradient(135deg,#fce7f3,#fef3c7)">${c.emoji||'🦊'}</div>
-        <div>
-          <div class="child-name">${c.name}</div>
-          <div class="child-age">Usia ${c.age} tahun</div>
-        </div>
-        <div style="margin-left:auto;font-size:12px;font-weight:900;padding:4px 10px;background:white;border-radius:999px;box-shadow:0 2px 8px rgba(15,23,42,.08)">
-          ${i===activeChild?'✅ Aktif':'Pilih'}
-        </div>
-      </div>`;
-  });
-}
 
-function selectChild(i){
-  activeChild=i;
-  renderChildren();
-}
+  const name      = profile?.name || session.user.email.split('@')[0];
+  const plan      = profile?.plan || 'free';
+  const isPremium = plan === 'premium' || plan === 'admin';
+  const children  = profile?.children || [];
 
-function showAddChild(){
-  const maxChildren=isPremium?3:1;
-  if(children.length>=maxChildren){
-    alert(isPremium?'Maksimal 3 profil anak.':'Upgrade ke Premium untuk tambah sampai 3 profil anak!');
-    return;
+  // Scores map from JSONB column
+  const scores = profile?.scores || {};
+
+  // Weekly activity from JSONB column
+  const weekData = profile?.weekly || [0,0,0,0,0,0,0];
+
+  // ─── POPULATE HEADER ──────────────────────────────────────────────────────
+  document.getElementById('welcomeName').textContent = `Halo, ${name}! 👋`;
+  document.getElementById('welcomeSub').textContent  = `Akun: ${session.user.email} · ${isPremium?'Premium ⭐':'Free Plan'}`;
+  document.getElementById('planBadge').textContent   = isPremium ? '⭐ Premium' : '🆓 Free';
+  document.getElementById('planBadge').className     = 'nav-pill ' + (isPremium ? 'plan-premium' : 'plan-free');
+  if(!isPremium) document.getElementById('upgradeCard').style.display = 'block';
+
+  // ─── STATS ────────────────────────────────────────────────────────────────
+  const playedIds  = Object.keys(scores);
+  const totalPlayed = playedIds.length;
+  const bestScore  = totalPlayed > 0 ? Math.max(...Object.values(scores)) : 0;
+  const totalMins  = Object.values(scores).reduce((a,v)=>a+Math.round((v||0)/10), 0);
+
+  document.getElementById('statGamesPlayed').textContent = totalPlayed;
+  document.getElementById('statMinutes').textContent     = totalMins + 'm';
+  document.getElementById('statBestScore').textContent   = bestScore || '–';
+  document.getElementById('statRank').textContent        = rank(bestScore);
+  document.getElementById('totalGames').textContent      = totalPlayed;
+  document.getElementById('streakCount').textContent     = weekData.filter(v=>v>0).length;
+
+  // ─── SKILL BARS ───────────────────────────────────────────────────────────
+  function catPct(ids){
+    const played = ids.filter(id=>scores[id]!=null).length;
+    const avg    = ids.reduce((a,id)=>a+(scores[id]||0),0) / ids.length;
+    return Math.min(100, Math.round((played/ids.length)*60 + (avg/2)));
   }
-  document.getElementById('addChildForm').style.display='block';
-}
+  const focusPct    = catPct(['pop-warna','ingat-urutan','cari-yang-berbeda']);
+  const brainPct    = catPct(['temukan-pola','labirin-ringan','hitung-cepat']);
+  const creativePct = catPct(['campur-warna','warna-ajaib','cari-pasangan']);
+  const speedPct    = Math.min(100, Math.round((bestScore/200)*100));
 
-function saveChild(){
-  const name=document.getElementById('childNameInput').value.trim();
-  const age=parseInt(document.getElementById('childAgeInput').value)||5;
-  const emoji=document.getElementById('childEmojiInput').value;
-  if(!name){alert('Isi nama anak dulu ya!');return}
-  children.push({name,age,emoji,id:Date.now()});
-  saveUserData();
+  setTimeout(()=>{
+    [['barFocus',focusPct,'skillFocus'],['barBrain',brainPct,'skillBrain'],
+     ['barCreative',creativePct,'skillCreative'],['barSpeed',speedPct,'skillSpeed']
+    ].forEach(([bar,pct,label])=>{
+      document.getElementById(bar).style.width = pct+'%';
+      document.getElementById(label).textContent = pct+'%';
+    });
+  }, 200);
+
+  // ─── WEEKLY CHART ─────────────────────────────────────────────────────────
+  const maxW = Math.max(...weekData, 1);
+  setTimeout(()=>{
+    document.querySelectorAll('.week-bar').forEach((b,i)=>{
+      const pct = Math.max(5,(weekData[i]/maxW)*100);
+      b.style.height = pct+'%';
+      b.setAttribute('data-val', weekData[i]+' game');
+    });
+  }, 300);
+
+  // ─── STREAK DAYS ──────────────────────────────────────────────────────────
+  const days = ['S','S','R','K','J','S','M'];
+  const todayIdx = (new Date().getDay()+6) % 7;
+  const streakEl = document.getElementById('streakDays');
+  if(streakEl){
+    streakEl.innerHTML = '';
+    for(let i=0;i<7;i++){
+      const cls = i===todayIdx ? 'streak-today' : weekData[i]>0 ? 'streak-done' : 'streak-missed';
+      streakEl.innerHTML += `<div class="streak-day ${cls}">${days[i]}</div>`;
+    }
+  }
+
+  // ─── RECENT GAMES ─────────────────────────────────────────────────────────
+  const recentEl = document.getElementById('recentGames');
+  const played   = allGames.filter(g => scores[g.id] != null);
+  if(recentEl && played.length > 0){
+    recentEl.innerHTML = '';
+    played.slice(0,5).forEach(g=>{
+      recentEl.innerHTML += `
+        <div class="game-row">
+          <div class="game-icon" style="background:${g.color}">${g.emoji}</div>
+          <div class="game-info">
+            <div class="game-name">${g.name}</div>
+            <div class="game-meta">${g.cat.toUpperCase()} · Rank ${rank(scores[g.id])}</div>
+          </div>
+          <div class="game-score" style="color:${g.catColor}">${scores[g.id]||0}</div>
+        </div>`;
+    });
+  }
+
+  // ─── GAMES MINI GRID ──────────────────────────────────────────────────────
+  const miniEl = document.getElementById('gamesMini');
+  const noticeEl = document.getElementById('gamesPlanNotice');
+  if(!isPremium && noticeEl){
+    noticeEl.innerHTML = '<div style="font-size:12px;font-weight:800;color:#be185d;margin-bottom:12px;padding:8px 12px;background:rgba(252,231,243,.6);border-radius:12px">🔒 3 dari 9 game tersedia di Free Plan</div>';
+  }
+  if(miniEl){
+    allGames.forEach(g=>{
+      const canPlay = isPremium || g.free;
+      miniEl.innerHTML += `
+        <div class="game-mini" style="background:${g.color}" onclick="${canPlay?`location.href='${g.file}'`:`showUpgradeInfo()`}">
+          <div class="game-mini-emoji">${g.emoji}</div>
+          <div class="game-mini-name">${g.name}</div>
+          ${scores[g.id]!=null?`<div style="font-size:10px;font-weight:900;margin-top:4px;color:${g.catColor}">${scores[g.id]} pts</div>`:''}
+          ${!canPlay?'<div class="lock-overlay">🔒</div>':''}
+        </div>`;
+    });
+  }
+
+  // ─── CHILD PROFILES ───────────────────────────────────────────────────────
+  let childList = children;
+  let activeChild = 0;
+
+  function renderChildren(){
+    const el = document.getElementById('childList');
+    if(!el) return;
+    if(childList.length===0){
+      el.innerHTML='<div style="font-size:13px;font-weight:700;color:#64748b;padding:10px 0;margin-bottom:8px">Tambahkan profil anak untuk mulai tracking</div>';
+      return;
+    }
+    el.innerHTML='';
+    childList.forEach((ch,i)=>{
+      el.innerHTML+=`<div class="child-card ${i===activeChild?'active':''}" onclick="selectChild(${i})">
+        <div class="child-avatar" style="background:linear-gradient(135deg,#fce7f3,#fef3c7)">${ch.emoji||'🦊'}</div>
+        <div><div class="child-name">${ch.name}</div><div class="child-age">Usia ${ch.age} tahun</div></div>
+        <div style="margin-left:auto;font-size:12px;font-weight:900;padding:4px 10px;background:white;border-radius:999px;box-shadow:0 2px 8px rgba(15,23,42,.08)">${i===activeChild?'✅ Aktif':'Pilih'}</div>
+      </div>`;
+    });
+  }
+  window.selectChild = i => { activeChild=i; renderChildren(); };
+  window.showAddChild = ()=>{
+    if(childList.length>=(isPremium?3:1)){
+      alert(isPremium?'Maksimal 3 profil anak.':'Upgrade ke Premium untuk tambah sampai 3 profil!');
+      return;
+    }
+    document.getElementById('addChildForm').style.display='block';
+  };
+  window.saveChild = async ()=>{
+    const name2 = document.getElementById('childNameInput').value.trim();
+    const age   = parseInt(document.getElementById('childAgeInput').value)||5;
+    const emoji = document.getElementById('childEmojiInput').value||'🦊';
+    if(!name2){ alert('Isi nama anak dulu ya!'); return; }
+    childList.push({name:name2, age, emoji, id:Date.now()});
+    await _db.from('profiles').update({children:childList}).eq('id', uid);
+    renderChildren();
+    window.cancelChild();
+  };
+  window.cancelChild = ()=>{
+    document.getElementById('addChildForm').style.display='none';
+    document.getElementById('childNameInput').value='';
+    document.getElementById('childAgeInput').value='';
+  };
   renderChildren();
-  cancelChild();
-}
 
-function cancelChild(){
-  document.getElementById('addChildForm').style.display='none';
-  document.getElementById('childNameInput').value='';
-  document.getElementById('childAgeInput').value='';
-}
+  // ─── LOGOUT ───────────────────────────────────────────────────────────────
+  window.doLogout = async ()=>{
+    await _db.auth.signOut();
+    location.replace('auth.html');
+  };
+  window.closeLogout = ()=> document.getElementById('logoutModal')?.classList.remove('show');
+  window.showUpgradeInfo = ()=>{
+    alert('🌟 Upgrade ke Premium!\n\nHubungi kami melalui:\n• WhatsApp: [nomor_wa_kamu]\n• Email: support@sparkids.id\n\nSetelah pembayaran, akun akan langsung diupgrade!');
+  };
 
-function saveUserData(){
-  const allUsers=getUsers();
-  const idx=allUsers.findIndex(u=>u.id===session.userId);
-  if(idx>-1){allUsers[idx].children=children;localStorage.setItem('rmf_users',JSON.stringify(allUsers));}
-}
-
-renderChildren();
-
-// ─── STREAK DAYS ─────────────────────────────────────────────────────────────
-const days=['S','S','R','K','J','S','M'];
-const today=new Date().getDay();
-const streakEl=document.getElementById('streakDays');
-for(let i=0;i<7;i++){
-  const isToday=i===(today===0?6:today-1);
-  const hasDone=weekData[i]>0;
-  const cls=isToday?'streak-today':hasDone?'streak-done':'streak-missed';
-  streakEl.innerHTML+=`<div class="streak-day ${cls}">${days[i]}</div>`;
-}
-
-// ─── LOGOUT ───────────────────────────────────────────────────────────────────
-function closeLogout(){document.getElementById('logoutModal').classList.remove('show')}
-function doLogout(){localStorage.removeItem('rmf_session');sessionStorage.removeItem('rmf_session');location.replace('auth.html')}
-
-function showUpgradeInfo(){
-  alert('🌟 Upgrade ke Premium!\n\nHubungi kami melalui:\n• WhatsApp: [nomor_wa_kamu]\n• Instagram: [@akun_ig_kamu]\n• Email: support@rumahmainfokus.com\n\nSetelah pembayaran, akun kamu akan langsung diupgrade!');
-}
+})();
 </script>
 </body>
 </html>

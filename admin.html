@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Panel – Rumah Main Fokus</title>
+<title>Admin Panel – Sparkids</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
@@ -153,6 +153,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .3s ease-out}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -195,11 +196,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <!-- TOPNAV -->
 <nav class="topnav">
-  <div class="nav-brand">🐻 Admin Panel</div>
-  <div class="nav-sub">Rumah Main Fokus</div>
+  <div class="nav-brand">⚡ Admin Panel</div>
+  <div class="nav-sub">Sparkids</div>
   <div class="nav-right">
     <button class="nav-btn btn-sky" onclick="exportCSV()">📤 Export CSV</button>
-    <button class="nav-btn btn-danger" onclick="if(confirm('Keluar dari admin?'))localStorage.removeItem('rmf_admin_auth');location.reload()">Keluar</button>
+    <button class="nav-btn btn-danger" onclick="if(confirm('Keluar dari admin?'))localStorage.removeItem('sparkids_admin_auth');location.reload()">Keluar</button>
   </div>
 </nav>
 
@@ -276,7 +277,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <!-- QUICK TIPS -->
   <div class="card fade-in" style="margin-top:20px;background:rgba(56,189,248,.06);border-color:rgba(56,189,248,.2)">
-    <div class="card-title" style="color:var(--sky)">💡 Cara Pakai Admin Panel</div>
+    <div class="card-title" style="color:var(--sky)">💡 Cara Pakai Admin Panel Sparkids</div>
     <div style="display:grid;gap:10px;font-size:13px;font-weight:700;color:var(--muted);line-height:1.6">
       <div>1️⃣ <strong style="color:var(--ink)">Buat akun baru</strong> setelah pembayaran masuk → isi nama, email, username, password → klik "Buat Akun"</div>
       <div>2️⃣ <strong style="color:var(--ink)">Salin info login</strong> yang muncul di kotak biru → kirim ke pelanggan via WA/DM</div>
@@ -289,215 +290,226 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div>
 
 <script>
-// ─── ADMIN PASSWORD ──────────────────────────────────────────────────────────
-// ⚠️ IMPORTANT: Change this before going live!
-const ADMIN_PASSWORD = 'admin123';
+// ⚠️  ADMIN PANEL – SECRET KEY INSIDE
+// ⚠️  NEVER commit this file to a public GitHub repo
+// ⚠️  Keep this file local or on a private server only
+// ⚠️  Rotate your secret key at: Supabase Dashboard → Settings → API Keys
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
+const { createClient } = window.supabase;
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_secret_e1m6YjArW_dDR_nNu6_p2g_Y31313kJ');
+
+// ─── ADMIN PASSWORD (local lock screen) ───────────────────────────────────
+const ADMIN_PASSWORD = 'admin123'; // ⚠️ Change before deploying!
+
 function tryAdminLogin(){
-  const pw=document.getElementById('adminPwInput').value;
-  if(pw===ADMIN_PASSWORD){
-    localStorage.setItem('rmf_admin_auth','1');
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('mainContent').style.display='block';
-    renderStats();
-    renderTable();
+  const pw = document.getElementById('adminPwInput').value;
+  if(pw === ADMIN_PASSWORD){
+    localStorage.setItem('spk_admin_auth','1');
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    loadAll();
   }else{
-    document.getElementById('lockErr').style.display='block';
-    document.getElementById('adminPwInput').value='';
+    document.getElementById('lockErr').style.display = 'block';
+    document.getElementById('adminPwInput').value = '';
   }
 }
 
-// Auto-unlock if already authenticated in this session
-if(localStorage.getItem('rmf_admin_auth')==='1'){
-  document.getElementById('lockScreen').style.display='none';
-  document.getElementById('mainContent').style.display='block';
+if(localStorage.getItem('spk_admin_auth')==='1'){
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
 }
 
-// ─── DATA HELPERS ─────────────────────────────────────────────────────────────
-function getUsers(){try{return JSON.parse(localStorage.getItem('rmf_users')||'[]')}catch{return[]}}
-function saveUsers(u){localStorage.setItem('rmf_users',JSON.stringify(u))}
-function uid(){return 'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+// ─── LOAD ALL DATA ────────────────────────────────────────────────────────
+let allUsers = [];
+let allProfiles = {};
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
+async function loadAll(){
+  await loadUsers();
+  renderStats();
+  renderTable();
+}
+
+async function loadUsers(){
+  // Get all auth users
+  const { data, error } = await _db.auth.admin.listUsers({ perPage:1000 });
+  if(error){ showAddAlert('err','❌ Error loading users: '+error.message); return; }
+  allUsers = data?.users || [];
+
+  // Get all profiles
+  const { data: profiles } = await _db.from('profiles').select('id, name, plan, children, updated_at');
+  (profiles || []).forEach(p => allProfiles[p.id] = p);
+}
+
+// ─── STATS ─────────────────────────────────────────────────────────────────
 function renderStats(){
-  const users=getUsers().filter(u=>u.plan!=='admin');
-  const week=Date.now()-7*24*60*60*1000;
-  document.getElementById('statTotal').textContent=users.length;
-  document.getElementById('statPremium').textContent=users.filter(u=>u.plan==='premium').length;
-  document.getElementById('statFree').textContent=users.filter(u=>u.plan==='free').length;
-  document.getElementById('statNew').textContent=users.filter(u=>u.createdAt>week).length;
+  const week = Date.now() - 7*24*60*60*1000;
+  const regular = allUsers.filter(u => allProfiles[u.id]?.plan !== 'admin');
+  document.getElementById('statTotal').textContent   = regular.length;
+  document.getElementById('statPremium').textContent = regular.filter(u => allProfiles[u.id]?.plan === 'premium').length;
+  document.getElementById('statFree').textContent    = regular.filter(u => (allProfiles[u.id]?.plan||'free') === 'free').length;
+  document.getElementById('statNew').textContent     = regular.filter(u => new Date(u.created_at).getTime() > week).length;
 }
 
-// ─── TABLE ────────────────────────────────────────────────────────────────────
+// ─── TABLE ────────────────────────────────────────────────────────────────
 function renderTable(){
-  const users=getUsers();
-  const q=document.getElementById('searchInput')?.value.toLowerCase()||'';
-  const filtered=q?users.filter(u=>
-    (u.name||'').toLowerCase().includes(q)||
-    (u.email||'').toLowerCase().includes(q)||
-    (u.username||'').toLowerCase().includes(q)
-  ):users;
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const filtered = allUsers.filter(u =>{
+    const p = allProfiles[u.id] || {};
+    const searchStr = [(p.name||''), (u.email||'')].join(' ').toLowerCase();
+    return !q || searchStr.includes(q);
+  });
 
-  const tbody=document.getElementById('userTbody');
+  const tbody = document.getElementById('userTbody');
   if(filtered.length===0){
-    tbody.innerHTML='<tr class="empty-row"><td colspan="7">Belum ada pengguna. Tambahkan akun pertama di atas!</td></tr>';
+    tbody.innerHTML='<tr class="empty-row"><td colspan="6">Belum ada pengguna. Tambahkan akun pertama di atas!</td></tr>';
     return;
   }
   tbody.innerHTML='';
   filtered.forEach((u,i)=>{
-    const dateStr=u.createdAt?new Date(u.createdAt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'–';
-    const planCls=u.plan==='premium'?'chip-premium':u.plan==='admin'?'chip-admin':'chip-free';
-    const planLabel=u.plan==='premium'?'⭐ Premium':u.plan==='admin'?'🔑 Admin':'🆓 Free';
+    const p = allProfiles[u.id] || {};
+    const plan  = p.plan || 'free';
+    const name  = p.name || u.email;
+    const dateStr = new Date(u.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+    const planCls = plan==='premium'?'chip-premium':plan==='admin'?'chip-admin':'chip-free';
+    const planLabel = plan==='premium'?'⭐ Premium':plan==='admin'?'🔑 Admin':'🆓 Free';
     tbody.innerHTML+=`
       <tr>
-        <td style="color:var(--muted)">${i+1}</td>
-        <td><strong>${u.name||'–'}</strong></td>
-        <td>
-          <div>${u.email||'–'}</div>
-          <div style="color:var(--muted);font-size:12px">@${u.username||'–'}</div>
-        </td>
-        <td>
-          <code style="background:rgba(255,255,255,.07);padding:3px 8px;border-radius:6px;font-size:12px;letter-spacing:.05em">${u.password||'–'}</code>
-        </td>
+        <td style="color:#64748b">${i+1}</td>
+        <td><strong>${name}</strong></td>
+        <td><div>${u.email}</div></td>
         <td><span class="plan-chip ${planCls}">${planLabel}</span></td>
-        <td style="color:var(--muted);font-size:12px">${dateStr}</td>
+        <td style="color:#64748b;font-size:12px">${dateStr}</td>
         <td>
           <button class="action-btn btn-copy" onclick="copyUser('${u.id}')">📋 Copy</button>
-          <button class="action-btn btn-upgrade" onclick="openEdit('${u.id}')" title="Edit akun">✏️</button>
-          ${u.plan==='premium'
+          ${plan==='premium'
             ?`<button class="action-btn btn-downgrade" onclick="changePlan('${u.id}','free')">⬇️ Free</button>`
-            :`<button class="action-btn btn-upgrade" onclick="changePlan('${u.id}','premium')">⬆️ Premium</button>`
+            :`<button class="action-btn btn-upgrade"   onclick="changePlan('${u.id}','premium')">⬆️ Premium</button>`
           }
-          <button class="action-btn btn-delete" onclick="deleteUser('${u.id}')">🗑️</button>
+          <button class="action-btn btn-delete" onclick="deleteUser('${u.id}','${name}')">🗑️</button>
         </td>
       </tr>`;
   });
 }
 
-// ─── ADD USER ─────────────────────────────────────────────────────────────────
-function addUser(){
-  const name=document.getElementById('newName').value.trim();
-  const email=document.getElementById('newEmail').value.trim().toLowerCase();
-  const username=document.getElementById('newUsername').value.trim().toLowerCase();
-  const password=document.getElementById('newPassword').value.trim();
-  const plan=document.getElementById('newPlan').value;
+// ─── ADD USER ────────────────────────────────────────────────────────────
+async function addUser(){
+  const name     = document.getElementById('newName').value.trim();
+  const email    = document.getElementById('newEmail').value.trim().toLowerCase();
+  const password = document.getElementById('newPassword').value.trim();
+  const plan     = document.getElementById('newPlan').value;
 
-  if(!name||!email||!username||!password){
-    showAddAlert('err','⚠️ Semua field wajib diisi!');return;
+  if(!name||!email||!password){ showAddAlert('err','⚠️ Semua field wajib diisi!'); return; }
+  if(password.length<6){ showAddAlert('err','⚠️ Password minimal 6 karakter!'); return; }
+
+  showAddAlert('ok','⏳ Membuat akun...');
+
+  const { data, error } = await _db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { name, plan }
+  });
+
+  if(error){
+    showAddAlert('err','❌ '+error.message); return;
   }
-  if(password.length<6){showAddAlert('err','⚠️ Password minimal 6 karakter!');return;}
 
-  const users=getUsers();
-  if(users.find(u=>u.email===email||u.username===username)){
-    showAddAlert('err','❌ Email atau username sudah dipakai!');return;
-  }
+  // Update profile plan (trigger creates profile, but plan might default to free)
+  await _db.from('profiles').upsert({
+    id: data.user.id,
+    email,
+    name,
+    plan
+  }, {onConflict:'id'});
 
-  const newUser={id:uid(),name,email,username,password,plan,createdAt:Date.now(),children:[]};
-  users.push(newUser);
-  saveUsers(users);
-
-  showAddAlert('ok',`✅ Akun "${name}" berhasil dibuat!`);
+  showAddAlert('ok', `✅ Akun "${name}" berhasil dibuat!`);
 
   // Show copy box
-  const loginMsg=`🐻 *Halo ${name}!*\n\nAkun Rumah Main Fokus kamu sudah aktif!\n\n🌐 Link: ${location.origin}/auth.html\n👤 Username: ${username}\n🔑 Password: ${password}\n⭐ Plan: ${plan==='premium'?'Premium':'Free'}\n\nSelamat bermain bersama anak! 🎮`;
-  const box=document.getElementById('copyBox');
-  box.style.display='block';
-  box.innerHTML=`<strong style="color:var(--green)">✅ Klik untuk copy pesan ke pelanggan:</strong><br/><br/>${loginMsg.replace(/\n/g,'<br/>')}`;
-  box.setAttribute('data-msg',loginMsg);
+  const loginMsg = `⚡ *Halo ${name}!*\n\nAkun Sparkids kamu sudah aktif!\n\n🌐 Link: ${location.origin}/auth.html\n📧 Email: ${email}\n🔑 Password: ${password}\n⭐ Plan: ${plan==='premium'?'Premium':'Free'}\n\nSelamat bermain bersama anak! 🎮`;
+  const box = document.getElementById('copyBox');
+  box.style.display = 'block';
+  box.innerHTML = `<strong style="color:#22c55e">✅ Klik untuk copy pesan ke pelanggan:</strong><br/><br/>${loginMsg.replace(/\n/g,'<br/>')}`;
+  box.setAttribute('data-msg', loginMsg);
 
-  // Reset form
-  ['newName','newEmail','newUsername','newPassword'].forEach(id=>document.getElementById(id).value='');
+  ['newName','newEmail','newPassword'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('newPlan').value='premium';
 
+  await loadUsers();
   renderStats();
   renderTable();
 }
 
 function copyLoginInfo(){
-  const msg=document.getElementById('copyBox').getAttribute('data-msg')||'';
+  const msg = document.getElementById('copyBox').getAttribute('data-msg')||'';
   navigator.clipboard.writeText(msg).then(()=>{
-    const box=document.getElementById('copyBox');
-    const orig=box.innerHTML;
-    box.innerHTML='<strong style="color:var(--green)">✅ Tersalin! Paste ke WhatsApp atau DM Instagram.</strong>';
-    setTimeout(()=>box.innerHTML=orig,2000);
+    const box = document.getElementById('copyBox');
+    const orig = box.innerHTML;
+    box.innerHTML = '<strong style="color:#22c55e">✅ Tersalin! Paste ke WhatsApp atau DM Instagram.</strong>';
+    setTimeout(()=>box.innerHTML=orig, 2000);
   });
 }
 
-function copyUser(id){
-  const u=getUsers().find(u=>u.id===id);
-  if(!u)return;
-  const msg=`🐻 *Halo ${u.name}!*\n\nAkun Rumah Main Fokus:\n🌐 ${location.origin}/auth.html\n👤 Username: ${u.username}\n🔑 Password: ${u.password}\n⭐ Plan: ${u.plan==='premium'?'Premium':'Free'}`;
+function copyUser(uid){
+  const u = allUsers.find(u=>u.id===uid);
+  const p = allProfiles[uid]||{};
+  if(!u) return;
+  const msg = `⚡ *Halo ${p.name||u.email}!*\n\nAkun Sparkids:\n🌐 ${location.origin}/auth.html\n📧 Email: ${u.email}\n⭐ Plan: ${(p.plan||'free')==='premium'?'Premium':'Free'}`;
   navigator.clipboard.writeText(msg).then(()=>alert('✅ Info login tersalin! Paste ke WA/DM.'));
 }
 
-function showAddAlert(type,msg){
-  const el=document.getElementById('addAlert');
-  el.className='alert-bar alert-'+(type==='ok'?'ok':'err');
-  el.style.display='block';el.textContent=msg;
-  setTimeout(()=>el.style.display='none',4000);
+function showAddAlert(type, msg){
+  const el = document.getElementById('addAlert');
+  el.className = 'alert-bar alert-'+(type==='ok'?'ok':'err');
+  el.style.display='block'; el.textContent=msg;
+  if(type==='ok') setTimeout(()=>el.style.display='none', 4000);
 }
 
-// ─── CHANGE PLAN ─────────────────────────────────────────────────────────────
-function changePlan(id,plan){
-  const users=getUsers();
-  const u=users.find(u=>u.id===id);
-  if(!u)return;
-  if(!confirm(`Ubah plan ${u.name} ke ${plan}?`))return;
-  u.plan=plan;
-  saveUsers(users);
-  renderStats();renderTable();
+// ─── CHANGE PLAN ─────────────────────────────────────────────────────────
+async function changePlan(uid, plan){
+  const p = allProfiles[uid]||{};
+  if(!confirm(`Ubah plan ${p.name||uid} ke ${plan}?`)) return;
+  const { error } = await _db.from('profiles').update({plan}).eq('id', uid);
+  if(error){ alert('❌ Error: '+error.message); return; }
+  allProfiles[uid] = {...allProfiles[uid], plan};
+  renderStats(); renderTable();
 }
 
-// ─── DELETE ───────────────────────────────────────────────────────────────────
-function deleteUser(id){
-  const users=getUsers();
-  const u=users.find(u=>u.id===id);
-  if(!u)return;
-  if(!confirm(`Hapus akun "${u.name}"? Tindakan ini tidak bisa dibatalkan.`))return;
-  saveUsers(users.filter(u=>u.id!==id));
-  renderStats();renderTable();
+// ─── DELETE ──────────────────────────────────────────────────────────────
+async function deleteUser(uid, name){
+  if(!confirm(`Hapus akun "${name}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+  const { error } = await _db.auth.admin.deleteUser(uid);
+  if(error){ alert('❌ Error: '+error.message); return; }
+  allUsers = allUsers.filter(u=>u.id!==uid);
+  delete allProfiles[uid];
+  renderStats(); renderTable();
 }
 
-// ─── EDIT MODAL ───────────────────────────────────────────────────────────────
-function openEdit(id){
-  const u=getUsers().find(u=>u.id===id);if(!u)return;
-  document.getElementById('editUserId').value=id;
-  document.getElementById('editName').value=u.name||'';
-  document.getElementById('editEmail').value=u.email||'';
-  document.getElementById('editUsername').value=u.username||'';
-  document.getElementById('editPassword').value='';
-  document.getElementById('editPlan').value=u.plan||'free';
-  document.getElementById('editModal').classList.add('show');
-}
-function closeEdit(){document.getElementById('editModal').classList.remove('show')}
-function saveEdit(){
-  const id=document.getElementById('editUserId').value;
-  const users=getUsers();const idx=users.findIndex(u=>u.id===id);if(idx<0)return;
-  users[idx].name=document.getElementById('editName').value.trim()||users[idx].name;
-  users[idx].email=document.getElementById('editEmail').value.trim().toLowerCase()||users[idx].email;
-  users[idx].username=document.getElementById('editUsername').value.trim().toLowerCase()||users[idx].username;
-  const newPw=document.getElementById('editPassword').value.trim();
-  if(newPw.length>=6)users[idx].password=newPw;
-  users[idx].plan=document.getElementById('editPlan').value;
-  saveUsers(users);closeEdit();renderStats();renderTable();
-  alert('✅ Akun berhasil diperbarui!');
-}
+// ─── SEARCH ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+  const si = document.getElementById('searchInput');
+  if(si) si.addEventListener('input', renderTable);
+  if(localStorage.getItem('spk_admin_auth')==='1') loadAll();
+});
 
-// ─── EXPORT CSV ───────────────────────────────────────────────────────────────
+// ─── EXPORT CSV ──────────────────────────────────────────────────────────
 function exportCSV(){
-  const users=getUsers();
-  const rows=[['ID','Nama','Email','Username','Password','Plan','Dibuat']];
-  users.forEach(u=>rows.push([u.id,u.name,u.email,u.username,u.password,u.plan,u.createdAt?new Date(u.createdAt).toLocaleDateString('id-ID'):'']));
-  const csv=rows.map(r=>r.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='rmf_users_'+new Date().toISOString().slice(0,10)+'.csv';
+  const rows = [['ID','Nama','Email','Plan','Dibuat']];
+  allUsers.forEach(u=>{
+    const p = allProfiles[u.id]||{};
+    rows.push([u.id, p.name||'', u.email, p.plan||'free', new Date(u.created_at).toLocaleDateString('id-ID')]);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'sparkids_users_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 
-// Init
-if(localStorage.getItem('rmf_admin_auth')==='1'){renderStats();renderTable();}
+// ─── LOGOUT ──────────────────────────────────────────────────────────────
+function adminLogout(){
+  localStorage.removeItem('spk_admin_auth');
+  location.reload();
+}
 </script>
 </body>
 </html>
