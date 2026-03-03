@@ -220,7 +220,8 @@ a{text-decoration:none;color:inherit}
 .stat-mini .val{font-size:18px;font-weight:900;display:block;line-height:1.15;}
 .confetti-piece{position:fixed;width:9px;height:9px;border-radius:2px;
   animation:confettiFall 2.5s ease-in forwards;pointer-events:none;z-index:9999;}
-@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
 @media(max-width:899px){
   html{height:100%;overflow:hidden;-webkit-text-size-adjust:100%;}
   body{height:100%;overflow:hidden;touch-action:manipulation;overscroll-behavior:none;}
@@ -266,8 +267,18 @@ document.documentElement.style.opacity='0';
     window.__SK=_c;
     var sess=(await _c.auth.getSession()).data.session;
     if(!sess){location.replace('auth.html');return;}
-    window.__SKS={id:sess.user.id,email:sess.user.email};
-  }catch(e){console.warn('auth',e);}
+    var pr=(await _c.from('profiles')
+      .select('active_child_id,sound_on')
+      .eq('id',sess.user.id).single()).data||{};
+    var snd=(pr.sound_on===false)?false:true;
+    window.__SKS={id:sess.user.id,email:sess.user.email,
+                  cid:pr.active_child_id||'',sound:snd};
+    // Override game's soundEnabled variable (which may have used localStorage)
+    if(typeof soundEnabled!=='undefined')soundEnabled=snd;
+  }catch(e){
+    console.warn('auth',e);
+    if(!window.__SKS)window.__SKS={id:'',email:'',cid:'',sound:true};
+  }
   document.documentElement.style.opacity='1';
 })();
 </script>
@@ -275,7 +286,7 @@ document.documentElement.style.opacity='0';
 <script>
 (function(){
   function buildTopbar(){
-    var title=(document.title||'Game').split('-')[0].split('–')[0].trim()||'Game';
+    var title=(document.title||'Game').split('-')[0].split('–')[0].trim();
     var topbar=document.createElement('div');
     topbar.className='game-topbar';
     topbar.innerHTML='<a href="index.html" class="back-btn">&larr; Menu</a>'
@@ -295,55 +306,68 @@ document.documentElement.style.opacity='0';
     var shell=document.querySelector('.shell');
     if(shell){var pw=shell.querySelector('.play-wrap');
       if(pw){shell.insertBefore(statsBar,pw);shell.insertBefore(topbar,statsBar);}}
+    // Sync stats bar every 100ms
     setInterval(function(){
       ['score','stars','streak','timer'].forEach(function(id){
         var o=document.getElementById(id),m=document.getElementById('m_'+id);
         if(o&&m)m.textContent=o.textContent;
       });
     },100);
+    // Sound button — state from window.__SKS.sound (set by auth guard from DB)
     var btn=document.getElementById('soundMiniBtn');
     if(btn){
-      var soundOn=localStorage.getItem('kids_sound')!=='off';
-      btn.textContent=soundOn?'🔊':'🔇';
+      // Wait until auth guard populates __SKS, then sync button state
+      var syncSound=function(){
+        var on=(window.__SKS?window.__SKS.sound:true);
+        btn.textContent=on?'🔊':'🔇';
+        if(typeof soundEnabled!=='undefined')soundEnabled=on;
+      };
+      // Poll until __SKS is ready (auth guard is async)
+      var poll=setInterval(function(){
+        if(window.__SKS){clearInterval(poll);syncSound();}
+      },50);
       btn.onclick=function(){
-        soundOn=!soundOn;
-        localStorage.setItem('kids_sound',soundOn?'on':'off');
-        btn.textContent=soundOn?'🔊':'🔇';
-        if(typeof soundEnabled!=='undefined'){soundEnabled=soundOn;}
-        if(soundOn&&typeof initAudio==='function')initAudio();
+        var on=!(window.__SKS?window.__SKS.sound:true);
+        if(window.__SKS)window.__SKS.sound=on;
+        btn.textContent=on?'🔊':'🔇';
+        if(typeof soundEnabled!=='undefined')soundEnabled=on;
+        if(on&&typeof initAudio==='function')initAudio();
+        // Persist to DB — no localStorage
+        if(window.__SK&&window.__SKS&&window.__SKS.id){
+          window.__SK.from('profiles').update({sound_on:on})
+            .eq('id',window.__SKS.id).then(function(){});
+        }
       };
     }
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildTopbar);
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded',buildTopbar);
   else buildTopbar();
+  // Confetti
   window.__launchConfetti=function(){
     var cols=['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
-    for(var i=0;i<55;i++){
-      (function(i){setTimeout(function(){
-        var el=document.createElement('div');el.className='confetti-piece';
-        el.style.left=Math.random()*100+'vw';
-        el.style.background=cols[Math.floor(Math.random()*cols.length)];
-        var sz=(7+Math.random()*9)+'px';el.style.width=sz;el.style.height=sz;
-        el.style.animationDuration=(1.5+Math.random()*2)+'s';
-        el.style.animationDelay=(Math.random()*.4)+'s';
-        document.body.appendChild(el);setTimeout(function(){el.remove();},4000);
-      },i*28);})(i);
-    }
+    for(var i=0;i<55;i++)(function(i){setTimeout(function(){
+      var el=document.createElement('div');el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[i%cols.length];
+      var sz=(7+Math.random()*9)+'px';el.style.width=sz;el.style.height=sz;
+      el.style.animationDuration=(1.5+Math.random()*2)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el);setTimeout(function(){el.remove();},4000);
+    },i*28);})(i);
   };
   document.addEventListener('DOMContentLoaded',function(){
     var endEl=document.getElementById('end');
     if(!endEl)return;
-    new MutationObserver(function(muts){
-      muts.forEach(function(m){
-        if(m.attributeName==='class'&&!endEl.classList.contains('hidden'))
-          window.__launchConfetti&&window.__launchConfetti();
-      });
-    }).observe(endEl,{attributes:true,attributeFilter:['class']});
+    new MutationObserver(function(muts){muts.forEach(function(m){
+      if(m.attributeName==='class'&&!endEl.classList.contains('hidden'))
+        window.__launchConfetti&&window.__launchConfetti();
+    })}).observe(endEl,{attributes:true,attributeFilter:['class']});
   });
 })();
 </script><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">BRAIN GAME</div><div class="badge s">POLA RINGAN</div></div><div class="h1">Temukan Pola</div><div class="sub">Pilih kartu yang melanjutkan pola yang benar dengan cara yang singkat dan menyenangkan.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih kartu yang melanjutkan pola</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih kartu yang melanjutkan pola</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih kartu yang melanjutkan pola</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div class='preview' id='prompt'></div><div style='font-weight:900;font-size:22px;margin-bottom:12px;color:#334155'>Pilih kelanjutan yang benar</div><div class='board4' id='patternChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🧩</div><div class='h2' style='margin-top:10px'>Siap bermain Temukan Pola?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Logika ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak melihat urutan lalu memilih pola yang paling tepat untuk melanjutkan.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Visual & mudah dipahami</div><div class='sub' style='font-size:14px;margin-top:6px'>Polanya dibuat singkat dan visual agar anak tidak merasa seperti sedang belajar berat.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
-let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
+let soundEnabled=true; // value set by auth guard from DB let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
 function tone(f=440,d=.12,t='sine',v=.03,w=0){if(!soundEnabled||!audioCtx)return;const n=audioCtx.currentTime+w;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioCtx.destination);o.start(n);o.stop(n+d+.02);}
 function ok(c=1){initAudio();tone(660,.08,'triangle',.028,0);tone(c>=3?988:880,.12,'triangle',.024,.05);}
@@ -352,7 +376,7 @@ function levelup(){initAudio();tone(523,.08,'triangle',.022,0);tone(659,.08,'tri
 function startsound(){initAudio();tone(440,.08,'sine',.018,0);tone(554,.08,'sine',.018,.05);tone(659,.12,'sine',.018,.1);}
 function finishsound(){initAudio();tone(784,.08,'triangle',.02,0);tone(988,.12,'triangle',.02,.06);}
 function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i%notes.length],.16,'triangle',.022,0);}
-function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
+function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
 
@@ -360,7 +384,7 @@ function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').for
 function bindsound(){
   document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
     b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
-    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
+    b.onclick=()=>{soundEnabled=!soundEnabled;updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
   });
   window.addEventListener('pointerdown',initAudio,{once:true});
 }
@@ -377,7 +401,6 @@ function bindsound(){
   ['🌸','🌊','⭐','🌸','🌊'],['🔺','🔵','🟡','🔺','🔵'],
   ['🍎','🍌','🍇','🍎','🍌'],['🐱','🐶','🐰','🐱','🐶'],
   ['❤️','💛','💚','❤️','💛'],['🚗','🚢','✈️','🚗','🚢'],
-  ['🌸','🌊','🌊','⭐','🌸','🌊'],['🔺','🔵','🔵','🟡','🔺','🔵'],
   ['1','2','3','4'],['3','4','5','6'],['5','6','7','8'],['2','3','4','5'],
   ['10','20','30','40'],['5','10','15','20'],['2','4','6','8'],
   ['1','2','4','8'],['2','4','8','16'],['3','6','12','24'],
@@ -387,23 +410,21 @@ function bindsound(){
   ['🍕','🍔','🌮','🍕'],['🎵','🎶','🎵','🎶'],
 ];
 const extra=['🌸','🌊','⭐','🍀','🟣','🟡','🔺','🔵','🍎','🍌','🐱','🐶',
-  '❤️','💛','💚','🚗','🚢','✈️','🐰','🦁','🍇','🍓','☀️','🌧️','🔴','🟠',
-  '🟡','🟢','🔵','🟣','🐘','🐭','🔥','💧','🎈','🎀','🎵','🎶',
+  '❤️','💛','💚','🚗','🚢','✈️','🐰','🦁','🍇','🍓','☀️','🌧️',
+  '🔴','🟠','🟡','🟢','🔵','🟣','🐘','🐭','🔥','💧','🎈','🎀','🎵','🎶',
   '1','2','3','4','5','6','7','8','9','10','20','30','40'];function build(){const base=rand(patterns),ans=base[base.length-1];s.answer=ans;e.prompt.innerHTML='';base.slice(0,base.length-1).forEach(x=>{const p=document.createElement('div');p.className='pill';p.textContent=x;e.prompt.appendChild(p)});let opts=[ans];while(opts.length<4){const c=rand(extra);if(!opts.includes(c))opts.push(c)}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#84cc16']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
   (function(){
   try{
     var _sk=window.__SK,_ss=window.__SKS;
-    if(!_sk||!_ss)return;
-    var _sc=s.score;
-    var _cid=localStorage.getItem('spk_active_child')||'';
+    if(!_sk||!_ss||!_ss.id)return;
     _sk.rpc('save_game_score',{
       p_user_id:_ss.id,
-      p_child_id:_cid,
+      p_child_id:_ss.cid||'',
       p_game_id:'temukan-pola',
-      p_score:Math.round(_sc)
+      p_score:Math.round(s.score)
     }).then(function(r){
-      if(r.error)console.warn('score save error',r.error);
+      if(r.error)console.warn('score save error:',r.error);
     });
-  }catch(e){console.warn('score saver',e);}
+  }catch(e){console.warn('score saver:',e);}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>
