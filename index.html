@@ -1,28 +1,12 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rumah Main Fokus, Brain & Creative Games</title>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Sparkids – Play, Learn & Grow</title>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#f472b6"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<meta name="description" content="9 mini games edukasi anak: focus, brain & creative games. Platform bermain bersama untuk orang tua dan anak."/>
+<meta name="description" content="Sparkids – platform edukasi interaktif anak. Focus, Brain & Creative games untuk tumbuh bersama."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet"/>
-<script>
-// Auth check – redirect to login if not logged in
-(function(){
-  try{
-    const raw=localStorage.getItem('rmf_session');
-    if(!raw){location.replace('auth.html?redirect=index.html');throw 0;}
-    const s=JSON.parse(raw);
-    if(Date.now()-s.loginAt>30*24*60*60*1000){
-      localStorage.removeItem('rmf_session');
-      location.replace('auth.html?redirect=index.html');
-      throw 0;
-    }
-    window.__RMF_SESSION=s;
-    window.__RMF_PREMIUM=(s.plan==='premium'||s.plan==='admin');
-  }catch(e){if(e!==0)location.replace('auth.html');}
-})();
-</script>
+
 <script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
@@ -251,13 +235,84 @@ a{text-decoration:none;color:inherit}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
-</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ─── SPARKIDS AUTH GUARD ─────────────────────────────────────────────────────
+document.documentElement.style.opacity = '0';
+(async function(){
+  try {
+    const _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+    window.__SK_CLIENT = _c;
+    const { data:{ session } } = await _c.auth.getSession();
+    if(!session) { location.replace('auth.html?redirect=index.html'); return; }
+
+    // Fetch profile for plan + name
+    const { data: profile } = await _c.from('profiles')
+      .select('name, plan, children')
+      .eq('id', session.user.id)
+      .single();
+
+    const plan      = profile?.plan || 'free';
+    const name      = profile?.name || session.user.email.split('@')[0];
+    const isPremium = plan === 'premium' || plan === 'admin';
+
+    window.__SK_SESSION = {
+      userId: session.user.id,
+      email:  session.user.email,
+      name, plan, isPremium
+    };
+    window.__SPARKIDS_PREMIUM = isPremium;
+
+    // Populate topbar name + plan badge
+    const nameEl = document.getElementById('topbarName');
+    const planEl = document.getElementById('planBadge');
+    if(nameEl) nameEl.textContent = 'Halo, ' + name + '! 👋';
+    if(planEl) {
+      planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
+      planEl.style.background = isPremium ? '#fde047' : '#e0f2fe';
+      planEl.style.color      = isPremium ? '#854d0e'  : '#0369a1';
+    }
+
+    // Lock / unlock premium games
+    document.querySelectorAll('.lock-card').forEach(el => {
+      if(isPremium) {
+        el.classList.remove('lock-card');
+        el.style.opacity = '';
+        const lockBadge = el.querySelector('.lock-badge');
+        if(lockBadge) lockBadge.remove();
+        const gameId = el.dataset.game;
+        const href = el.dataset.href;
+        if(href) { el.onclick = () => location.href = href; }
+      }
+    });
+
+    // Show upgrade card only for free users
+    const upgradeCard = document.getElementById('upgradeCard');
+    if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
+
+    document.documentElement.style.opacity = '1';
+  } catch(e) {
+    console.error('Auth error', e);
+    document.documentElement.style.opacity = '1';
+  }
+})();
+
+// ─── LOGOUT ──────────────────────────────────────────────────────────────────
+async function doLogout() {
+  const _c = window.__SK_CLIENT || window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  await _c.auth.signOut();
+  location.replace('auth.html');
+}
+// ─────────────────────────────────────────────────────────────────────────────
+</script>
+</head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
 
 <!-- SESSION TOPBAR -->
 <div class="topbar-main">
   <div style="display:flex;align-items:center;gap:10px">
     <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fef3c7);display:flex;align-items:center;justify-content:center;font-size:20px">🐻</div>
-    <div class="topbar-brand">Rumah Main <span>Fokus</span></div>
+    <div class="topbar-brand">Spark<span>kids</span></div>
   </div>
   <div class="topbar-right">
     <span id="sessionName" class="tb-pill">👤 ...</span>
@@ -267,18 +322,18 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
-<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus informatif untuk parent.</div></div><button class="sound"></button></div></div>
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">SPARKIDS</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Sparkids – Play, Learn & Grow</div><div class="sub">Platform game edukasi untuk anak. Semua game dibuat singkat, visual, dan menyenangkan — seru untuk anak, informatif untuk parent.</div></div><button class="sound"></button></div></div>
 <div class="grid g2" style="margin-top:18px">
 <section class="card">
   <div class="hero">
     <div>
-      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Sparky! ⚡</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman belajar seru yang selalu siap membantu anak tumbuh dan berkembang lewat permainan!</div></div></div>
       <div class="h2" style="margin-top:18px">Pilih kategori permainan</div>
       <div class="sub">Menu ini dibagi menjadi 3 kategori utama. Parent bisa memilih game sesuai tujuan bermain, sementara anak bisa langsung tertarik karena visualnya cerah, lucu, dan mudah dipahami.</div>
     </div>
     <div class="panel" style="text-align:center">
       <div class="mascot" style="margin:0 auto 10px;background:linear-gradient(135deg,#fce7f3,#e0f2fe)">🧸</div>
-      <div style="font-weight:900;font-size:20px">9 Mini Games Anak</div>
+      <div style="font-weight:900;font-size:20px">9 Mini Games Seru</div>
       <div class="sub" style="margin-top:8px;font-size:14px">Tersusun dalam kategori yang jelas agar parent mudah memilih, dan tiap game punya halaman tersendiri agar anak lebih fokus bermain.</div>
     </div>
   </div>
@@ -330,7 +385,7 @@ a{text-decoration:none;color:inherit}
 </div>
 </div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
-let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
+let soundEnabled=localStorage.getItem('sparkids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
 function tone(f=440,d=.12,t='sine',v=.03,w=0){if(!soundEnabled||!audioCtx)return;const n=audioCtx.currentTime+w;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioCtx.destination);o.start(n);o.stop(n+d+.02);}
 function ok(c=1){initAudio();tone(660,.08,'triangle',.028,0);tone(c>=3?988:880,.12,'triangle',.024,.05);}
@@ -339,13 +394,13 @@ function levelup(){initAudio();tone(523,.08,'triangle',.022,0);tone(659,.08,'tri
 function startsound(){initAudio();tone(440,.08,'sine',.018,0);tone(554,.08,'sine',.018,.05);tone(659,.12,'sine',.018,.1);}
 function finishsound(){initAudio();tone(784,.08,'triangle',.02,0);tone(988,.12,'triangle',.02,.06);}
 function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i%notes.length],.16,'triangle',.022,0);}
-function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
+function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
 
 // ─── SESSION UI ──────────────────────────────────────────────────────────────
-const s=window.__RMF_SESSION||{};
-const isPremium=window.__RMF_PREMIUM||false;
+const s=window.__SPARKIDS_SESSION||{};
+const isPremium=window.__SPARKIDS_PREMIUM||false;
 document.getElementById('sessionName').textContent='👤 '+(s.name||'Parent');
 const planBadge=document.getElementById('planBadge');
 if(isPremium){
@@ -394,7 +449,7 @@ function showUpgradeModal(){
         <div style="font-size:13px;font-weight:800;color:#1f2937;margin-bottom:4px">✅ Laporan skill mingguan</div>
         <div style="font-size:13px;font-weight:800;color:#1f2937">✅ Sampai 3 profil anak</div>
       </div>
-      <button onclick="location.href='https://wa.me/YOUR_NUMBER?text=Halo+saya+ingin+upgrade+ke+Premium+Rumah+Main+Fokus'" 
+      <button onclick="location.href='https://wa.me/628xxxxxxxxxx?text=Halo+saya+ingin+upgrade+ke+Sparkids+Premium'" 
         style="width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#f472b6,#fb7185);color:white;border:none;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(244,114,182,.4);margin-bottom:10px">
         💬 Hubungi via WhatsApp
       </button>
@@ -409,9 +464,7 @@ function showUpgradeModal(){
 // ─── LOGOUT ───────────────────────────────────────────────────────────────────
 function doLogout(){
   if(confirm('Yakin mau keluar?')){
-    localStorage.removeItem('rmf_session');
-    sessionStorage.removeItem('rmf_session');
-    location.replace('auth.html');
+    doLogout();
   }
 }
 
@@ -421,4 +474,5 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(()=>{});
   });
 }
-</script><script>bindsound();</script></body></html>
+</script><script>bindsound();</script>
+</body></html>

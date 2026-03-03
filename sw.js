@@ -1,7 +1,7 @@
-// Rumah Main Fokus - Service Worker
+// Sparkids - Service Worker
 // Version: 1.0.0
 
-const CACHE_NAME = 'rmf-cache-v1';
+const CACHE_NAME = 'spk-cache-v1';
 const OFFLINE_PAGE = '/auth.html';
 
 const STATIC_ASSETS = [

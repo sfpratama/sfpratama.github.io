@@ -1,7 +1,7 @@
 {
-  "name": "Rumah Main Fokus",
-  "short_name": "RumahMain",
-  "description": "Brain & Creative Games untuk Anak - Platform edukasi interaktif",
+  "name": "Sparkids",
+  "short_name": "Sparkids",
+  "description": "Sparkids – Platform edukasi interaktif anak. Play, Learn & Grow.",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#fde68a",
