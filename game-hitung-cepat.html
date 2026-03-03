@@ -370,27 +370,15 @@ function bindsound(){
     var _sk=window.__SK,_ss=window.__SKS;
     if(!_sk||!_ss)return;
     var _sc=s.score;
-    var _cid=localStorage.getItem('spk_active_child');
-    _sk.from('profiles').select('scores,weekly,children').eq('id',_ss.id).single()
-      .then(function(r){
-        if(!r.data)return;
-        var d=new Date().getDay(),di=d===0?6:d-1;
-        if(_cid&&r.data.children&&r.data.children.length>0){
-          var kids=r.data.children,ki=kids.findIndex(function(x){return String(x.id)===String(_cid);});
-          if(ki>=0){
-            var cs=kids[ki].scores||{},cw=kids[ki].weekly||[0,0,0,0,0,0,0];
-            if(!cs['hitung-cepat']||cs['hitung-cepat']<_sc)cs['hitung-cepat']=_sc;
-            cw[di]=(cw[di]||0)+1;
-            kids[ki].scores=cs;kids[ki].weekly=cw;
-            _sk.from('profiles').update({children:kids,updated_at:new Date().toISOString()}).eq('id',_ss.id).then(function(){});
-            return;
-          }
-        }
-        var sc=r.data.scores||{},wk=r.data.weekly||[0,0,0,0,0,0,0];
-        if(!sc['hitung-cepat']||sc['hitung-cepat']<_sc)sc['hitung-cepat']=_sc;
-        wk[di]=(wk[di]||0)+1;
-        _sk.from('profiles').update({scores:sc,weekly:wk,updated_at:new Date().toISOString()}).eq('id',_ss.id).then(function(){});
-      });
-  }catch(e){}
+    var _cid=localStorage.getItem('spk_active_child')||'';
+    _sk.rpc('save_game_score',{
+      p_user_id:_ss.id,
+      p_child_id:_cid,
+      p_game_id:'hitung-cepat',
+      p_score:Math.round(_sc)
+    }).then(function(r){
+      if(r.error)console.warn('score save error',r.error);
+    });
+  }catch(e){console.warn('score saver',e);}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>

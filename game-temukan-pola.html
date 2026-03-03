@@ -365,78 +365,45 @@ function bindsound(){
   window.addEventListener('pointerdown',initAudio,{once:true});
 }
 </script><script>bindsound();const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:patternChoices};const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null};function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.rb.textContent=`Ronde ${s.round}`;}const patterns=[
-  // AB repeating
   ['🌸','🌊','🌸','🌊'],['⭐','🍀','⭐','🍀'],['🟣','🟡','🟣','🟡'],
   ['🔺','🔵','🔺','🔵'],['🍎','🍌','🍎','🍌'],['🐱','🐶','🐱','🐶'],
   ['🦁','🐯','🦁','🐯'],['🍓','🍇','🍓','🍇'],['🚗','🚢','🚗','🚢'],
-  ['☀️','🌧️','☀️','🌧️'],
-  ['❤️','💛','❤️','💛'],
-  ['🎈','🎀','🎈','🎀'],
-  // AAB
+  ['☀️','🌧️','☀️','🌧️'],['❤️','💛','❤️','💛'],['🎈','🎀','🎈','🎀'],
   ['🌸','🌸','🌊','🌸','🌸'],['⭐','⭐','🍀','⭐','⭐'],
   ['🐱','🐱','🐶','🐱','🐱'],['🍎','🍎','🍌','🍎','🍎'],
   ['🔥','🔥','💧','🔥','🔥'],
-  // ABB
   ['🌸','🌊','🌊','🌸','🌊'],['⭐','🍀','🍀','⭐','🍀'],
   ['🐱','🐶','🐶','🐱','🐶'],['🍎','🍌','🍌','🍎','🍌'],
-  // ABC
   ['🌸','🌊','⭐','🌸','🌊'],['🔺','🔵','🟡','🔺','🔵'],
   ['🍎','🍌','🍇','🍎','🍌'],['🐱','🐶','🐰','🐱','🐶'],
-  ['❤️','💛','💚','❤️','💛'],
-  ['🚗','🚢','✈️','🚗','🚢'],
-  // ABBC
+  ['❤️','💛','💚','❤️','💛'],['🚗','🚢','✈️','🚗','🚢'],
   ['🌸','🌊','🌊','⭐','🌸','🌊'],['🔺','🔵','🔵','🟡','🔺','🔵'],
-  // Number +1
   ['1','2','3','4'],['3','4','5','6'],['5','6','7','8'],['2','3','4','5'],
-  ['10','20','30','40'],['5','10','15','20'],
-  // Number x2
+  ['10','20','30','40'],['5','10','15','20'],['2','4','6','8'],
   ['1','2','4','8'],['2','4','8','16'],['3','6','12','24'],
-  // Number -1
   ['8','7','6','5'],['10','9','8','7'],['6','5','4','3'],
-  // Shape/color gradient
-  ['🔴','🟠','🟡','🟢'],
-  ['🟢','🔵','🟣','🔴'],
-  // Animals big/small
-  ['🐘','🐁','🐘','🐁'],
-  ['🦁','🐰','🦁','🐰'],
-  // Weather
-  ['☀️','☀️','🌧️','☀️'],
-  ['🌧️','☀️','🌧️','☀️'],
-  // Food sequences
-  ['🍎','🍊','🍋','🍇'],
-  ['🍕','🍔','🌮','🍕'],
+  ['🔴','🟠','🟡','🟢'],['🟢','🔵','🟣','🔴'],
+  ['🐘','🐭','🐘','🐭'],['🦁','🐰','🦁','🐰'],
+  ['🍕','🍔','🌮','🍕'],['🎵','🎶','🎵','🎶'],
 ];
 const extra=['🌸','🌊','⭐','🍀','🟣','🟡','🔺','🔵','🍎','🍌','🐱','🐶',
-  '❤️','💛','💚','🚗','🚢','✈️','🐰','🦁','🐘','🐁',
-  '☀️','🌧️','🔴','🟠','🟡','🟢','🔵','🟣',
-  '1','2','3','4','5','6','7','8','9','10','20','30','40',
-  '🔥','💧','🎈','🎀','🍎','🍊','🍋','🍇'];function build(){const base=rand(patterns),ans=base[base.length-1];s.answer=ans;e.prompt.innerHTML='';base.slice(0,base.length-1).forEach(x=>{const p=document.createElement('div');p.className='pill';p.textContent=x;e.prompt.appendChild(p)});let opts=[ans];while(opts.length<4){const c=rand(extra);if(!opts.includes(c))opts.push(c)}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#84cc16']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
+  '❤️','💛','💚','🚗','🚢','✈️','🐰','🦁','🍇','🍓','☀️','🌧️','🔴','🟠',
+  '🟡','🟢','🔵','🟣','🐘','🐭','🔥','💧','🎈','🎀','🎵','🎶',
+  '1','2','3','4','5','6','7','8','9','10','20','30','40'];function build(){const base=rand(patterns),ans=base[base.length-1];s.answer=ans;e.prompt.innerHTML='';base.slice(0,base.length-1).forEach(x=>{const p=document.createElement('div');p.className='pill';p.textContent=x;e.prompt.appendChild(p)});let opts=[ans];while(opts.length<4){const c=rand(extra);if(!opts.includes(c))opts.push(c)}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#84cc16']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
   (function(){
   try{
     var _sk=window.__SK,_ss=window.__SKS;
     if(!_sk||!_ss)return;
     var _sc=s.score;
-    var _cid=localStorage.getItem('spk_active_child');
-    _sk.from('profiles').select('scores,weekly,children').eq('id',_ss.id).single()
-      .then(function(r){
-        if(!r.data)return;
-        var d=new Date().getDay(),di=d===0?6:d-1;
-        if(_cid&&r.data.children&&r.data.children.length>0){
-          var kids=r.data.children,ki=kids.findIndex(function(x){return String(x.id)===String(_cid);});
-          if(ki>=0){
-            var cs=kids[ki].scores||{},cw=kids[ki].weekly||[0,0,0,0,0,0,0];
-            if(!cs['temukan-pola']||cs['temukan-pola']<_sc)cs['temukan-pola']=_sc;
-            cw[di]=(cw[di]||0)+1;
-            kids[ki].scores=cs;kids[ki].weekly=cw;
-            _sk.from('profiles').update({children:kids,updated_at:new Date().toISOString()}).eq('id',_ss.id).then(function(){});
-            return;
-          }
-        }
-        var sc=r.data.scores||{},wk=r.data.weekly||[0,0,0,0,0,0,0];
-        if(!sc['temukan-pola']||sc['temukan-pola']<_sc)sc['temukan-pola']=_sc;
-        wk[di]=(wk[di]||0)+1;
-        _sk.from('profiles').update({scores:sc,weekly:wk,updated_at:new Date().toISOString()}).eq('id',_ss.id).then(function(){});
-      });
-  }catch(e){}
+    var _cid=localStorage.getItem('spk_active_child')||'';
+    _sk.rpc('save_game_score',{
+      p_user_id:_ss.id,
+      p_child_id:_cid,
+      p_game_id:'temukan-pola',
+      p_score:Math.round(_sc)
+    }).then(function(r){
+      if(r.error)console.warn('score save error',r.error);
+    });
+  }catch(e){console.warn('score saver',e);}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>
