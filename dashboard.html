@@ -417,6 +417,7 @@ a{text-decoration:none;color:inherit}
         <div class="skill-title">👶 Profil Anak</div>
         <div id="childList"></div>
         <button class="add-child-btn" onclick="showAddChild()">➕ Tambah Profil Anak</button>
+        <button id="refreshBtn" onclick="refreshDashboard()" style="background:white;color:#0369a1;border:2px solid #bae6fd;border-radius:999px;padding:8px 16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;cursor:pointer">🔄 Refresh</button>
 
         <!-- ADD CHILD FORM (hidden) -->
         <div id="addChildForm" style="display:none;margin-top:14px;padding:16px;background:rgba(252,231,243,.4);border-radius:18px;border:2px solid #fce7f3">
@@ -499,174 +500,249 @@ function rank(s){ if(s>=140)return'A+'; if(s>=110)return'A'; if(s>=80)return'B';
 
   const uid = session.user.id;
 
-  // Fetch profile (includes scores + weekly as JSONB columns)
-  const { data: profile, error: profErr } = await _db
-    .from('profiles')
-    .select('name, plan, children, scores, weekly')
-    .eq('id', uid)
-    .single();
-
-  if(profErr && profErr.code !== 'PGRST116') {
-    console.warn('Profile fetch error:', profErr);
+  // ── fetchProfile ── 
+  async function fetchProfile(){
+    const { data, error } = await _db
+      .from('profiles')
+      .select('name, plan, children, scores, weekly')
+      .eq('id', uid).single();
+    if(error && error.code !== 'PGRST116') console.warn('Profile fetch error:', error);
+    return data || {};
   }
 
-  const name      = profile?.name || session.user.email.split('@')[0];
-  const plan      = profile?.plan || 'free';
+  let profile = await fetchProfile();
+
+  const name      = profile.name || session.user.email.split('@')[0];
+  const plan      = profile.plan || 'premium';
   const isPremium = plan === 'premium' || plan === 'admin';
-  const children  = profile?.children || [];
 
-  // Scores map from JSONB column
-  const scores = profile?.scores || {};
-
-  // Weekly activity from JSONB column
-  const weekData = profile?.weekly || [0,0,0,0,0,0,0];
-
-  // ─── POPULATE HEADER ──────────────────────────────────────────────────────
+  // ── Populate header ────────────────────────────────────────────────────────
   document.getElementById('welcomeName').textContent = `Halo, ${name}! 👋`;
   document.getElementById('welcomeSub').textContent  = `Akun: ${session.user.email} · ${isPremium?'Premium ⭐':'Free Plan'}`;
   document.getElementById('planBadge').textContent   = isPremium ? '⭐ Premium' : '🆓 Free';
   document.getElementById('planBadge').className     = 'nav-pill ' + (isPremium ? 'plan-premium' : 'plan-free');
   if(!isPremium) document.getElementById('upgradeCard').style.display = 'block';
 
-  // ─── STATS ────────────────────────────────────────────────────────────────
-  const playedIds  = Object.keys(scores);
-  const totalPlayed = playedIds.length;
-  const bestScore  = totalPlayed > 0 ? Math.max(...Object.values(scores)) : 0;
-  const totalMins  = Object.values(scores).reduce((a,v)=>a+Math.round((v||0)/10), 0);
-
-  document.getElementById('statGamesPlayed').textContent = totalPlayed;
-  document.getElementById('statMinutes').textContent     = totalMins + 'm';
-  document.getElementById('statBestScore').textContent   = bestScore || '–';
-  document.getElementById('statRank').textContent        = rank(bestScore);
-  document.getElementById('totalGames').textContent      = totalPlayed;
-  document.getElementById('streakCount').textContent     = weekData.filter(v=>v>0).length;
-
-  // ─── SKILL BARS ───────────────────────────────────────────────────────────
-  function catPct(ids){
-    const played = ids.filter(id=>scores[id]!=null).length;
-    const avg    = ids.reduce((a,id)=>a+(scores[id]||0),0) / ids.length;
-    return Math.min(100, Math.round((played/ids.length)*60 + (avg/2)));
+  // ── Child list state ───────────────────────────────────────────────────────
+  let childList   = Array.isArray(profile.children) ? profile.children : [];
+  let activeChild = 0;
+  const savedCid  = localStorage.getItem('spk_active_child');
+  if(savedCid && childList.length > 0){
+    const si = childList.findIndex(ch => String(ch.id) === savedCid);
+    if(si >= 0) activeChild = si;
   }
-  const focusPct    = catPct(['pop-warna','ingat-urutan','cari-yang-berbeda']);
-  const brainPct    = catPct(['temukan-pola','labirin-ringan','hitung-cepat']);
-  const creativePct = catPct(['campur-warna','warna-ajaib','cari-pasangan']);
-  const speedPct    = Math.min(100, Math.round((bestScore/200)*100));
 
-  setTimeout(()=>{
-    [['barFocus',focusPct,'skillFocus'],['barBrain',brainPct,'skillBrain'],
-     ['barCreative',creativePct,'skillCreative'],['barSpeed',speedPct,'skillSpeed']
-    ].forEach(([bar,pct,label])=>{
-      document.getElementById(bar).style.width = pct+'%';
-      document.getElementById(label).textContent = pct+'%';
-    });
-  }, 200);
+  // ── renderStats ────────────────────────────────────────────────────────────
+  function renderStats(scores, weekData){
+    scores   = scores   || {};
+    weekData = (Array.isArray(weekData) && weekData.length===7) ? weekData : [0,0,0,0,0,0,0];
 
-  // ─── WEEKLY CHART ─────────────────────────────────────────────────────────
-  const maxW = Math.max(...weekData, 1);
-  setTimeout(()=>{
-    document.querySelectorAll('.week-bar').forEach((b,i)=>{
-      const pct = Math.max(5,(weekData[i]/maxW)*100);
-      b.style.height = pct+'%';
-      b.setAttribute('data-val', weekData[i]+' game');
-    });
-  }, 300);
+    const playedIds   = Object.keys(scores);
+    const totalPlayed = playedIds.length;
+    const bestScore   = totalPlayed > 0 ? Math.max(...Object.values(scores)) : 0;
+    const totalMins   = Object.values(scores).reduce((a,v)=>a+Math.round((v||0)/10), 0);
 
-  // ─── STREAK DAYS ──────────────────────────────────────────────────────────
-  const days = ['S','S','R','K','J','S','M'];
-  const todayIdx = (new Date().getDay()+6) % 7;
-  const streakEl = document.getElementById('streakDays');
-  if(streakEl){
-    streakEl.innerHTML = '';
-    for(let i=0;i<7;i++){
-      const cls = i===todayIdx ? 'streak-today' : weekData[i]>0 ? 'streak-done' : 'streak-missed';
-      streakEl.innerHTML += `<div class="streak-day ${cls}">${days[i]}</div>`;
+    document.getElementById('statGamesPlayed').textContent = totalPlayed;
+    document.getElementById('statMinutes').textContent     = totalMins + 'm';
+    document.getElementById('statBestScore').textContent   = bestScore || '–';
+    document.getElementById('statRank').textContent        = rank(bestScore);
+    document.getElementById('totalGames').textContent      = totalPlayed;
+    document.getElementById('streakCount').textContent     = weekData.filter(v=>v>0).length;
+
+    function catPct(ids){
+      const played = ids.filter(id=>scores[id]!=null).length;
+      const avg    = ids.reduce((a,id)=>a+(scores[id]||0),0)/ids.length;
+      return Math.min(100, Math.round((played/ids.length)*60 + (avg/2)));
+    }
+    const focusPct    = catPct(['pop-warna','ingat-urutan','cari-yang-berbeda']);
+    const brainPct    = catPct(['temukan-pola','labirin-ringan','hitung-cepat']);
+    const creativePct = catPct(['campur-warna','warna-ajaib','cari-pasangan']);
+    const speedPct    = Math.min(100, Math.round((bestScore/200)*100));
+    setTimeout(()=>{
+      [['barFocus',focusPct,'skillFocus'],['barBrain',brainPct,'skillBrain'],
+       ['barCreative',creativePct,'skillCreative'],['barSpeed',speedPct,'skillSpeed']
+      ].forEach(([bar,pct,label])=>{
+        const el=document.getElementById(bar);if(el)el.style.width=pct+'%';
+        const ll=document.getElementById(label);if(ll)ll.textContent=pct+'%';
+      });
+    },100);
+
+    const maxW = Math.max(...weekData, 1);
+    setTimeout(()=>{
+      document.querySelectorAll('.week-bar').forEach((b,i)=>{
+        const pct = Math.max(5,(weekData[i]/maxW)*100);
+        b.style.height = pct+'%';
+        b.setAttribute('data-val', weekData[i]+' game');
+      });
+    },150);
+
+    const days = ['S','S','R','K','J','S','M'];
+    const todayIdx = (new Date().getDay()+6) % 7;
+    const streakEl = document.getElementById('streakDays');
+    if(streakEl){
+      streakEl.innerHTML = '';
+      for(let i=0;i<7;i++){
+        const cls = i===todayIdx ? 'streak-today' : weekData[i]>0 ? 'streak-done' : 'streak-missed';
+        streakEl.innerHTML += `<div class="streak-day ${cls}">${days[i]}</div>`;
+      }
+    }
+
+    const recentEl = document.getElementById('recentGames');
+    const played   = allGames.filter(g => scores[g.id] != null);
+    if(recentEl){
+      if(played.length > 0){
+        recentEl.innerHTML = '';
+        played.slice(0,5).forEach(g=>{
+          recentEl.innerHTML += `
+            <div class="game-row">
+              <div class="game-icon" style="background:${g.color}">${g.emoji}</div>
+              <div class="game-info">
+                <div class="game-name">${g.name}</div>
+                <div class="game-meta">${g.cat.toUpperCase()} · Rank ${rank(scores[g.id])}</div>
+              </div>
+              <div class="game-score" style="color:${g.catColor}">${scores[g.id]||0}</div>
+            </div>`;
+        });
+      } else {
+        recentEl.innerHTML = '<div style="font-size:13px;font-weight:700;color:#94a3b8;padding:8px 0">Belum ada game yang dimainkan.</div>';
+      }
+    }
+
+    const miniEl = document.getElementById('gamesMini');
+    if(miniEl){
+      miniEl.innerHTML = '';
+      allGames.forEach(g=>{
+        const canPlay = isPremium || g.free;
+        miniEl.innerHTML += `
+          <div class="game-mini" style="background:${g.color}" onclick="${canPlay?`location.href='${g.file}'`:`showUpgradeInfo()`}">
+            <div class="game-mini-emoji">${g.emoji}</div>
+            <div class="game-mini-name">${g.name}</div>
+            ${scores[g.id]!=null?`<div style="font-size:10px;font-weight:900;margin-top:4px;color:${g.catColor}">${scores[g.id]} pts</div>`:''}
+            ${!canPlay?'<div class="lock-overlay">🔒</div>':''}
+          </div>`;
+      });
     }
   }
 
-  // ─── RECENT GAMES ─────────────────────────────────────────────────────────
-  const recentEl = document.getElementById('recentGames');
-  const played   = allGames.filter(g => scores[g.id] != null);
-  if(recentEl && played.length > 0){
-    recentEl.innerHTML = '';
-    played.slice(0,5).forEach(g=>{
-      recentEl.innerHTML += `
-        <div class="game-row">
-          <div class="game-icon" style="background:${g.color}">${g.emoji}</div>
-          <div class="game-info">
-            <div class="game-name">${g.name}</div>
-            <div class="game-meta">${g.cat.toUpperCase()} · Rank ${rank(scores[g.id])}</div>
-          </div>
-          <div class="game-score" style="color:${g.catColor}">${scores[g.id]||0}</div>
-        </div>`;
-    });
-  }
-
-  // ─── GAMES MINI GRID ──────────────────────────────────────────────────────
-  const miniEl = document.getElementById('gamesMini');
-  const noticeEl = document.getElementById('gamesPlanNotice');
-  if(!isPremium && noticeEl){
-    noticeEl.innerHTML = '<div style="font-size:12px;font-weight:800;color:#be185d;margin-bottom:12px;padding:8px 12px;background:rgba(252,231,243,.6);border-radius:12px">🔒 3 dari 9 game tersedia di Free Plan</div>';
-  }
-  if(miniEl){
-    allGames.forEach(g=>{
-      const canPlay = isPremium || g.free;
-      miniEl.innerHTML += `
-        <div class="game-mini" style="background:${g.color}" onclick="${canPlay?`location.href='${g.file}'`:`showUpgradeInfo()`}">
-          <div class="game-mini-emoji">${g.emoji}</div>
-          <div class="game-mini-name">${g.name}</div>
-          ${scores[g.id]!=null?`<div style="font-size:10px;font-weight:900;margin-top:4px;color:${g.catColor}">${scores[g.id]} pts</div>`:''}
-          ${!canPlay?'<div class="lock-overlay">🔒</div>':''}
-        </div>`;
-    });
-  }
-
-  // ─── CHILD PROFILES ───────────────────────────────────────────────────────
-  let childList = children;
-  let activeChild = 0;
-
+  // ── renderChildren ─────────────────────────────────────────────────────────
   function renderChildren(){
     const el = document.getElementById('childList');
     if(!el) return;
     if(childList.length===0){
       el.innerHTML='<div style="font-size:13px;font-weight:700;color:#64748b;padding:10px 0;margin-bottom:8px">Tambahkan profil anak untuk mulai tracking</div>';
+      renderStats(profile.scores||{}, profile.weekly||[0,0,0,0,0,0,0]);
+      const lbl = document.getElementById('activeChildLabel');
+      if(lbl) lbl.textContent = '📊 Progress Akun';
       return;
     }
     el.innerHTML='';
     childList.forEach((ch,i)=>{
-      el.innerHTML+=`<div class="child-card ${i===activeChild?'active':''}" onclick="selectChild(${i})">
+      const isActive  = i===activeChild;
+      const chScores  = ch.scores||{};
+      const chPlayed  = Object.keys(chScores).length;
+      const chBest    = chPlayed>0 ? Math.max(...Object.values(chScores)) : 0;
+      el.innerHTML+=`<div class="child-card ${isActive?'active':''}" onclick="selectChild(${i})" style="cursor:pointer">
         <div class="child-avatar" style="background:linear-gradient(135deg,#fce7f3,#fef3c7)">${ch.emoji||'🦊'}</div>
-        <div><div class="child-name">${ch.name}</div><div class="child-age">Usia ${ch.age} tahun</div></div>
-        <div style="margin-left:auto;font-size:12px;font-weight:900;padding:4px 10px;background:white;border-radius:999px;box-shadow:0 2px 8px rgba(15,23,42,.08)">${i===activeChild?'✅ Aktif':'Pilih'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="child-name">${ch.name}</div>
+          <div class="child-age">Usia ${ch.age} tahun · ${chPlayed} game${chBest>0?' · Best: '+chBest:''}</div>
+        </div>
+        <div style="margin-left:auto;font-size:12px;font-weight:900;padding:4px 10px;background:${isActive?'#0ea5e9':'white'};color:${isActive?'white':'#0369a1'};border-radius:999px;box-shadow:0 2px 8px rgba(15,23,42,.08);white-space:nowrap">
+          ${isActive?'✅ Aktif':'Pilih'}
+        </div>
       </div>`;
     });
+    const ac = childList[activeChild];
+    if(ac){
+      renderStats(ac.scores||{}, ac.weekly||[0,0,0,0,0,0,0]);
+      const lbl = document.getElementById('activeChildLabel');
+      if(lbl) lbl.textContent = `📊 Progress: ${ac.name}`;
+      // Keep localStorage in sync
+      localStorage.setItem('spk_active_child', String(ac.id));
+    }
   }
-  window.selectChild = i => { activeChild=i; renderChildren(); };
+
+  window.selectChild = function(i){
+    activeChild = i;
+    const ch = childList[i];
+    if(ch) localStorage.setItem('spk_active_child', String(ch.id));
+    renderChildren();
+  };
+
+  // ── addChild / cancelChild ─────────────────────────────────────────────────
   window.showAddChild = ()=>{
-    if(childList.length>=(isPremium?3:1)){
-      alert(isPremium?'Maksimal 3 profil anak.':'Upgrade ke Premium untuk tambah sampai 3 profil!');
+    if(childList.length>=(isPremium?5:1)){
+      alert(isPremium?'Maksimal 5 profil anak.':'Upgrade ke Premium untuk tambah sampai 5 profil!');
       return;
     }
     document.getElementById('addChildForm').style.display='block';
   };
+
   window.saveChild = async ()=>{
     const name2 = document.getElementById('childNameInput').value.trim();
     const age   = parseInt(document.getElementById('childAgeInput').value)||5;
     const emoji = document.getElementById('childEmojiInput').value||'🦊';
     if(!name2){ alert('Isi nama anak dulu ya!'); return; }
-    childList.push({name:name2, age, emoji, id:Date.now()});
-    await _db.from('profiles').update({children:childList}).eq('id', uid);
+    const newChild = {name:name2, age, emoji, id:Date.now(), scores:{}, weekly:[0,0,0,0,0,0,0]};
+    childList.push(newChild);
+    const { error } = await _db.from('profiles').update({children:childList}).eq('id', uid);
+    if(error){ console.error('saveChild error:', error); alert('Gagal menyimpan. Coba lagi.'); childList.pop(); return; }
+    // Auto-select the new child
+    activeChild = childList.length - 1;
+    localStorage.setItem('spk_active_child', String(newChild.id));
     renderChildren();
     window.cancelChild();
   };
+
   window.cancelChild = ()=>{
     document.getElementById('addChildForm').style.display='none';
     document.getElementById('childNameInput').value='';
     document.getElementById('childAgeInput').value='';
   };
-  renderChildren();
 
-  // ─── LOGOUT ───────────────────────────────────────────────────────────────
+  // ── Realtime subscription: refresh when profile row changes ───────────────
+  // This makes changes on one device immediately visible on other devices
+  const channel = _db.channel('profile-' + uid)
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'profiles',
+      filter: 'id=eq.' + uid
+    }, async (payload) => {
+      // New data arrived from another device/game
+      const fresh = payload.new || {};
+      profile.scores  = fresh.scores  || profile.scores;
+      profile.weekly  = fresh.weekly  || profile.weekly;
+      const freshKids = fresh.children;
+      if(Array.isArray(freshKids)){
+        // Merge: preserve local activeChild selection
+        const activeCid = childList[activeChild]?.id;
+        childList = freshKids;
+        const ni = childList.findIndex(ch => String(ch.id) === String(activeCid));
+        activeChild = ni >= 0 ? ni : 0;
+      }
+      renderChildren();
+    })
+    .subscribe();
+
+  // ── Also refresh on tab focus (user switches back from game tab) ──────────
+  document.addEventListener('visibilitychange', async ()=>{
+    if(document.visibilityState === 'visible'){
+      profile = await fetchProfile();
+      const freshKids = Array.isArray(profile.children) ? profile.children : [];
+      const activeCid = childList[activeChild]?.id;
+      childList = freshKids;
+      if(activeCid){
+        const ni = childList.findIndex(ch => String(ch.id) === String(activeCid));
+        if(ni >= 0) activeChild = ni;
+      }
+      renderChildren();
+    }
+  });
+
+  // ── Logout ─────────────────────────────────────────────────────────────────
   window.doLogout = async ()=>{
+    channel.unsubscribe();
     await _db.auth.signOut();
     location.replace('auth.html');
   };
@@ -674,6 +750,9 @@ function rank(s){ if(s>=140)return'A+'; if(s>=110)return'A'; if(s>=80)return'B';
   window.showUpgradeInfo = ()=>{
     alert('🌟 Upgrade ke Premium!\n\nHubungi kami melalui:\n• WhatsApp: [nomor_wa_kamu]\n• Email: support@sparkids.id\n\nSetelah pembayaran, akun akan langsung diupgrade!');
   };
+
+  // ── Initial render ─────────────────────────────────────────────────────────
+  renderChildren();
 
 })();
 </script>
