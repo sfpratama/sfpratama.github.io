@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login – Sparkids</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#f472b6"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg1:#fde68a;--bg2:#fbcfe8;--bg3:#bfdbfe;--bg4:#bbf7d0;
+  --ink:#1f2937;--muted:#64748b;--white:rgba(255,255,255,.88);
+  --pink:#f472b6;--sky:#38bdf8;--lime:#84cc16;
+  --shadow:0 20px 60px rgba(15,23,42,.16);
+  --card-shadow:0 12px 32px rgba(15,23,42,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:'Nunito',sans-serif;color:var(--ink)}
+body{
+  background:radial-gradient(circle at 20% 20%,var(--bg1) 0%,var(--bg2) 30%,var(--bg3) 60%,var(--bg4) 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.orb{position:fixed;border-radius:999px;filter:blur(50px);pointer-events:none;opacity:.3;z-index:0}
+.o1{width:240px;height:240px;left:-60px;top:-60px;background:#fde68a}
+.o2{width:200px;height:200px;right:-40px;top:100px;background:#f9a8d4}
+.o3{width:180px;height:180px;left:80px;bottom:20px;background:#93c5fd}
+.o4{width:200px;height:200px;right:60px;bottom:-40px;background:#bbf7d0}
+
+.wrap{
+  position:relative;z-index:1;
+  display:grid;gap:0;max-width:920px;width:100%;
+  grid-template-columns:1fr;
+  background:var(--white);backdrop-filter:blur(20px);
+  border-radius:40px;border:3px solid rgba(255,255,255,.9);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+@media(min-width:700px){
+  .wrap{grid-template-columns:1fr 1fr}
+}
+
+/* LEFT PANEL */
+.left{
+  background:linear-gradient(160deg,#fce7f3 0%,#fef3c7 50%,#e0f2fe 100%);
+  padding:48px 40px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;gap:20px;
+}
+.logo-box{
+  width:100px;height:100px;border-radius:28px;
+  background:linear-gradient(135deg,#fce7f3,#fef3c7);
+  box-shadow:var(--card-shadow);
+  display:flex;align-items:center;justify-content:center;font-size:52px;
+  animation:bob 2.8s ease-in-out infinite;
+}
+.brand{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,3vw,2.2rem);color:var(--ink);line-height:1.1}
+.brand span{color:#db2777}
+.tagline{font-size:14px;font-weight:700;color:var(--muted);line-height:1.6;max-width:220px}
+.badges-col{display:flex;flex-direction:column;gap:8px;width:100%;max-width:200px}
+.badge-item{
+  background:white;border-radius:16px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 4px 12px rgba(15,23,42,.08);
+  font-size:13px;font-weight:800;
+}
+.badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-pink{background:#f472b6}
+.dot-sky{background:#38bdf8}
+.dot-lime{background:#84cc16}
+.dot-orange{background:#fb923c}
+
+/* RIGHT PANEL - FORM */
+.right{padding:48px 40px;display:flex;flex-direction:column;justify-content:center;gap:24px}
+@media(max-width:699px){.right{padding:32px 24px}}
+
+.form-title{font-family:'Fredoka One',cursive;font-size:clamp(1.4rem,2.5vw,1.9rem);color:var(--ink)}
+.form-sub{font-size:14px;font-weight:700;color:var(--muted);margin-top:4px;line-height:1.5}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:900;letter-spacing:.04em;color:#475569}
+.field input{
+  background:rgba(255,255,255,.9);border:2px solid #fce7f3;border-radius:16px;
+  padding:14px 18px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;
+  color:var(--ink);outline:none;transition:border-color .18s,box-shadow .18s;
+  box-shadow:0 4px 12px rgba(15,23,42,.06);
+}
+.field input:focus{border-color:#f472b6;box-shadow:0 0 0 3px rgba(244,114,182,.15)}
+.field input::placeholder{color:#94a3b8;font-weight:600}
+
+.password-wrap{position:relative}
+.password-wrap input{padding-right:50px;width:100%}
+.eye-btn{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:18px;padding:4px;
+  color:#94a3b8;transition:color .15s;
+}
+.eye-btn:hover{color:#f472b6}
+
+.forgot{font-size:12px;font-weight:800;color:#db2777;text-decoration:none;margin-top:-8px;align-self:flex-end}
+.forgot:hover{text-decoration:underline}
+
+.login-btn{
+  background:linear-gradient(135deg,#f472b6,#fb7185);
+  color:white;border:none;border-radius:999px;
+  padding:16px 28px;font-family:'Nunito',sans-serif;
+  font-size:17px;font-weight:900;cursor:pointer;
+  box-shadow:0 8px 24px rgba(244,114,182,.4);
+  transition:transform .14s,box-shadow .14s,filter .14s;
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(244,114,182,.5)}
+.login-btn:active{transform:translateY(1px) scale(.98)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;font-weight:700}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#fce7f3}
+
+.support-link{
+  text-align:center;font-size:13px;font-weight:700;color:var(--muted);
+}
+.support-link a{color:#0369a1;font-weight:900;text-decoration:none}
+.support-link a:hover{text-decoration:underline}
+
+.alert{
+  padding:12px 16px;border-radius:16px;font-size:14px;font-weight:800;
+  display:none;align-items:center;gap:10px;
+}
+.alert-error{background:#fef2f2;border:2px solid #fca5a5;color:#dc2626;display:flex}
+.alert-success{background:#f0fdf4;border:2px solid #86efac;color:#16a34a;display:flex}
+
+.remember-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.remember-row input[type=checkbox]{
+  width:18px;height:18px;accent-color:#f472b6;cursor:pointer;
+}
+
+/* Loading spinner */
+.spinner{
+  display:none;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);
+  border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;
+}
+
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.wrap{animation:popIn .3s ease-out}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+
+<div class="wrap">
+  <!-- LEFT: Branding -->
+  <div class="left">
+    <div class="logo-box">🐻</div>
+    <div>
+      <div class="brand">Spark<span>kids</span></div>
+      <div class="tagline">Platform edukasi interaktif untuk anak – belajar sambil bermain!</div>
+    </div>
+    <div class="badges-col">
+      <div class="badge-item"><div class="badge-dot dot-pink"></div>9 Mini Games Seru</div>
+      <div class="badge-item"><div class="badge-dot dot-sky"></div>Focus & Brain Games</div>
+      <div class="badge-item"><div class="badge-dot dot-lime"></div>Creative & Sensory</div>
+      <div class="badge-item"><div class="badge-dot dot-orange"></div>Pantau Progress Anak</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Login Form -->
+  <div class="right">
+    <div>
+      <div class="form-title">Selamat datang, Parent! 👋</div>
+      <div class="form-sub">Masuk ke akun untuk mulai bermain bersama anak</div>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="field">
+        <label>EMAIL / USERNAME</label>
+        <input type="text" id="usernameInput" placeholder="email atau username kamu" autocomplete="username"/>
+      </div>
+
+      <div class="field">
+        <label>PASSWORD</label>
+        <div class="password-wrap">
+          <input type="password" id="passwordInput" placeholder="masukkan password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <button class="eye-btn" onclick="togglePass()" type="button" id="eyeBtn">👁️</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="remember-row">
+          <input type="checkbox" id="rememberMe" checked/>
+          <label for="rememberMe">Ingat saya</label>
+        </div>
+        <a class="forgot" href="#" onclick="showForgotHelp()">Lupa password?</a>
+      </div>
+
+      <button class="login-btn" onclick="doLogin()" id="loginBtn">
+        <span id="btnText">Masuk Sekarang 🚀</span>
+        <span class="spinner" id="spinner"></span>
+      </button>
+
+      <div class="divider">atau</div>
+
+      <div class="support-link">
+        Belum punya akun? <a href="#" onclick="showBuyHelp()">Lihat cara berlangganan</a>
+      </div>
+      <div class="support-link" style="margin-top:-8px">
+        Butuh bantuan? <a href="/cdn-cgi/l/email-protection#9ae9efeaeaf5e8eedae8eff7fbf2f7fbf3f4fcf5f1efe9b4f9f5f7">Hubungi kami</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ─── SPARKIDS AUTH – powered by Supabase ──────────────────────────────────
+const { createClient } = window.supabase;
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+
+// ─── CHECK IF ALREADY LOGGED IN ────────────────────────────────────────────
+(async function(){
+  const { data: { session } } = await _db.auth.getSession();
+  if(session){
+    const dest = new URLSearchParams(location.search).get('redirect') || 'index.html';
+    location.replace(dest);
+  }
+})();
+
+// ─── LOGIN ─────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const emailOrUser = document.getElementById('usernameInput').value.trim().toLowerCase();
+  const password    = document.getElementById('passwordInput').value;
+
+  if(!emailOrUser || !password){
+    showAlert('error','⚠️ Isi email dan password dulu ya!'); return;
+  }
+
+  // Accept either email or username@sparkids.id format
+  const email = emailOrUser.includes('@') ? emailOrUser : emailOrUser + '@sparkids.id';
+
+  setLoading(true);
+
+  const { data, error } = await _db.auth.signInWithPassword({ email, password });
+
+  if(error){
+    let msg = '❌ Email atau password salah. Cek kembali ya!';
+    if(error.message.includes('Email not confirmed')) msg = '⚠️ Email belum dikonfirmasi. Hubungi admin Sparkids.';
+    if(error.message.includes('Invalid login')) msg = '❌ Email atau password salah.';
+    showAlert('error', msg);
+    setLoading(false);
+    return;
+  }
+
+  showAlert('success','✅ Login berhasil! Mengalihkan...');
+  setTimeout(()=>{
+    const dest = new URLSearchParams(location.search).get('redirect') || 'index.html';
+    location.replace(dest);
+  }, 700);
+}
+
+// ─── LOGOUT (called from other pages) ──────────────────────────────────────
+async function doLogout(){
+  await _db.auth.signOut();
+  location.replace('auth.html');
+}
+
+// ─── UI HELPERS ─────────────────────────────────────────────────────────────
+function showAlert(type, msg){
+  const el = document.getElementById('alertBox');
+  el.className = 'alert alert-' + type;
+  el.style.display = 'flex';
+  el.textContent = msg;
+}
+function setLoading(on){
+  document.getElementById('loginBtn').disabled = on;
+  document.getElementById('btnText').style.display = on ? 'none' : 'inline';
+  document.getElementById('spinner').style.display = on ? 'inline-block' : 'none';
+}
+function togglePass(){
+  const inp = document.getElementById('passwordInput');
+  const btn = document.getElementById('eyeBtn');
+  if(inp.type==='password'){ inp.type='text'; btn.textContent='🙈'; }
+  else{ inp.type='password'; btn.textContent='👁️'; }
+}
+function showForgotHelp(){
+  showAlert('error','🔑 Lupa password? Hubungi admin Sparkids via WhatsApp atau email support@sparkids.id');
+}
+function showBuyHelp(){
+  showAlert('success','🛒 Untuk berlangganan hubungi admin via WhatsApp atau Instagram. Akun akan aktif dalam 1x24 jam!');
+}
+
+// ─── ENTER KEY ────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ─── PWA SERVICE WORKER ──────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
