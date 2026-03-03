@@ -54,8 +54,8 @@ a{text-decoration:none;color:inherit}
   display:flex;align-items:center;justify-content:center;font-size:24px;
   box-shadow:var(--card);
 }
-.brand-name{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--ink)}
-.brand-name span{color:#db2777}
+.brand-name{font-family:'Fredoka One',cursive;font-size:1.2rem;color:#111827}
+.brand-name span{color:#ef4444}
 .nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .nav-pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -279,7 +279,7 @@ a{text-decoration:none;color:inherit}
   <nav class="topbar">
     <div class="brand-nav">
       <div class="brand-icon">🐻</div>
-      <div class="brand-name">Spark<span>kids</span></div>
+      <div class="brand-name">Spar<span>kids</span></div>
     </div>
     <div class="nav-right">
       <a href="index.html" class="nav-pill">🎮 Main Sekarang</a>
@@ -416,7 +416,7 @@ a{text-decoration:none;color:inherit}
       <div class="card">
         <div class="skill-title">👶 Profil Anak</div>
         <div id="childList"></div>
-        <button class="add-child-btn" onclick="showAddChild()">➕ Tambah Profil Anak</button>
+        <button id="addChildBtn" class="add-child-btn" onclick="showAddChild()">➕ Tambah Profil Anak</button>
 
 
         <!-- ADD CHILD FORM (hidden) -->
@@ -502,8 +502,13 @@ var _uid       = '';
 
 // ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
 
+function updateAddChildButton() {
+  var btn = document.getElementById('addChildBtn');
+  if (btn) btn.style.display = _children.length >= 5 ? 'none' : '';
+}
+
 function showAddChild() {
-  if (_children.length >= 5) { alert('Maksimal 5 profil anak ya!'); return; }
+  if (_children.length >= 5) return;
   document.getElementById('addChildForm').style.display = 'block';
   setTimeout(function() { document.getElementById('childNameInput').focus(); }, 60);
 }
@@ -551,6 +556,7 @@ async function saveChild() {
     _children  = newList;
     _activeIdx = newList.length - 1;
     cancelChild();
+    updateAddChildButton();
     renderDashboard();
 
   } catch (e) {
@@ -732,7 +738,7 @@ async function syncFromDB() {
   if (!_uid) return;
   try {
     var r = await _db.from('profiles')
-      .select('name, plan, children, scores, weekly')
+      .select('name, plan, children, scores, weekly, active_child_id')
       .eq('id', _uid)
       .single();
 
@@ -743,9 +749,13 @@ async function syncFromDB() {
     _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
     _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-    // Keep _activeIdx in range
-    if (_activeIdx >= _children.length) _activeIdx = 0;
+    // Restore which child is active from DB (persists across page reloads)
+    var cid = r.data.active_child_id || '';
+    var ni  = _children.findIndex(function(c) { return c.id === cid; });
+    _activeIdx = ni >= 0 ? ni : 0;
 
+    renderChildren();
+    updateAddChildButton();
     renderDashboard();
   } catch (e) {
     console.error('syncFromDB exception:', e);
