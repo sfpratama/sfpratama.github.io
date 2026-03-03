@@ -750,6 +750,10 @@ function rank(s){ if(s>=140)return'A+'; if(s>=110)return'A'; if(s>=80)return'B';
   setInterval(syncFromDB, 15000);
 
   // ── 10. MISC ──────────────────────────────────────────────────────────────
+  window.refreshDashboard = async () => {
+    await syncFromDB();
+  };
+
   window.doLogout = async () => {
     await _db.auth.signOut();
     location.replace('auth.html');
