@@ -275,15 +275,21 @@ document.documentElement.style.opacity = '0';
     }
 
     // Lock / unlock premium games
-    document.querySelectorAll('.lock-card').forEach(el => {
-      if(isPremium) {
+    document.querySelectorAll('.lock-card').forEach(function(el){
+      if(isPremium){
+        // Extract game file from onclick attribute e.g. handleLockedGame('game-foo.html')
+        var oc = el.getAttribute('onclick') || '';
+        var match = oc.match(/['"]([^'"]+\.html)['"]/);
+        var file = match ? match[1] : null;
         el.classList.remove('lock-card');
-        el.style.opacity = '';
-        const lockBadge = el.querySelector('.lock-badge');
+        el.style.opacity = '1';
+        var lockBadge = el.querySelector('.lock-badge');
+        var lockDim   = el.querySelector('.lock-dim');
         if(lockBadge) lockBadge.remove();
-        const gameId = el.dataset.game;
-        const href = el.dataset.href;
-        if(href) { el.onclick = () => location.href = href; }
+        if(lockDim)   lockDim.remove();
+        if(file){
+          el.setAttribute('onclick', "location.href='" + file + "'");
+        }
       }
     });
 
@@ -407,15 +413,15 @@ if(isPremium){
   planBadge.textContent='⭐ Premium';
   planBadge.className='tb-pill tb-premium';
   // Unlock all locked game cards
-  document.querySelectorAll('.lock-card').forEach(el=>{
+  document.querySelectorAll('.lock-card').forEach(function(el){
+    var oc=el.getAttribute('onclick')||'';
+    var m=oc.match(/['"]([^'"]+\.html)['"]/);
+    var file=m?m[1]:null;
     el.classList.remove('lock-card');
     el.style.opacity='1';
-    const lockDim=el.querySelector('.lock-dim');
-    const lockBadge=el.querySelector('.lock-badge');
-    if(lockDim)lockDim.remove();
-    if(lockBadge)lockBadge.remove();
-    const file=el.getAttribute('onclick').match(/'([^']+)'/)?.[1];
-    if(file){el.removeAttribute('onclick');el.style.cursor='pointer';el.onclick=()=>location.href=file;}
+    var d=el.querySelector('.lock-dim'),b=el.querySelector('.lock-badge');
+    if(d)d.remove();if(b)b.remove();
+    if(file)el.setAttribute('onclick',"location.href='"+file+"'");
   });
   // Hide upgrade card
   const uc=document.getElementById('upgradeCard');

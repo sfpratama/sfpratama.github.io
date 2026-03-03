@@ -144,7 +144,10 @@ async function loadAll(){
   document.getElementById('userTable').innerHTML =
     '<tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px;">Memuat...</td></tr>';
 
-  var result = await _db.from('profiles').select('id, email, name, plan, scores');
+  var result = await _db.from('profiles').select('id, email, name, plan, scores, updated_at');
+  if(result.error && result.error.message && result.error.message.includes('email')){
+    result = await _db.from('profiles').select('id, name, plan, scores, updated_at');
+  }
 
   if(result.error){
     document.getElementById('userTable').innerHTML =
