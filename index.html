@@ -9,13 +9,14 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:'Nunito',sans-serif;
   color:var(--ink);
   background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 22%,var(--bg3) 48%,var(--bg4) 72%,#fef3c7 100%);
   overflow-x:hidden;
   -webkit-tap-highlight-color:transparent;
 }
 a{text-decoration:none;color:inherit}
+.brand-name{font-family:'Fredoka One',cursive;font-size:1.3rem;font-weight:400;letter-spacing:.01em;color:#be185d}
 .shell{max-width:1240px;margin:0 auto;padding:16px;position:relative;z-index:1}
 .orb{position:fixed;border-radius:999px;filter:blur(42px);pointer-events:none;opacity:.34;z-index:0}
 .o1{width:160px;height:160px;left:20px;top:20px;background:white}
@@ -232,11 +233,14 @@ function doLogout(){
   if(window.__SK_CLIENT)window.__SK_CLIENT.auth.signOut().then(()=>location.replace('auth.html'));
 }
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
 </head><body>
 <nav style="position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);
   backdrop-filter:blur(16px);border-bottom:2px solid #fce7f3;
   padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-  <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#be185d;flex:1;min-width:100px">
+  <div class="brand-name" style="flex:1;min-width:100px">
     🐻 Sparkids
   </div>
   <span id="navUserName" style="font-size:13px;font-weight:900;color:#475569;
