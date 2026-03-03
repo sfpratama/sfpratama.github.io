@@ -1,9 +1,8 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"/>
-<link rel="manifest" href="manifest.json"/>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#f472b6"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<title>Ingat Urutan – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"/><title>Ingat Urutan – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -202,417 +201,81 @@ a{text-decoration:none;color:inherit}
 .slot.filled .slot-cover{display:none}
 @keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
 
-/* ═══════════════════════════════════════ MOBILE FIX v2 ══ */
-:root {
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
+/* ══ SPARKIDS MOBILE ══════════════════════════════════════════════════ */
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);}
+html{height:100%;overflow:hidden;-webkit-text-size-adjust:100%;}
+body{height:100%;overflow:hidden;touch-action:manipulation;overscroll-behavior:none;}
+.top{display:none!important;}
+div.playtop:not(.keep){display:none!important;}
+.grid.g2>aside,.side-stack{display:none!important;}
+.helper{display:none!important;}
+.banner{font-size:11px!important;padding:6px 10px!important;top:6px!important;max-width:88%!important;}
+.game-topbar{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-radius:18px;border:2px solid rgba(255,255,255,.9);box-shadow:0 4px 14px rgba(15,23,42,.10);margin-bottom:6px;}
+.game-topbar-title{font-size:13px;font-weight:900;color:#1f2937;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.back-btn{display:inline-flex;align-items:center;padding:5px 12px;background:white;border-radius:999px;font-size:12px;font-weight:900;color:#1f2937;box-shadow:0 2px 8px rgba(15,23,42,.1);text-decoration:none;flex-shrink:0;border:none;cursor:pointer;}
+.sound-mini{background:#0f172a;color:white;border:none;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;cursor:pointer;flex-shrink:0;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px;}
+.stat-mini{background:rgba(255,255,255,.9);border-radius:12px;padding:5px 4px;text-align:center;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(15,23,42,.08);}
+.stat-mini .lab{font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:#64748b;font-weight:900;display:block;}
+.stat-mini .val{font-size:18px;font-weight:900;display:block;line-height:1.15;}
+.shell{padding:6px!important;padding-top:calc(6px + var(--safe-top))!important;padding-bottom:calc(6px + var(--safe-bot))!important;height:100%;display:flex;flex-direction:column;max-width:100%!important;overflow:hidden;}
+.play-wrap{display:flex!important;flex-direction:column!important;gap:6px!important;flex:1;min-height:0;overflow:hidden;}
+.grid.g2{grid-template-columns:1fr!important;gap:0!important;flex:1;min-height:0;display:flex!important;flex-direction:column;}
+.stage{position:relative;background:rgba(255,255,255,.24);backdrop-filter:blur(14px);border:3px solid rgba(255,255,255,.75);border-radius:22px;overflow:hidden;flex:1;min-height:0;}
+.choice{min-height:64px!important;border-radius:16px!important;font-size:clamp(11px,2.5vw,15px)!important;}
+.mem button{min-height:60px!important;border-radius:16px!important;}
+.modal{border-radius:24px!important;padding:18px!important;max-height:90vh;overflow-y:auto;}
+.cta{border-radius:999px!important;padding:13px 22px!important;font-size:15px!important;touch-action:manipulation;}
+.result{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;}
+.res{border-radius:16px!important;padding:10px!important;}
+.confetti-piece{position:fixed;width:9px;height:9px;border-radius:2px;animation:confettiFall 2.5s ease-in forwards;pointer-events:none;z-index:9999;}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+@keyframes sparklePop{0%{transform:translate(0,0) scale(1);opacity:1;}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0;}}
+.sparkle-burst{position:absolute;width:8px;height:8px;border-radius:50%;background:#fde047;pointer-events:none;animation:sparklePop .6s ease-out forwards;}
+@media(min-width:900px){
+  html,body{overflow:auto;overflow-x:hidden;}
+  .shell{height:auto!important;display:block!important;padding:16px!important;max-width:1240px;margin:0 auto;}
+  .top{display:block!important;}
+  .game-topbar,.stats-bar{display:none!important;}
+  div.playtop:not(.keep){display:flex!important;}
+  .grid.g2{display:grid!important;grid-template-columns:minmax(0,1fr) 340px!important;gap:18px!important;flex:none;}
+  .grid.g2>aside{display:block!important;}
+  .helper{display:block!important;}
+  .stage{flex:none;height:clamp(430px,64vh,760px)!important;}
+  .play-wrap{display:grid!important;gap:18px!important;flex:none;}
+  .side-stack{display:grid!important;}
 }
-html {
-  height: 100%;
-  overflow: hidden;
-  -webkit-text-size-adjust: 100%;
-}
-body {
-  height: 100%;
-  overflow: hidden;
-  touch-action: manipulation;
-  overscroll-behavior: none;
-}
-
-/* ── COMPACT GAME TOPBAR ── */
-.game-topbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(14px);
-  border-radius: 18px;
-  border: 2px solid rgba(255,255,255,.9);
-  box-shadow: 0 4px 14px rgba(15,23,42,.10);
-  margin-bottom: 6px;
-  flex-wrap: nowrap;
-}
-.game-topbar-title {
-  font-size: 14px;
-  font-weight: 900;
-  color: #1f2937;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.game-topbar .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  background: white;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  color: #1f2937;
-  box-shadow: 0 2px 8px rgba(15,23,42,.1);
-  text-decoration: none;
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
-}
-.sound-mini {
-  background: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-/* ── STATS BAR ── */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-  margin-bottom: 6px;
-}
-.stat-mini {
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 5px 4px;
-  text-align: center;
-  border: 1.5px solid rgba(255,255,255,.9);
-  box-shadow: 0 3px 10px rgba(15,23,42,.08);
-}
-.stat-mini .lab {
-  font-size: 8px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: #64748b;
-  font-weight: 900;
-  display: block;
-}
-.stat-mini .val {
-  font-size: 18px;
-  font-weight: 900;
-  display: block;
-  line-height: 1.15;
-}
-
-/* ── STAGE: FILL REMAINING VIEWPORT ── */
-.stage {
-  position: relative;
-  background: rgba(255,255,255,.24);
-  backdrop-filter: blur(14px);
-  border: 3px solid rgba(255,255,255,.75);
-  border-radius: 22px;
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-}
-
-/* ── HIDE DESKTOP-ONLY ELEMENTS ── */
-.top { display: none !important; }
-.game-top { display: none !important; }
-div.playtop:not(.keep) { display: none !important; }
-.grid.g2 > aside,
-.play-wrap > aside { display: none !important; }
-.side-stack { display: none !important; }
-.helper { display: none !important; }
-
-/* ── LAYOUT: FULL HEIGHT FLEX ── */
-.grid.g2 {
-  grid-template-columns: 1fr !important;
-  gap: 0 !important;
-  flex: 1;
-  min-height: 0;
-  display: flex !important;
-  flex-direction: column;
-}
-.shell {
-  padding: 6px !important;
-  padding-top: calc(6px + var(--safe-top)) !important;
-  padding-bottom: calc(6px + var(--safe-bot)) !important;
-  padding-left: calc(6px + var(--safe-left)) !important;
-  padding-right: calc(6px + var(--safe-right)) !important;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  max-width: 100% !important;
-  overflow: hidden;
-}
-.play-wrap {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 6px !important;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* ── STAGE CONTENT: SCROLLABLE INNER ── */
-.stage > [style*="position:absolute"],
-.stage > div[style*="inset:0"] {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* ── GAME TILES: COMPACT ON MOBILE ── */
-.tile, .choice, .piece,
-.odd-card, .memory-tile, .math-card, .mix-card, .pair-card,
-.pattern-card, .piece-card {
-  min-height: 64px !important;
-  border-radius: 16px !important;
-  touch-action: manipulation;
-  font-size: clamp(11px, 2.5vw, 16px) !important;
-}
-
-/* ── GRIDS: 2 COLS ON MOBILE ── */
-.mem {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-.board4 {
-  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  gap: 8px !important;
-}
-.mix-grid {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-.pair-grid {
-  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  gap: 8px !important;
-}
-.odd-grid {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 7px !important;
-}
-
-/* ── WARNA AJAIB: PAINT AREA ── */
-#paintArea {
-  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  gap: 8px !important;
-  max-width: 100% !important;
-}
-#paintArea > * {
-  min-height: 80px !important;
-}
-#paletteBoard {
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 6px !important;
-  max-width: 100% !important;
-}
-
-/* ── MAZE ── */
-.cell {
-  width: clamp(24px, 7vw, 34px) !important;
-  height: clamp(24px, 7vw, 34px) !important;
-  border-radius: 7px !important;
-  font-size: 13px !important;
-}
-.maze-board { gap: 2px !important; padding: 7px !important; }
-#up, #down, #left, #right {
-  width: 56px !important;
-  height: 56px !important;
-  font-size: 22px !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 16px !important;
-  flex-shrink: 0;
-  touch-action: manipulation;
-}
-
-/* ── MODAL ── */
-.modal {
-  border-radius: 24px !important;
-  padding: 18px !important;
-  max-height: 88vh;
-  overflow-y: auto;
-}
-.modal .h2 { font-size: clamp(1.2rem, 4vw, 1.8rem) !important; }
-.cta {
-  border-radius: 999px !important;
-  padding: 13px 22px !important;
-  font-size: 15px !important;
-  touch-action: manipulation;
-}
-.result {
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 8px !important;
-}
-.res { border-radius: 16px !important; padding: 10px !important; }
-
-/* ── BANNER ── */
-.banner {
-  font-size: 12px !important;
-  padding: 7px 13px !important;
-  top: 8px !important;
-  max-width: 84% !important;
-}
-
-/* ── CAMPUR WARNA: TARGET BOX ── */
-#targetBox {
-  width: 80px !important;
-  height: 80px !important;
-  border-radius: 20px !important;
-  margin-bottom: 8px !important;
-}
-#prompt[style*="font-size:24px"] {
-  font-size: 15px !important;
-  margin-bottom: 10px !important;
-}
-
-/* ── MEMORY PREVIEW PILLS ── */
-.preview { min-height: 36px !important; gap: 5px !important; margin-bottom: 8px !important; flex-wrap: wrap; }
-.preview-pill { padding: 6px 10px !important; font-size: 11px !important; }
-
-/* ── CONFETTI ── */
-.confetti-piece {
-  position: fixed; width: 9px; height: 9px; border-radius: 2px;
-  animation: confettiFall 2.5s ease-in forwards; pointer-events: none; z-index: 999;
-}
-@keyframes confettiFall {
-  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-/* ── DESKTOP RESTORE ── */
-@media(min-width: 900px) {
-  html, body { overflow: auto; overflow-x: hidden; }
-  .shell {
-    height: auto !important; display: block !important;
-    padding: 16px !important;
-    max-width: 1240px; margin: 0 auto;
-  }
-  .top { display: block !important; }
-  .game-topbar { display: none !important; }
-  .stats-bar { display: none !important; }
-  .game-top { display: flex !important; }
-  div.playtop:not(.keep) { display: flex !important; }
-  .grid.g2 {
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) 340px !important;
-    gap: 18px !important; flex: none;
-  }
-  .grid.g2 > aside { display: block !important; }
-  .helper { display: block !important; }
-  .stage { flex: none; height: clamp(430px,64vh,760px) !important; }
-  .play-wrap { display: grid !important; gap: 18px !important; flex: none; }
-  .side-stack { display: grid !important; }
-  .tile, .choice, .piece, .odd-card, .math-card, .mix-card, .pair-card, .pattern-card {
-    min-height: 118px !important;
-    border-radius: 28px !important;
-    font-size: unset !important;
-  }
-  .mem { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .board4 { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .mix-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  .odd-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  #paintArea { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-  #paintArea > * { min-height: 140px !important; }
-  #paletteBoard { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
-  #targetBox { width: 120px !important; height: 120px !important; }
-  .cell { width: 32px !important; height: 32px !important; border-radius: 9px !important; }
-}
-/* ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════ */
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ─── SPARKIDS AUTH ───────────────────────────────────────────────────────────
 document.documentElement.style.opacity='0';
 (async function(){
-  try {
-    const _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
-    window.__SK_CLIENT = _c;
-    const { data:{ session } } = await _c.auth.getSession();
-    if(!session){ location.replace('auth.html'); return; }
-    window.__SK_SESSION={ userId:session.user.id, email:session.user.email };
-  } catch(e){ console.warn('auth',e); }
+  try{
+    var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+    window.__SK=_c;
+    var sess=(await _c.auth.getSession()).data.session;
+    if(!sess){location.replace('auth.html');return;}
+    window.__SKS={id:sess.user.id,email:sess.user.email};
+  }catch(e){console.warn('auth',e);}
   document.documentElement.style.opacity='1';
 })();
-// ─────────────────────────────────────────────────────────────────────────────
 </script>
 </head><body>
 <script>
-// ─── SPARKIDS AUTH + SCORE SAVING – Supabase ────────────────────────────────
-const { createClient: _spkCreate } = window.supabase;
-const _db = _spkCreate('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
-let _session = null;
-
-function _getWeekStart(){
-  const d = new Date();
-  const diff = d.getDate() - ((d.getDay()+6)%7);
-  return new Date(d.getFullYear(), d.getMonth(), diff).toISOString().split('T')[0];
-}
-
-async function _saveScore(score){
-  if(!_session) return;
-  const uid = _session.user.id;
-  const gameId = 'ingat-urutan';
-  try{
-    // Only upsert if new score is better
-    const { data: ex } = await _db.from('game_scores')
-      .select('score').eq('user_id',uid).eq('game_id',gameId).maybeSingle();
-    if(!ex || score > (ex.score||0)){
-      await _db.from('game_scores').upsert(
-        {user_id:uid, game_id:gameId, score, updated_at:new Date().toISOString()},
-        {onConflict:'user_id,game_id'}
-      );
-    }
-    // Track weekly activity
-    const ws = _getWeekStart();
-    const { data: week } = await _db.from('weekly_activity')
-      .select('id, day_counts').eq('user_id',uid).eq('week_start',ws).maybeSingle();
-    const counts = week?.day_counts || [0,0,0,0,0,0,0];
-    counts[(new Date().getDay()+6)%7]++;
-    await _db.from('weekly_activity').upsert(
-      {user_id:uid, week_start:ws, day_counts:counts},
-      {onConflict:'user_id,week_start'}
-    );
-  }catch(e){console.error('Score save error:',e);}
-}
-
-// Auth check (async — game start modal blocks play until this completes)
-(async function(){
-  const { data:{ session } } = await _db.auth.getSession();
-  if(!session){
-    location.replace('auth.html?redirect=game-ingat-urutan.html');
-    return;
-  }
-  _session = session;
-  // Make available to game code
-  const { data: profile } = await _db.from('profiles')
-    .select('name,plan').eq('id',session.user.id).maybeSingle();
-  window.__SPARKIDS_SESSION = {
-    userId: session.user.id,
-    email:  session.user.email,
-    name:   profile?.name || session.user.email,
-    plan:   profile?.plan || 'free'
-  };
-})();
-</script>
-<script>
 (function(){
   function buildTopbar(){
-    var title = 'Ingat Urutan';
-    var bar = document.createElement('div');
-    bar.className = 'game-topbar';
-    bar.innerHTML = '<a href="index.html" class="back-btn">← Menu</a>'
-      + '<span class="game-topbar-title">' + title + '</span>'
-      + '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
-    var statsBar = document.createElement('div');
-    statsBar.className = 'stats-bar';
-    statsBar.id = 'mobileStatsBar';
-    statsBar.innerHTML = [
+    var titleRaw=document.title||'Game';
+    var title=titleRaw.split('–')[0].trim()||'Game';
+    var topbar=document.createElement('div');
+    topbar.className='game-topbar';
+    topbar.innerHTML='<a href="index.html" class="back-btn">← Menu</a>'
+      +'<span class="game-topbar-title">'+title+'</span>'
+      +'<button class="sound-mini" id="soundMiniBtn">🔊</button>';
+    var statsBar=document.createElement('div');
+    statsBar.className='stats-bar';
+    statsBar.innerHTML=[
       {id:'score',label:'Skor',color:'#1f2937'},
       {id:'stars',label:'Bintang',color:'#eab308'},
       {id:'streak',label:'Streak',color:'#ec4899'},
@@ -621,70 +284,63 @@ async function _saveScore(score){
       return '<div class="stat-mini"><span class="lab">'+s.label+'</span>'
         +'<span class="val" style="color:'+s.color+'" id="m_'+s.id+'">0</span></div>';
     }).join('');
-    var shell = document.querySelector('.shell');
+    var shell=document.querySelector('.shell');
     if(shell){
-      var pw = shell.querySelector('.play-wrap');
-      if(pw){ shell.insertBefore(statsBar, pw); shell.insertBefore(bar, statsBar); }
+      var pw=shell.querySelector('.play-wrap');
+      if(pw){shell.insertBefore(statsBar,pw);shell.insertBefore(topbar,statsBar);}
     }
-    function syncStats(){
+    setInterval(function(){
       ['score','stars','streak','timer'].forEach(function(id){
-        var orig=document.getElementById(id);
-        var mob=document.getElementById('m_'+id);
-        if(orig&&mob) mob.textContent=orig.textContent;
+        var o=document.getElementById(id),m=document.getElementById('m_'+id);
+        if(o&&m)m.textContent=o.textContent;
       });
-    }
-    setInterval(syncStats, 80);
-    window.toggleSoundMini = function(){
-      soundEnabled=!soundEnabled;
-      localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');
-      document.getElementById('soundMiniBtn').textContent=soundEnabled?'🔊':'🔇';
-      if(soundEnabled&&typeof initAudio==='function') initAudio();
-    };
+    },100);
     var btn=document.getElementById('soundMiniBtn');
-    if(btn) btn.textContent=localStorage.getItem('sparkids_sound')==='off'?'🔇':'🔊';
+    if(btn){
+      btn.textContent=localStorage.getItem('kids_sound')==='off'?'🔇':'🔊';
+      btn.onclick=function(){
+        if(typeof soundEnabled!=='undefined'){
+          soundEnabled=!soundEnabled;
+          localStorage.setItem('kids_sound',soundEnabled?'on':'off');
+          btn.textContent=soundEnabled?'🔊':'🔇';
+          if(soundEnabled&&typeof initAudio==='function')initAudio();
+        }
+      };
+    }
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',buildTopbar);
-  } else { buildTopbar(); }
-})();
-
-function launchConfetti(){
-  var colors=['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
-  for(var i=0;i<55;i++){
-    (function(i){
-      setTimeout(function(){
-        var c=document.createElement('div');
-        c.className='confetti-piece';
-        c.style.left=Math.random()*100+'vw';
-        c.style.background=colors[Math.floor(Math.random()*colors.length)];
-        c.style.width=(7+Math.random()*9)+'px';
-        c.style.height=(7+Math.random()*9)+'px';
-        c.style.animationDuration=(1.5+Math.random()*2)+'s';
-        c.style.animationDelay=(Math.random()*.4)+'s';
-        document.body.appendChild(c);
-        setTimeout(function(){ c.remove(); },4000);
-      },i*28);
-    })(i);
-  }
-}
-(function(){
-  var observer=new MutationObserver(function(mutations){
-    mutations.forEach(function(m){
-      if(m.type==='attributes'&&m.attributeName==='class'){
-        var el=m.target;
-        if(el.id==='end'&&!el.classList.contains('hidden')) launchConfetti();
-      }
-    });
-  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildTopbar);
+  else buildTopbar();
+  // Confetti
+  window.__launchConfetti=function(){
+    var cols=['#f472b6','#38bdf8','#fde047','#84cc16','#a78bfa','#fb923c'];
+    for(var i=0;i<55;i++){
+      (function(i){setTimeout(function(){
+        var el=document.createElement('div');el.className='confetti-piece';
+        el.style.left=Math.random()*100+'vw';
+        el.style.background=cols[Math.floor(Math.random()*cols.length)];
+        el.style.width=(7+Math.random()*9)+'px';el.style.height=el.style.width;
+        el.style.animationDuration=(1.5+Math.random()*2)+'s';
+        el.style.animationDelay=(Math.random()*.4)+'s';
+        document.body.appendChild(el);
+        setTimeout(function(){el.remove();},4000);
+      },i*28);})(i);
+    }
+  };
+  // Watch end overlay
   document.addEventListener('DOMContentLoaded',function(){
-    var end=document.getElementById('end');
-    if(end) observer.observe(end,{attributes:true,attributeFilter:['class']});
+    var endEl=document.getElementById('end');
+    if(!endEl)return;
+    new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        if(m.attributeName==='class'&&!endEl.classList.contains('hidden'))
+          window.__launchConfetti();
+      });
+    }).observe(endEl,{attributes:true,attributeFilter:['class']});
   });
 })();
-</script>
-<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">FOCUS GAME</div><div class="badge s">MEMORI WARNA</div></div><div class="h1">Ingat Urutan</div><div class="sub">Lihat urutan warna, ingat baik-baik, lalu tap kembali sesuai urutannya.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s">MODE MEMORI</div><div style="font-weight:900">Ikuti urutan warna dengan benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Ingat urutannya lalu tap dengan benar 🧠</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Lihat urutan warna lalu ikuti dengan benar</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px'><div class='preview' id='preview'></div><div class='mem' id='grid'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🧠</div><div class='h2' style='margin-top:10px'>Siap bermain Ingat Urutan?</div><div class='sub'>Lihat urutan warna, tunggu sampai selesai, lalu tap kembali sesuai urutannya.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Interaktif</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak melihat urutan warna lalu aktif mengulanginya dengan tap.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Menantang tapi ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Tantangan bertambah perlahan sehingga anak tetap merasa seru.</div></div></aside></div></div><script>
+</script><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">FOCUS GAME</div><div class="badge s">MEMORI WARNA</div></div><div class="h1">Ingat Urutan</div><div class="sub">Lihat urutan warna, ingat baik-baik, lalu tap kembali sesuai urutannya.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s">MODE MEMORI</div><div style="font-weight:900">Ikuti urutan warna dengan benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Ingat urutannya lalu tap dengan benar 🧠</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Lihat urutan warna lalu ikuti dengan benar</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px'><div class='preview' id='preview'></div><div class='mem' id='grid'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🧠</div><div class='h2' style='margin-top:10px'>Siap bermain Ingat Urutan?</div><div class='sub'>Lihat urutan warna, tunggu sampai selesai, lalu tap kembali sesuai urutannya.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Interaktif</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak melihat urutan warna lalu aktif mengulanginya dengan tap.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Menantang tapi ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Tantangan bertambah perlahan sehingga anak tetap merasa seru.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
-let soundEnabled=localStorage.getItem('sparkids_sound')!=='off'; let audioCtx=null;
+let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
 function tone(f=440,d=.12,t='sine',v=.03,w=0){if(!soundEnabled||!audioCtx)return;const n=audioCtx.currentTime+w;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioCtx.destination);o.start(n);o.stop(n+d+.02);}
 function ok(c=1){initAudio();tone(660,.08,'triangle',.028,0);tone(c>=3?988:880,.12,'triangle',.024,.05);}
@@ -693,7 +349,7 @@ function levelup(){initAudio();tone(523,.08,'triangle',.022,0);tone(659,.08,'tri
 function startsound(){initAudio();tone(440,.08,'sine',.018,0);tone(554,.08,'sine',.018,.05);tone(659,.12,'sine',.018,.1);}
 function finishsound(){initAudio();tone(784,.08,'triangle',.02,0);tone(988,.12,'triangle',.02,.06);}
 function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i%notes.length],.16,'triangle',.022,0);}
-function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
+function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
 
@@ -701,7 +357,7 @@ function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').for
 function bindsound(){
   document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
     b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
-    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
+    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('kids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
   });
   window.addEventListener('pointerdown',initAudio,{once:true});
 }
@@ -717,25 +373,21 @@ async function showSeq(){s.locked=true;hud();render();const tiles=[...grid.child
 function nextRound(){s.idx=0;const len=Math.min(3+Math.floor(s.round/2),9);s.seq=makeSeq(len);render();e.banner.textContent='Lihat urutan dulu 👀';setTimeout(()=>{if(s.run)showSeq();},350);}
 function pick(c,b,i){if(!s.run||s.locked)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),160);memstep(i);const exp=s.seq[s.idx];if(!exp)return;if(c.name===exp.name){s.idx++;s.score+=6;s.stars+=1;s.streak++;s.best=Math.max(s.best,s.streak);hud();if(s.idx>=s.seq.length){s.score+=10;s.stars+=2;s.round++;e.banner.textContent='Hebat! Urutannya benar ⭐';ok(s.streak+2);setTimeout(nextRound,750);}}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();e.banner.textContent='Ups, coba lihat urutannya lagi ya 💛';bad();setTimeout(nextRound,750);}}
 function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.seq=[];s.idx=0;s.locked=false;s.lastKey='';s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();nextRound();clearInterval(s.timerI);s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG();},1000);}
-function endG(){s.run=false;
-  (async function(){
+function endG(){
+  (function(){
   try{
-    var sess=window.__SK_SESSION,cli=window.__SK_CLIENT;
-    if(!sess||!cli)return;
-    var sc=0;
-    if(typeof s!=='undefined'&&s.score)sc=s.score;
-    else if(typeof warnaState!=='undefined')sc=warnaState.score;
-    else if(typeof mazeState!=='undefined')sc=mazeState.score;
-    var {data}=await cli.from('profiles').select('scores,weekly').eq('id',sess.userId).single();
-    var scores=(data&&data.scores)||{},week=(data&&data.weekly)||[0,0,0,0,0,0,0];
-    if(!scores['ingat-urutan']||scores['ingat-urutan']<sc)scores['ingat-urutan']=sc;
-    var d=new Date().getDay();week[d===0?6:d-1]=(week[d===0?6:d-1]||0)+1;
-    await cli.from('profiles').update({scores:scores,weekly:week,updated_at:new Date().toISOString()}).eq('id',sess.userId);
+    var _sk=window.__SK,_ss=window.__SKS;
+    if(!_sk||!_ss)return;
+    var _sc=s.score;
+    _sk.from('profiles').select('scores,weekly').eq('id',_ss.id).single()
+      .then(function(r){
+        var scores=(r.data&&r.data.scores)||{},week=(r.data&&r.data.weekly)||[0,0,0,0,0,0,0];
+        if(!scores['ingat-urutan']||scores['ingat-urutan']<_sc)scores['ingat-urutan']=_sc;
+        var d=new Date().getDay();week[d===0?6:d-1]=(week[d===0?6:d-1]||0)+1;
+        _sk.from('profiles').update({scores:scores,weekly:week,updated_at:new Date().toISOString()}).eq('id',_ss.id).then(function(){});
+      });
   }catch(e){}
-})();clearInterval(s.timerI);
-  if(_session) _saveScore(typeof warnaState!=='undefined'?warnaState.score:typeof s!=='undefined'?s.score:0);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);
-────────────────
-
-finishsound();end.classList.remove('hidden');}
+})();
+  s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
 go.onclick=startG;again.onclick=startG;hud();render();
 </script></body></html>
