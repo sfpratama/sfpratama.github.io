@@ -3,7 +3,7 @@
 <meta name="theme-color" content="#f472b6"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<title>Warna Ajaib – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
+<title>Hitung Cepat – Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -147,7 +147,7 @@ a{text-decoration:none;color:inherit}
 .hidden{display:none!important}
 .preview{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:54px;margin:0 0 16px}
 .preview-pill{padding:10px 16px;border-radius:999px;font-weight:900;box-shadow:var(--shadow-card);border:1px solid rgba(255,255,255,.7)}
-.mem,.board4,.mix-grid,.pair-grid,.palette-grid{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.mem,.board4,.mix-grid,.pair-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .odd-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(min-width:768px){
   .mem{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -182,198 +182,347 @@ a{text-decoration:none;color:inherit}
 @keyframes shine{0%{transform:translate(-140%,0) rotate(20deg)}100%{transform:translate(260%,0) rotate(20deg)}}
 @keyframes floatUp{from{transform:translateY(0)}to{transform:translateY(-125vh)}}
 @keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
-.sparkle-burst{position:absolute;width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 0 12px rgba(255,255,255,.9);pointer-events:none;animation:sparkleOut .7s ease-out forwards}
-@keyframes sparkleOut{0%{transform:translate(0,0) scale(.7);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.7);opacity:0}}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 
-/* ══════════════════════ WARNA AJAIB MOBILE FIX ══════════════════════ */
+/* compatibility aliases */
+.game{display:block;padding:22px;border-radius:30px;border:2px solid rgba(255,255,255,.82);box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+.game:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 36px rgba(15,23,42,.16)}
+.game::after{content:"";position:absolute;inset:-30% auto auto -40%;width:60%;height:160%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(20deg);animation:shine 6s linear infinite}
+.gp{background:linear-gradient(135deg,#fce7f3,#fef3c7)} .gs{background:linear-gradient(135deg,#e0f2fe,#dcfce7)} .gv{background:linear-gradient(135deg,#ede9fe,#fce7f3)} .gl{background:linear-gradient(135deg,#ecfccb,#fef3c7)} .go{background:linear-gradient(135deg,#ffedd5,#fef3c7)}
+.piece-card,.memory-tile,.odd-card,.pattern-card,.math-card,.mix-card,.pair-card{border:none;border-radius:28px;min-height:118px;color:#fff;font-weight:900;cursor:pointer;box-shadow:var(--shadow-card);border:4px solid rgba(255,255,255,.82);transition:transform .14s ease, box-shadow .14s ease, filter .14s ease}
+.piece-card:hover,.memory-tile:hover,.odd-card:hover,.pattern-card:hover,.math-card:hover,.mix-card:hover,.pair-card:hover{transform:translateY(-3px)}
+.piece-card:active,.memory-tile:active,.odd-card:active,.pattern-card:active,.math-card:active,.mix-card:active,.pair-card:active{transform:translateY(2px) scale(.97);box-shadow:var(--shadow-press)}
+.active-press{transform:scale(1.03)!important;filter:brightness(1.08)}
+.side-stack{align-content:start}
+.pulse{animation:pulseGlow 1.2s ease-in-out infinite}
+.slot.current{border-color:#f472b6; box-shadow:0 0 0 6px rgba(244,114,182,.18), var(--shadow-card)}
+.target-preview{opacity:.28;font-size:38px}
+.slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
+.slot.filled .slot-cover{display:none}
+@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
+
+/* ═══════════════════════════════════════ MOBILE FIX v2 ══ */
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 }
-html { height:100%; overflow:hidden; -webkit-text-size-adjust:100%; }
-body { height:100%; overflow:hidden; touch-action:manipulation; overscroll-behavior:none; }
-
-/* ── HIDE DESKTOP CLUTTER ── */
-.top { display:none !important; }
-div.playtop:not(.keep) { display:none !important; }
-.grid.g2 > aside, .side-stack { display:none !important; }
-.helper { display:none !important; }
-.banner { font-size:12px !important; padding:7px 12px !important; top:8px !important; max-width:85% !important; }
+html {
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
 
 /* ── COMPACT GAME TOPBAR ── */
 .game-topbar {
-  display:flex; align-items:center; gap:8px; padding:7px 10px;
-  background:rgba(255,255,255,.9); backdrop-filter:blur(14px);
-  border-radius:18px; border:2px solid rgba(255,255,255,.9);
-  box-shadow:0 4px 14px rgba(15,23,42,.10); margin-bottom:6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 4px 14px rgba(15,23,42,.10);
+  margin-bottom: 6px;
+  flex-wrap: nowrap;
 }
-.game-topbar-title { font-size:14px; font-weight:900; color:#1f2937; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.game-topbar-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: #1f2937;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .game-topbar .back-btn {
-  display:inline-flex; align-items:center; padding:5px 12px;
-  background:white; border-radius:999px; font-size:12px; font-weight:900;
-  color:#1f2937; box-shadow:0 2px 8px rgba(15,23,42,.1);
-  text-decoration:none; flex-shrink:0; border:none; cursor:pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: white;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #1f2937;
+  box-shadow: 0 2px 8px rgba(15,23,42,.1);
+  text-decoration: none;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
 }
 .sound-mini {
-  background:#0f172a; color:white; border:none; border-radius:999px;
-  padding:5px 10px; font-size:12px; font-weight:900; cursor:pointer; flex-shrink:0;
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* ── STATS BAR ── */
 .stats-bar {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:6px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-bottom: 6px;
 }
 .stat-mini {
-  background:rgba(255,255,255,.9); border-radius:12px; padding:5px 4px;
-  text-align:center; border:1.5px solid rgba(255,255,255,.9);
-  box-shadow:0 3px 10px rgba(15,23,42,.08);
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 5px 4px;
+  text-align: center;
+  border: 1.5px solid rgba(255,255,255,.9);
+  box-shadow: 0 3px 10px rgba(15,23,42,.08);
 }
-.stat-mini .lab { font-size:8px; letter-spacing:.05em; text-transform:uppercase; color:#64748b; font-weight:900; display:block; }
-.stat-mini .val { font-size:18px; font-weight:900; display:block; line-height:1.15; }
+.stat-mini .lab {
+  font-size: 8px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 900;
+  display: block;
+}
+.stat-mini .val {
+  font-size: 18px;
+  font-weight: 900;
+  display: block;
+  line-height: 1.15;
+}
 
-/* ── SHELL + LAYOUT ── */
+/* ── STAGE: FILL REMAINING VIEWPORT ── */
+.stage {
+  position: relative;
+  background: rgba(255,255,255,.24);
+  backdrop-filter: blur(14px);
+  border: 3px solid rgba(255,255,255,.75);
+  border-radius: 22px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── HIDE DESKTOP-ONLY ELEMENTS ── */
+.top { display: none !important; }
+.game-top { display: none !important; }
+div.playtop:not(.keep) { display: none !important; }
+.grid.g2 > aside,
+.play-wrap > aside { display: none !important; }
+.side-stack { display: none !important; }
+.helper { display: none !important; }
+
+/* ── LAYOUT: FULL HEIGHT FLEX ── */
+.grid.g2 {
+  grid-template-columns: 1fr !important;
+  gap: 0 !important;
+  flex: 1;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+}
 .shell {
   padding: 6px !important;
   padding-top: calc(6px + var(--safe-top)) !important;
   padding-bottom: calc(6px + var(--safe-bot)) !important;
-  height:100%; display:flex; flex-direction:column; max-width:100% !important; overflow:hidden;
+  padding-left: calc(6px + var(--safe-left)) !important;
+  padding-right: calc(6px + var(--safe-right)) !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 100% !important;
+  overflow: hidden;
 }
-.play-wrap { display:flex !important; flex-direction:column !important; gap:6px !important; flex:1; min-height:0; overflow:hidden; }
-.grid.g2 { grid-template-columns:1fr !important; gap:0 !important; flex:1; min-height:0; display:flex !important; flex-direction:column; }
+.play-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 
-/* ── STAGE ── */
-.stage { position:relative; background:rgba(255,255,255,.24); backdrop-filter:blur(14px); border:3px solid rgba(255,255,255,.75); border-radius:22px; overflow:hidden; flex:1; min-height:0; }
-
-/* ── KEY FIX: The inner absolute-positioned content div must scroll ── */
-.stage > div[style*="position:absolute"],
+/* ── STAGE CONTENT: SCROLLABLE INNER ── */
+.stage > [style*="position:absolute"],
 .stage > div[style*="inset:0"] {
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding: 10px 10px 14px !important;
-}
-.stage > div[style*="position:absolute"] > div,
-.stage > div[style*="inset:0"] > div {
-  max-width: 100% !important;
-  padding: 0 !important;
 }
 
-/* ── TARGET ROW: horizontal scroll strip ── */
-#targetRow {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-  gap: 6px !important;
-  margin-bottom: 10px !important;
-  padding-bottom: 4px;
-  min-height: auto !important;
-  align-items: stretch;
-  scrollbar-width: none;
-}
-#targetRow::-webkit-scrollbar { display:none; }
-#targetRow .preview-pill {
-  flex-shrink: 0 !important;
-  padding: 6px 10px !important;
-  font-size: 11px !important;
-  border-radius: 14px !important;
-  min-width: 80px !important;
-  text-align: center;
+/* ── GAME TILES: COMPACT ON MOBILE ── */
+.tile, .choice, .piece,
+.odd-card, .memory-tile, .math-card, .mix-card, .pair-card,
+.pattern-card, .piece-card {
+  min-height: 64px !important;
+  border-radius: 16px !important;
+  touch-action: manipulation;
+  font-size: clamp(11px, 2.5vw, 16px) !important;
 }
 
-/* ── PAINT AREA: 2x2 GRID, COMPACT CARDS ── */
+/* ── GRIDS: 2 COLS ON MOBILE ── */
+.mem {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+.board4 {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.mix-grid {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+.pair-grid {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.odd-grid {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+
+/* ── WARNA AJAIB: PAINT AREA ── */
 #paintArea {
-  display: grid !important;
   grid-template-columns: repeat(2, minmax(0,1fr)) !important;
   gap: 8px !important;
   max-width: 100% !important;
-  margin: 0 0 10px !important;
 }
-/* CRITICAL: override inline min-height:140px set by partCardStyle() in JS */
-#paintArea button {
-  min-height: 72px !important;
-  border-radius: 18px !important;
-  font-size: 32px !important;
-  padding: 8px 4px !important;
+#paintArea > * {
+  min-height: 80px !important;
 }
-#paintArea button div:first-child { font-size: 32px !important; }
-#paintArea button div:last-child { font-size: 11px !important; margin-top:4px !important; }
-
-/* ── PALETTE BOARD: 4 cols compact ── */
 #paletteBoard {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
   gap: 6px !important;
   max-width: 100% !important;
-  margin: 0 !important;
 }
-#paletteBoard .choice {
-  min-height: 56px !important;
-  border-radius: 14px !important;
-  padding: 4px 2px !important;
-  font-size: 10px !important;
+
+/* ── MAZE ── */
+.cell {
+  width: clamp(24px, 7vw, 34px) !important;
+  height: clamp(24px, 7vw, 34px) !important;
+  border-radius: 7px !important;
+  font-size: 13px !important;
 }
-#paletteBoard .choice > div:first-child { font-size: 20px !important; margin-bottom: 2px !important; }
-#paletteBoard .choice > div:last-child { font-size: 10px !important; }
+.maze-board { gap: 2px !important; padding: 7px !important; }
+#up, #down, #left, #right {
+  width: 56px !important;
+  height: 56px !important;
+  font-size: 22px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 16px !important;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
 
 /* ── MODAL ── */
-.modal { border-radius:24px !important; padding:18px !important; max-height:88vh; overflow-y:auto; }
-.cta { border-radius:999px !important; padding:13px 22px !important; font-size:15px !important; touch-action:manipulation; }
-.result { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
-.res { border-radius:16px !important; padding:10px !important; }
+.modal {
+  border-radius: 24px !important;
+  padding: 18px !important;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.modal .h2 { font-size: clamp(1.2rem, 4vw, 1.8rem) !important; }
+.cta {
+  border-radius: 999px !important;
+  padding: 13px 22px !important;
+  font-size: 15px !important;
+  touch-action: manipulation;
+}
+.result {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+}
+.res { border-radius: 16px !important; padding: 10px !important; }
+
+/* ── BANNER ── */
+.banner {
+  font-size: 12px !important;
+  padding: 7px 13px !important;
+  top: 8px !important;
+  max-width: 84% !important;
+}
+
+/* ── CAMPUR WARNA: TARGET BOX ── */
+#targetBox {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 20px !important;
+  margin-bottom: 8px !important;
+}
+#prompt[style*="font-size:24px"] {
+  font-size: 15px !important;
+  margin-bottom: 10px !important;
+}
+
+/* ── MEMORY PREVIEW PILLS ── */
+.preview { min-height: 36px !important; gap: 5px !important; margin-bottom: 8px !important; flex-wrap: wrap; }
+.preview-pill { padding: 6px 10px !important; font-size: 11px !important; }
 
 /* ── CONFETTI ── */
 .confetti-piece {
-  position:fixed; width:9px; height:9px; border-radius:2px;
-  animation:confettiFall 2.5s ease-in forwards; pointer-events:none; z-index:999;
+  position: fixed; width: 9px; height: 9px; border-radius: 2px;
+  animation: confettiFall 2.5s ease-in forwards; pointer-events: none; z-index: 999;
 }
 @keyframes confettiFall {
-  0% { transform:translateY(-10px) rotate(0deg); opacity:1; }
-  100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
-}
-
-/* ── SPARKLE ── */
-.sparkle-burst {
-  position:absolute; width:8px; height:8px; border-radius:50%;
-  background:#fde047; pointer-events:none;
-  animation:sparklePop .6s ease-out forwards;
-}
-@keyframes sparklePop {
-  0% { transform:translate(0,0) scale(1); opacity:1; }
-  100% { transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; }
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
 /* ── DESKTOP RESTORE ── */
-@media(min-width:900px){
-  html,body { overflow:auto; overflow-x:hidden; }
-  .shell { height:auto !important; display:block !important; padding:16px !important; max-width:1240px; margin:0 auto; }
-  .top { display:block !important; }
-  .game-topbar { display:none !important; }
-  .stats-bar { display:none !important; }
-  div.playtop:not(.keep) { display:flex !important; }
-  .grid.g2 { display:grid !important; grid-template-columns:minmax(0,1fr) 340px !important; gap:18px !important; flex:none; }
-  .grid.g2 > aside { display:block !important; }
-  .helper { display:block !important; }
-  .stage { flex:none; height:clamp(430px,64vh,760px) !important; }
-  .play-wrap { display:grid !important; gap:18px !important; flex:none; }
-  .side-stack { display:grid !important; }
-  .stage > div[style*="position:absolute"] { overflow-y:hidden !important; padding:16px !important; }
-  #paintArea { gap:14px !important; }
-  #paintArea button { min-height:140px !important; border-radius:28px !important; font-size:52px !important; padding:0 !important; }
-  #paintArea button div:first-child { font-size:52px !important; }
-  #paintArea button div:last-child { font-size:14px !important; margin-top:8px !important; }
-  #paletteBoard { grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; }
-  #paletteBoard .choice { min-height:100px !important; border-radius:20px !important; padding:12px 8px !important; }
-  #paletteBoard .choice > div:first-child { font-size:28px !important; }
-  #paletteBoard .choice > div:last-child { font-size:14px !important; }
-  #targetRow { flex-wrap:wrap !important; overflow-x:visible !important; gap:8px !important; margin-bottom:14px !important; }
-  #targetRow .preview-pill { padding:10px 16px !important; font-size:13px !important; }
+@media(min-width: 900px) {
+  html, body { overflow: auto; overflow-x: hidden; }
+  .shell {
+    height: auto !important; display: block !important;
+    padding: 16px !important;
+    max-width: 1240px; margin: 0 auto;
+  }
+  .top { display: block !important; }
+  .game-topbar { display: none !important; }
+  .stats-bar { display: none !important; }
+  .game-top { display: flex !important; }
+  div.playtop:not(.keep) { display: flex !important; }
+  .grid.g2 {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 340px !important;
+    gap: 18px !important; flex: none;
+  }
+  .grid.g2 > aside { display: block !important; }
+  .helper { display: block !important; }
+  .stage { flex: none; height: clamp(430px,64vh,760px) !important; }
+  .play-wrap { display: grid !important; gap: 18px !important; flex: none; }
+  .side-stack { display: grid !important; }
+  .tile, .choice, .piece, .odd-card, .math-card, .mix-card, .pair-card, .pattern-card {
+    min-height: 118px !important;
+    border-radius: 28px !important;
+    font-size: unset !important;
+  }
+  .mem { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .board4 { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .mix-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  .odd-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  #paintArea { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  #paintArea > * { min-height: 140px !important; }
+  #paletteBoard { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 14px !important; }
+  #targetBox { width: 120px !important; height: 120px !important; }
+  .cell { width: 32px !important; height: 32px !important; border-radius: 9px !important; }
 }
-/* ════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════ */
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -408,7 +557,7 @@ function _getWeekStart(){
 async function _saveScore(score){
   if(!_session) return;
   const uid = _session.user.id;
-  const gameId = 'warna-ajaib';
+  const gameId = 'hitung-cepat';
   try{
     // Only upsert if new score is better
     const { data: ex } = await _db.from('game_scores')
@@ -436,7 +585,7 @@ async function _saveScore(score){
 (async function(){
   const { data:{ session } } = await _db.auth.getSession();
   if(!session){
-    location.replace('auth.html?redirect=game-warna-ajaib.html');
+    location.replace('auth.html?redirect=game-hitung-cepat-baseline.html');
     return;
   }
   _session = session;
@@ -454,7 +603,7 @@ async function _saveScore(score){
 <script>
 (function(){
   function buildTopbar(){
-    var title = 'Warna Ajaib';
+    var title = 'Hitung Cepat';
     var bar = document.createElement('div');
     bar.className = 'game-topbar';
     bar.innerHTML = '<a href="index.html" class="back-btn">← Menu</a>'
@@ -462,6 +611,7 @@ async function _saveScore(score){
       + '<button class="sound-mini" id="soundMiniBtn" onclick="toggleSoundMini()">🔊</button>';
     var statsBar = document.createElement('div');
     statsBar.className = 'stats-bar';
+    statsBar.id = 'mobileStatsBar';
     statsBar.innerHTML = [
       {id:'score',label:'Skor',color:'#1f2937'},
       {id:'stars',label:'Bintang',color:'#eab308'},
@@ -476,13 +626,14 @@ async function _saveScore(score){
       var pw = shell.querySelector('.play-wrap');
       if(pw){ shell.insertBefore(statsBar, pw); shell.insertBefore(bar, statsBar); }
     }
-    setInterval(function(){
+    function syncStats(){
       ['score','stars','streak','timer'].forEach(function(id){
         var orig=document.getElementById(id);
         var mob=document.getElementById('m_'+id);
         if(orig&&mob) mob.textContent=orig.textContent;
       });
-    }, 80);
+    }
+    setInterval(syncStats, 80);
     window.toggleSoundMini = function(){
       soundEnabled=!soundEnabled;
       localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');
@@ -531,74 +682,7 @@ function launchConfetti(){
   });
 })();
 </script>
-<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
-<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge b-yellow">← KEMBALI KE MENU</a><div class="badge b-pink">CREATIVE GAME</div><div class="badge b-sky">WARNA AJAIB</div></div><div class="h1">Warna Ajaib</div><div class="sub">Pilih warna yang tepat lalu tap bagian gambar sampai ilustrasi berubah jadi cantik dan penuh warna. Ini terasa lebih kreatif, jelas, dan beda dari game lainnya.</div></div><button class="sound"></button></div></div>
-
-<div class="play-wrap" style="margin-top:18px">
-  <div class="panel playtop">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <a href="index.html" class="btn">← Menu</a>
-      <div class="badge b-orange" id="roundBadge">Ronde 1</div>
-      <div style="font-weight:900">Warnai bagian gambar sesuai target warna</div>
-    </div>
-    <div class="stats">
-      <div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div>
-      <div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div>
-      <div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div>
-      <div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div>
-    </div>
-  </div>
-
-  <div class="grid g2">
-    <section class="stage">
-      <div class="banner" id="banner">Pilih warna, lalu tap bagian gambar 🎨</div>
-      <div class="helper">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div>
-        <div id="hint" style="margin-top:6px;font-weight:900">Klik warna di bawah, lalu warnai bagian gambar yang cocok</div>
-      </div>
-
-      <div style="position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center">
-        <div style="width:100%;max-width:980px;text-align:center">
-          <div id="targetRow" class="preview" style="margin-bottom:12px"></div>
-          <div id="paintArea" style="max-width:520px;margin:0 auto 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px"></div>
-          <div class="mix-grid" id="paletteBoard" class="palette-grid" style="max-width:860px;margin:0 auto"></div>
-        </div>
-      </div>
-
-      <div class="overlay" id="start">
-        <div class="modal">
-          <div style="font-size:56px">🎨</div>
-          <div class="h2" style="margin-top:10px">Siap bermain Warna Ajaib?</div>
-          <div class="sub">Lihat target warna untuk tiap bagian gambar, pilih warna yang cocok, lalu tap bagian yang ingin diwarnai.</div>
-          <div style="margin-top:20px"><button class="cta" id="go">Mulai Main 🚀</button></div>
-        </div>
-      </div>
-
-      <div class="overlay hidden" id="end">
-        <div class="modal">
-          <div style="font-size:56px">🏆</div>
-          <div class="h2" style="margin-top:10px">Hebat Sekali!</div>
-          <div class="result">
-            <div class="res"><div class="lab">Skor</div><div class="val" id="fscore">0</div></div>
-            <div class="res"><div class="lab">Bintang</div><div class="val" id="fstars">0</div></div>
-            <div class="res"><div class="lab">Streak</div><div class="val" id="fstreak">0</div></div>
-            <div class="res"><div class="lab">Peringkat</div><div class="val" id="frank">A</div></div>
-          </div>
-          <div style="margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap">
-            <button class="cta" id="again">Main Lagi 🎈</button>
-            <a class="btn navbtn" href="index.html">Kembali ke Menu 🎮</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <aside class="side-stack">
-      <div class="side-card"><div style="font-weight:900;color:#c2410c">Mewarnai interaktif</div><div class="sub" style="font-size:14px;margin-top:6px">Anak memilih warna sendiri lalu melihat bagian gambar langsung berubah saat disentuh.</div></div>
-      <div class="side-card"><div style="font-weight:900;color:#7c3aed">Kreatif & memuaskan</div><div class="sub" style="font-size:14px;margin-top:6px">Ada sensasi “before-after” yang jelas, jadi terasa lebih rewarding dan cocok untuk kategori creative & sensory.</div></div>
-    </aside>
-  </div>
-</div>
-</div><script>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">BRAIN GAME</div><div class="badge s">ANGKA CEPAT</div></div><div class="h1">Hitung Cepat</div><div class="sub">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih jawaban hitung cepat yang benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih jawaban hitung cepat yang benar</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih jawaban hitung cepat yang benar</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='prompt' style='font-size:clamp(42px,6vw,72px);font-weight:900;margin-bottom:18px;color:#0f172a'>3 + 2 = ?</div><div class='board4' id='mathChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>➕</div><div class='h2' style='margin-top:10px'>Siap bermain Hitung Cepat?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Angka ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Soal dibuat sederhana agar anak tetap merasa main, bukan seperti ujian.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Cepat & seru</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak memilih jawaban dengan kartu besar dan visual yang menyenangkan.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('sparkids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
@@ -612,15 +696,46 @@ function memstep(i=0){initAudio();const notes=[523,659,784,880,988];tone(notes[i
 function bindsound(){document.querySelectorAll('.sound').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');document.querySelectorAll('.sound').forEach(x=>x.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off');if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}}});window.addEventListener('pointerdown',initAudio,{once:true});}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rank(s){if(s>=140)return'A+';if(s>=110)return'A';if(s>=80)return'B';if(s>=50)return'C';return'Pemula'}
+
+function updateSoundButtons(){document.querySelectorAll('.sound,.sound-btn').forEach(b=>{b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';});}
+function bindsound(){
+  document.querySelectorAll('.sound,.sound-btn').forEach(b=>{
+    b.textContent=soundEnabled?'🔊 Suara On':'🔇 Suara Off';
+    b.onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('sparkids_sound',soundEnabled?'on':'off');updateSoundButtons();if(soundEnabled){initAudio();tone(660,.08,'triangle',.02,0);}};
+  });
+  window.addEventListener('pointerdown',initAudio,{once:true});
+}
 </script><script>
+
 bindsound();
-const warnaEls={
-  roundBadge:document.getElementById('roundBadge'),
+// ── QUESTION BANK ───────────────────────────────────────────────────────────
+const questionBank = [
+  // Level 1: basic addition up to 10
+  {q:'1 + 1 = ?', a:2}, {q:'2 + 2 = ?', a:4}, {q:'3 + 1 = ?', a:4}, {q:'2 + 3 = ?', a:5},
+  {q:'4 + 1 = ?', a:5}, {q:'3 + 3 = ?', a:6}, {q:'4 + 2 = ?', a:6}, {q:'5 + 1 = ?', a:6},
+  {q:'4 + 3 = ?', a:7}, {q:'5 + 2 = ?', a:7}, {q:'6 + 1 = ?', a:7}, {q:'4 + 4 = ?', a:8},
+  {q:'5 + 3 = ?', a:8}, {q:'6 + 2 = ?', a:8}, {q:'7 + 1 = ?', a:8}, {q:'5 + 4 = ?', a:9},
+  {q:'6 + 3 = ?', a:9}, {q:'7 + 2 = ?', a:9}, {q:'8 + 1 = ?', a:9}, {q:'5 + 5 = ?', a:10},
+  // Level 2: addition up to 20
+  {q:'6 + 5 = ?', a:11}, {q:'7 + 4 = ?', a:11}, {q:'8 + 3 = ?', a:11}, {q:'9 + 2 = ?', a:11},
+  {q:'6 + 6 = ?', a:12}, {q:'7 + 5 = ?', a:12}, {q:'8 + 4 = ?', a:12}, {q:'9 + 3 = ?', a:12},
+  {q:'7 + 6 = ?', a:13}, {q:'8 + 5 = ?', a:13}, {q:'9 + 4 = ?', a:13}, {q:'7 + 7 = ?', a:14},
+  {q:'8 + 6 = ?', a:14}, {q:'9 + 5 = ?', a:14}, {q:'8 + 7 = ?', a:15}, {q:'9 + 6 = ?', a:15},
+  {q:'8 + 8 = ?', a:16}, {q:'9 + 7 = ?', a:16}, {q:'9 + 8 = ?', a:17}, {q:'9 + 9 = ?', a:18},
+  // Level 3: subtraction
+  {q:'5 - 2 = ?', a:3}, {q:'6 - 3 = ?', a:3}, {q:'7 - 4 = ?', a:3}, {q:'8 - 5 = ?', a:3},
+  {q:'9 - 6 = ?', a:3}, {q:'8 - 3 = ?', a:5}, {q:'9 - 4 = ?', a:5}, {q:'10 - 5 = ?', a:5},
+  {q:'10 - 3 = ?', a:7}, {q:'10 - 4 = ?', a:6}, {q:'12 - 5 = ?', a:7}, {q:'15 - 7 = ?', a:8},
+  {q:'14 - 6 = ?', a:8}, {q:'13 - 5 = ?', a:8}, {q:'16 - 8 = ?', a:8}, {q:'18 - 9 = ?', a:9},
+  // Level 4: bigger numbers
+  {q:'10 + 5 = ?', a:15}, {q:'10 + 8 = ?', a:18}, {q:'20 - 5 = ?', a:15}, {q:'20 - 8 = ?', a:12},
+  {q:'2 × 3 = ?', a:6}, {q:'2 × 4 = ?', a:8}, {q:'2 × 5 = ?', a:10}, {q:'3 × 3 = ?', a:9},
+  {q:'3 × 4 = ?', a:12}, {q:'4 × 4 = ?', a:16}, {q:'5 × 3 = ?', a:15}, {q:'5 × 4 = ?', a:20},
+];
+
+const e={
+  rb:document.getElementById('rb'),
   banner:document.getElementById('banner'),
-  hint:document.getElementById('hint'),
-  targetRow:document.getElementById('targetRow'),
-  paintArea:document.getElementById('paintArea'),
-  paletteBoard:document.getElementById('paletteBoard'),
   score:document.getElementById('score'),
   stars:document.getElementById('stars'),
   streak:document.getElementById('streak'),
@@ -630,159 +745,122 @@ const warnaEls={
   fscore:document.getElementById('fscore'),
   fstars:document.getElementById('fstars'),
   fstreak:document.getElementById('fstreak'),
-  frank:document.getElementById('frank')
+  frank:document.getElementById('frank'),
+  prompt:document.getElementById('prompt'),
+  choices:document.getElementById('mathChoices')
 };
-const palette8=[...colorPool,{name:'MERAH',bg:'#ef4444',txt:'#b91c1c',emoji:'❤️'},{name:'ORANYE',bg:'#fb923c',txt:'#c2410c',emoji:'🧡'},{name:'CYAN',bg:'#06b6d4',txt:'#0e7490',emoji:'🩵'}];
-const sceneSet=[
-  {title:'Pelangi Ceria', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'☀️', need:'KUNING'},{emoji:'🌈', need:'UNGU'},{emoji:'🌱', need:'HIJAU'}]},
-  {title:'Taman Lucu', parts:[{emoji:'🌸', need:'MERAH MUDA'},{emoji:'🍀', need:'HIJAU'},{emoji:'☀️', need:'KUNING'},{emoji:'💧', need:'CYAN'}]},
-  {title:'Laut Cerah', parts:[{emoji:'🐟', need:'BIRU'},{emoji:'⭐', need:'KUNING'},{emoji:'🪸', need:'ORANYE'},{emoji:'🐚', need:'UNGU'}]},
-  {title:'Fantasi Manis', parts:[{emoji:'🦄', need:'UNGU'},{emoji:'🍭', need:'MERAH'},{emoji:'⭐', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
-  {title:'Hari Hujan', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🌧️', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'☀️', need:'KUNING'}]},
-  {title:'Api & Senja', parts:[{emoji:'🔥', need:'MERAH'},{emoji:'🧡', need:'ORANYE'},{emoji:'☀️', need:'KUNING'},{emoji:'🌊', need:'CYAN'}]},
-  {title:'Buah Ceria', parts:[{emoji:'🍎', need:'MERAH'},{emoji:'🍊', need:'ORANYE'},{emoji:'🍋', need:'KUNING'},{emoji:'🍀', need:'HIJAU'}]},
-  {title:'Magic Sky', parts:[{emoji:'☁️', need:'CYAN'},{emoji:'🦋', need:'BIRU'},{emoji:'🌈', need:'UNGU'},{emoji:'🌸', need:'MERAH MUDA'}]}
-];
-const warnaState={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,current:null,selected:null,painted:0};
-function warnaHud(){
-  warnaEls.score.textContent=warnaState.score;
-  warnaEls.stars.textContent=warnaState.stars;
-  warnaEls.streak.textContent=warnaState.streak;
-  warnaEls.timer.textContent=warnaState.time;
-  warnaEls.roundBadge.textContent=`Ronde ${warnaState.round}`;
+const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null};
+let usedQs=[];
+
+function hud(){
+  e.score.textContent=s.score;
+  e.stars.textContent=s.stars;
+  e.streak.textContent=s.streak;
+  e.timer.textContent=s.time;
+  e.rb.textContent='Ronde '+s.round;
 }
-function partCardStyle(bg){
-  return `background:${bg};display:flex;align-items:center;justify-content:center;font-size:52px;min-height:140px;color:white;border:4px solid rgba(255,255,255,.82);border-radius:28px;box-shadow:var(--shadow-card);cursor:pointer;transition:transform .14s ease,filter .14s ease,box-shadow .14s ease`;
+
+function getLevel(){
+  if(s.round<=5) return 1;
+  if(s.round<=12) return 2;
+  if(s.round<=20) return 3;
+  return 4;
 }
-function sparkleBurst(target){
-  const rect=target.getBoundingClientRect();
-  const parent=target.parentElement.getBoundingClientRect();
-  for(let i=0;i<10;i++){
-    const s=document.createElement('div');
-    s.className='sparkle-burst';
-    s.style.left=`${rect.left-parent.left+rect.width/2}px`;
-    s.style.top=`${rect.top-parent.top+rect.height/2}px`;
-    s.style.setProperty('--dx', `${(Math.random()*120-60).toFixed(0)}px`);
-    s.style.setProperty('--dy', `${(Math.random()*120-60).toFixed(0)}px`);
-    warnaEls.paintArea.appendChild(s);
-    setTimeout(()=>s.remove(),700);
+
+function getQuestion(){
+  var lvl=getLevel();
+  var pool;
+  if(lvl===1) pool=questionBank.slice(0,20);
+  else if(lvl===2) pool=questionBank.slice(0,40);
+  else if(lvl===3) pool=questionBank.slice(20,56);
+  else pool=questionBank.slice(40);
+
+  // avoid repeats until pool exhausted
+  var available=pool.filter(function(q){ return usedQs.indexOf(q.q)<0; });
+  if(available.length===0){ usedQs=[]; available=pool; }
+  var q=available[Math.floor(Math.random()*available.length)];
+  usedQs.push(q.q);
+  return q;
+}
+
+function makeDistractors(answer){
+  var set=new Set();
+  set.add(answer);
+  var attempts=0;
+  while(set.size<4 && attempts<100){
+    attempts++;
+    var delta=Math.floor(Math.random()*4)+1;
+    var sign=Math.random()>0.5?1:-1;
+    var candidate=answer+(delta*sign);
+    if(candidate>0 && candidate!==answer) set.add(candidate);
   }
-}
-function renderPalette(){
-  warnaEls.paletteBoard.innerHTML='';
-  palette8.forEach(c=>{
-    const b=document.createElement('button');
-    b.className='choice pressable';
-    b.style.background=c.bg;
-    b.innerHTML=`<div style="font-size:28px;margin-bottom:6px">${c.emoji}</div><div style="font-size:16px">${c.name}</div>`;
-    b.onclick=()=>{
-      warnaState.selected=c.name;
-      [...warnaEls.paletteBoard.children].forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      ok(1);
-      warnaEls.banner.textContent=`Warna dipilih: ${c.name} 🎨`;
-    };
-    warnaEls.paletteBoard.appendChild(b);
-  });
-}
-function renderTarget(){
-  warnaEls.targetRow.innerHTML='';
-  const title=document.createElement('div');
-  title.className='preview-pill';
-  title.style.background='white';
-  title.style.minWidth='220px';
-  title.innerHTML=`<div style="font-size:14px;opacity:.7;margin-bottom:4px">Target gambar</div><div style="font-size:20px;font-weight:900">${warnaState.current.title}</div>`;
-  warnaEls.targetRow.appendChild(title);
-  warnaState.current.parts.forEach((p,idx)=>{
-    const c=palette8.find(x=>x.name===p.need);
-    const pill=document.createElement('div');
-    pill.className='preview-pill';
-    pill.style.background='white';
-    pill.innerHTML=`<div style="font-size:12px;opacity:.7;margin-bottom:4px">Bagian ${idx+1}</div><div style="display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:28px">${p.emoji}</span><span style="font-size:14px;color:${c.txt}">${p.need}</span></div>`;
-    warnaEls.targetRow.appendChild(pill);
-  });
-}
-function renderPaintArea(){
-  warnaEls.paintArea.innerHTML='';
-  warnaState.current.parts.forEach((p,idx)=>{
-    const card=document.createElement('button');
-    card.className='pressable';
-    card.style.cssText=partCardStyle('rgba(255,255,255,.65)');
-    card.dataset.index=idx;
-    card.dataset.need=p.need;
-    card.dataset.done='0';
-    card.innerHTML=`<div style="text-align:center"><div style="font-size:52px;filter:grayscale(.75)">${p.emoji}</div><div style="margin-top:8px;font-size:14px;font-weight:900;color:#64748b">Bagian ${idx+1}</div></div>`;
-    card.onclick=()=>paintPart(card,p);
-    warnaEls.paintArea.appendChild(card);
-  });
-}
-function paintPart(card,p){
-  if(!warnaState.run) return;
-  if(!warnaState.selected){
-    warnaEls.banner.textContent='Pilih warna dulu ya 🎨';
-    bad();
-    return;
+  // failsafe: fill remaining
+  var base=1;
+  while(set.size<4){
+    if(!set.has(base)) set.add(base);
+    base++;
   }
-  if(card.dataset.done==='1') return;
-  const correct = warnaState.selected===p.need;
-  card.classList.add('active');
-  setTimeout(()=>card.classList.remove('active'),180);
-  if(correct){
-    const c=palette8.find(x=>x.name===p.need);
-    card.style.cssText=partCardStyle(c.bg);
-    card.dataset.done='1';
-    card.innerHTML=`<div style="text-align:center"><div style="font-size:56px;filter:none">${p.emoji}</div><div style="margin-top:8px;font-size:14px;font-weight:900;color:white">${p.need}</div></div>`;
-    warnaState.score+=8;
-    warnaState.stars+=1;
-    warnaState.streak+=1;
-    warnaState.best=Math.max(warnaState.best,warnaState.streak);
-    warnaState.painted+=1;
-    warnaHud();
-    ok(warnaState.streak+1); sparkleBurst(card);
-    if(warnaState.painted>=warnaState.current.parts.length){
-      warnaState.score+=12;
-      warnaState.stars+=2;
-      warnaState.round+=1;
-      warnaHud();
-      levelup();
-      setTimeout(()=>{ if(warnaState.run) warnaRound(); },700);
-    }
+  return Array.from(set).sort(function(a,b){return Math.random()-0.5;});
+}
+
+function build(){
+  var q=getQuestion();
+  s.answer=q.a;
+  e.prompt.textContent=q.q;
+  var opts=makeDistractors(s.answer);
+  var colors=['#38bdf8','#f472b6','#a78bfa','#facc15','#84cc16','#fb923c'];
+  e.choices.innerHTML='';
+  opts.forEach(function(o){
+    var btn=document.createElement('button');
+    btn.className='choice';
+    btn.style.background=colors[Math.floor(Math.random()*colors.length)];
+    btn.style.fontSize='clamp(22px,5vw,36px)';
+    btn.style.fontWeight='900';
+    btn.style.color='white';
+    btn.textContent=o;
+    btn.onclick=function(){ choose(o,btn); };
+    e.choices.appendChild(btn);
+  });
+  e.banner.textContent='Pilih jawaban yang benar! 🧮';
+}
+
+function choose(v,btn){
+  if(!s.run)return;
+  btn.classList.add('active');
+  setTimeout(function(){ btn.classList.remove('active'); },180);
+  if(v===s.answer){
+    s.score+=10; s.stars+=2; s.streak++;
+    s.best=Math.max(s.best,s.streak);
+    ok(s.streak+1);
+    s.round++;
+    // Flash correct
+    btn.style.background='#84cc16';
+    e.banner.textContent='✅ Benar! +10 poin';
+    hud();
+    setTimeout(function(){ if(!s.run)return; build(); },650);
   }else{
-    warnaState.score=Math.max(0,warnaState.score-3);
-    warnaState.streak=0;
-    warnaHud();
-    bad();
-    card.style.transform='translateX(4px)';
-    setTimeout(()=>card.style.transform='',160);
+    s.score=Math.max(0,s.score-3); s.streak=0; hud(); bad();
+    btn.style.background='#ef4444';
+    e.banner.textContent='❌ Ups, coba lagi! Jawaban: '+s.answer;
+    setTimeout(function(){ if(!s.run)return; build(); },900);
   }
 }
-function warnaRound(){
-  warnaState.current=rand(sceneSet);
-  warnaState.painted=0;
-  warnaState.selected=null;
-  warnaEls.banner.textContent='Pilih warna, lalu tap bagian gambar 🎨';
-  renderTarget();
-  renderPaintArea();
-  renderPalette();
-}
-function warnaStart(){
-  initAudio();
-  startsound();
-  warnaState.score=0; warnaState.stars=0; warnaState.streak=0; warnaState.best=0; warnaState.time=60; warnaState.round=1; warnaState.run=true;
-  warnaEls.start.classList.add('hidden');
-  warnaEls.end.classList.add('hidden');
-  warnaHud();
-  warnaRound();
-  clearInterval(warnaState.timerI);
-  warnaState.timerI=setInterval(()=>{
-    warnaState.time-=1;
-    warnaHud();
-    if(warnaState.time<=0) warnaEnd();
+
+function startG(){
+  initAudio(); startsound();
+  s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;
+  usedQs=[];
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('end').classList.add('hidden');
+  hud(); build();
+  clearInterval(s.timerI);
+  s.timerI=setInterval(function(){
+    s.time--; hud();
+    if(s.time<=0) endG();
   },1000);
 }
-function warnaEnd(){
-  warnaState.run=false;
-  clearInterval(warnaState.timerI);
+
+function endG(){
   (async function(){
   try{
     var sess=window.__SK_SESSION,cli=window.__SK_CLIENT;
@@ -793,23 +871,26 @@ function warnaEnd(){
     else if(typeof mazeState!=='undefined')sc=mazeState.score;
     var {data}=await cli.from('profiles').select('scores,weekly').eq('id',sess.userId).single();
     var scores=(data&&data.scores)||{},week=(data&&data.weekly)||[0,0,0,0,0,0,0];
-    if(!scores['warna-ajaib']||scores['warna-ajaib']<sc)scores['warna-ajaib']=sc;
+    if(!scores['hitung-cepat']||scores['hitung-cepat']<sc)scores['hitung-cepat']=sc;
     var d=new Date().getDay();week[d===0?6:d-1]=(week[d===0?6:d-1]||0)+1;
     await cli.from('profiles').update({scores:scores,weekly:week,updated_at:new Date().toISOString()}).eq('id',sess.userId);
   }catch(e){}
 })();
-  if(_session) _saveScore(warnaState.score);
-
+  if(_session) _saveScore(typeof warnaState!=='undefined'?warnaState.score:typeof s!=='undefined'?s.score:0);
+  s.run=false; clearInterval(s.timerI);
+  e.fscore.textContent=s.score;
+  e.fstars.textContent=s.stars;
+  e.fstreak.textContent=s.best;
+  e.frank.textContent=rank(s.score);
   
+────────────────
 
-  warnaEls.fscore.textContent=warnaState.score;
-  warnaEls.fstars.textContent=warnaState.stars;
-  warnaEls.fstreak.textContent=warnaState.best;
-  warnaEls.frank.textContent=rank(warnaState.score);
-  finishsound();
-  warnaEls.end.classList.remove('hidden');
+finishsound();
+  document.getElementById('end').classList.remove('hidden');
 }
-document.getElementById('go').onclick=warnaStart;
-document.getElementById('again').onclick=warnaStart;
-warnaHud();
+
+document.getElementById('go').onclick=startG;
+document.getElementById('again').onclick=startG;
+hud();
+
 </script></body></html>
