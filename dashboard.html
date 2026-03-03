@@ -273,18 +273,6 @@ a{text-decoration:none;color:inherit}
 <body>
 <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
 
-<!-- LOGOUT MODAL -->
-<div class="modal-overlay" id="logoutModal">
-  <div class="modal-box">
-    <div class="modal-title">Keluar dulu? 👋</div>
-    <div class="modal-sub">Kamu yakin ingin logout? Progress anak tetap tersimpan kok.</div>
-    <div class="modal-btns">
-      <button class="m-btn m-cancel" onclick="closeLogout()">Batal</button>
-      <button class="m-btn m-confirm" onclick="doLogout()">Ya, Logout</button>
-    </div>
-  </div>
-</div>
-
 <div class="shell">
 
   <!-- TOP NAV -->
@@ -296,7 +284,7 @@ a{text-decoration:none;color:inherit}
     <div class="nav-right">
       <a href="index.html" class="nav-pill">🎮 Main Sekarang</a>
       <div class="nav-pill" id="planBadge">⭐ Free</div>
-      <div class="nav-pill" onclick="document.getElementById('logoutModal').classList.add('show')" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626">
+      <div class="nav-pill" onclick="doLogout()" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626">
         🚪 Keluar
       </div>
     </div>
@@ -682,7 +670,7 @@ function rank(s){ if(s>=140)return'A+'; if(s>=110)return'A'; if(s>=80)return'B';
     await _db.auth.signOut();
     location.replace('auth.html');
   };
-  window.closeLogout = ()=> document.getElementById('logoutModal')?.classList.remove('show');
+
   window.showUpgradeInfo = ()=>{
     alert('🌟 Upgrade ke Premium!\n\nHubungi kami melalui:\n• WhatsApp: [nomor_wa_kamu]\n• Email: support@sparkids.id\n\nSetelah pembayaran, akun akan langsung diupgrade!');
   };

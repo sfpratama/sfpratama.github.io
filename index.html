@@ -462,10 +462,12 @@ function showUpgradeModal(){
 }
 
 // ─── LOGOUT ───────────────────────────────────────────────────────────────────
-function doLogout(){
-  if(confirm('Yakin mau keluar?')){
-    doLogout();
-  }
+async function doLogout(){
+  try{
+    var _c=window.__SK||window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+    await _c.auth.signOut();
+  }catch(e){}
+  location.replace('auth.html');
 }
 
 // ─── PWA SERVICE WORKER ───────────────────────────────────────────────────────

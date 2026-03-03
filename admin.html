@@ -4,512 +4,243 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin Panel – Sparkids</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --bg:#0f172a;--surface:#1e293b;--surface2:#293548;--border:#334155;
-  --ink:#f1f5f9;--muted:#94a3b8;
-  --pink:#f472b6;--sky:#38bdf8;--lime:#84cc16;--orange:#fb923c;
-  --red:#f87171;--green:#4ade80;
-  --shadow:0 20px 60px rgba(0,0,0,.4);--card:0 8px 24px rgba(0,0,0,.3);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;font-family:'Nunito',sans-serif;color:var(--ink);background:var(--bg)}
-body{padding-bottom:60px}
-
-/* NAV */
-.topnav{
-  background:var(--surface);border-bottom:1px solid var(--border);
-  padding:14px 24px;display:flex;align-items:center;gap:16px;
-  position:sticky;top:0;z-index:50;
-}
-.nav-brand{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--pink)}
-.nav-sub{font-size:12px;font-weight:700;color:var(--muted);padding:4px 10px;background:rgba(244,114,182,.15);border-radius:999px;border:1px solid rgba(244,114,182,.3)}
-.nav-right{margin-left:auto;display:flex;gap:10px}
-.nav-btn{padding:8px 16px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:transform .12s,opacity .12s}
-.nav-btn:hover{transform:translateY(-1px);opacity:.9}
-.btn-danger{background:#dc2626;color:white}
-.btn-sky{background:#0ea5e9;color:white}
-
-/* SHELL */
-.shell{max-width:1100px;margin:0 auto;padding:24px 16px}
-
-/* LOCK SCREEN */
-.lockscreen{
-  position:fixed;inset:0;background:var(--bg);
-  display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;
-}
-.lock-box{
-  background:var(--surface);border:2px solid var(--border);
-  border-radius:28px;padding:40px;max-width:360px;width:100%;text-align:center;
-  box-shadow:var(--shadow);
-}
-.lock-icon{font-size:56px;margin-bottom:16px}
-.lock-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--pink);margin-bottom:8px}
-.lock-sub{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:24px;line-height:1.5}
-.lock-input{
-  width:100%;padding:14px 18px;background:var(--surface2);border:2px solid var(--border);
-  border-radius:14px;color:var(--ink);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;
-  outline:none;transition:border-color .18s;text-align:center;letter-spacing:.2em;
-}
-.lock-input:focus{border-color:var(--pink)}
-.lock-btn{
-  width:100%;margin-top:14px;padding:14px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,var(--pink),#fb7185);color:white;
-  font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;
-  box-shadow:0 8px 20px rgba(244,114,182,.3);transition:transform .12s;
-}
-.lock-btn:hover{transform:translateY(-2px)}
-.lock-err{color:var(--red);font-size:13px;font-weight:800;margin-top:10px;display:none}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:var(--card)}
-.card-title{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--pink);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-
-/* STATS ROW */
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
-@media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
-.stat{
-  background:var(--surface);border:1px solid var(--border);border-radius:18px;
-  padding:16px;text-align:center;
-}
-.stat-num{font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:4px}
-.stat-lbl{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-
-/* TABLE */
-.table-wrap{overflow-x:auto;margin-top:8px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:10px 14px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border)}
-td{padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.02)}
-.plan-chip{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900}
-.chip-free{background:rgba(56,189,248,.15);color:var(--sky);border:1px solid rgba(56,189,248,.3)}
-.chip-premium{background:rgba(244,114,182,.15);color:var(--pink);border:1px solid rgba(244,114,182,.3)}
-.chip-admin{background:rgba(132,204,22,.15);color:var(--lime);border:1px solid rgba(132,204,22,.3)}
-.action-btn{
-  padding:6px 12px;border-radius:999px;border:none;font-family:'Nunito',sans-serif;
-  font-size:12px;font-weight:900;cursor:pointer;transition:transform .1s,opacity .1s;margin-right:4px;
-}
-.action-btn:hover{transform:translateY(-1px);opacity:.9}
-.btn-upgrade{background:rgba(244,114,182,.2);color:var(--pink);border:1px solid rgba(244,114,182,.3)}
-.btn-downgrade{background:rgba(148,163,184,.15);color:var(--muted);border:1px solid var(--border)}
-.btn-delete{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
-.btn-copy{background:rgba(56,189,248,.15);color:var(--sky);border:1px solid rgba(56,189,248,.3)}
-.empty-row td{text-align:center;color:var(--muted);padding:32px;font-size:14px}
-
-/* ADD USER FORM */
-.form-grid{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
-@media(min-width:900px){.form-grid{grid-template-columns:repeat(3,1fr)}}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.field input,.field select{
-  padding:12px 16px;background:var(--surface2);border:2px solid var(--border);
-  border-radius:12px;color:var(--ink);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;
-  outline:none;transition:border-color .18s;
-}
-.field input:focus,.field select:focus{border-color:var(--pink)}
-.field input::placeholder{color:#475569}
-.field select option{background:var(--surface2)}
-.submit-btn{
-  padding:14px 24px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,var(--pink),#fb7185);color:white;
-  font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;cursor:pointer;
-  box-shadow:0 8px 20px rgba(244,114,182,.25);transition:transform .12s;
-  width:100%;
-}
-.submit-btn:hover{transform:translateY(-2px)}
-.alert-bar{
-  padding:12px 16px;border-radius:14px;font-size:14px;font-weight:800;
-  margin-bottom:14px;display:none;
-}
-.alert-ok{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:var(--green)}
-.alert-err{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--red)}
-
-/* COPY BOX */
-.copy-box{
-  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
-  padding:14px 16px;font-size:13px;font-weight:700;color:var(--sky);
-  display:none;margin-top:12px;cursor:pointer;word-break:break-all;
-  transition:background .14s;
-}
-.copy-box:hover{background:#1a2744}
-
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:16px}
-.modal-bg.show{display:flex}
-.modal{background:var(--surface);border:2px solid var(--border);border-radius:24px;padding:28px;max-width:420px;width:100%;box-shadow:var(--shadow)}
-.modal h3{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--pink);margin-bottom:10px}
-.modal p{font-size:13px;font-weight:700;color:var(--muted);line-height:1.6;margin-bottom:16px}
-.modal .field{margin-bottom:12px}
-.modal-btns{display:flex;gap:10px}
-.m-btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;cursor:pointer}
-.m-cancel{background:var(--surface2);color:var(--ink)}
-.m-save{background:linear-gradient(135deg,var(--pink),#fb7185);color:white}
-
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn .3s ease-out}
-</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#f1f5f9;min-height:100vh;padding:20px;}
+.card{background:#1e293b;border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid #334155;}
+h1{font-size:22px;font-weight:900;color:#f472b6;margin-bottom:4px;}
+h2{font-size:13px;font-weight:700;color:#94a3b8;margin-bottom:14px;text-transform:uppercase;letter-spacing:.04em;}
+label{font-size:11px;font-weight:700;color:#94a3b8;display:block;margin-bottom:5px;text-transform:uppercase;}
+input{background:#0f172a;border:1.5px solid #334155;border-radius:10px;padding:10px 14px;color:#f1f5f9;font-size:14px;width:100%;outline:none;}
+input:focus{border-color:#f472b6;}
+button{border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:13px;}
+button:hover{opacity:.85;}
+.btn-pink{background:#f472b6;color:white;}
+.btn-gray{background:#334155;color:#f1f5f9;}
+.btn-green{background:#22c55e;color:white;padding:5px 12px!important;font-size:12px!important;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 12px;color:#64748b;font-size:11px;text-transform:uppercase;border-bottom:1px solid #334155;}
+td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.badge-premium{background:#fde047;color:#854d0e;}
+.badge-free{background:#e0f2fe;color:#0369a1;}
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:12px;}
+.alert-ok{background:#14532d;border:1px solid #22c55e;color:#86efac;}
+.alert-err{background:#450a0a;border:1px solid #ef4444;color:#fca5a5;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-card{background:#0f172a;border-radius:12px;padding:16px;text-align:center;}
+.stat-num{font-size:32px;font-weight:900;color:#f472b6;}
+.stat-label{font-size:12px;color:#64748b;margin-top:4px;font-weight:700;}
+#lockScreen{position:fixed;inset:0;background:#0f172a;display:flex;align-items:center;justify-content:center;z-index:100;}
+.lock-box{background:#1e293b;border-radius:20px;padding:40px;max-width:360px;width:100%;text-align:center;border:1px solid #334155;}
+</style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
-<div class="lockscreen" id="lockScreen">
+<div id="lockScreen">
   <div class="lock-box">
-    <div class="lock-icon">🔐</div>
-    <div class="lock-title">Admin Panel</div>
-    <div class="lock-sub">Masukkan password admin untuk mengakses panel manajemen akun pelanggan</div>
-    <input class="lock-input" type="password" id="adminPwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryAdminLogin()"/>
-    <button class="lock-btn" onclick="tryAdminLogin()">Masuk Admin 🔓</button>
-    <div class="lock-err" id="lockErr">❌ Password salah</div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-top:16px">Password default: <code style="background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px">admin123</code></div>
+    <div style="font-size:48px;margin-bottom:12px">⚡</div>
+    <div style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:8px;">Sparkids Admin</div>
+    <p style="color:#94a3b8;font-size:13px;margin-bottom:20px;line-height:1.5;">Masukkan password admin untuk mengelola akun user.</p>
+    <input type="password" id="adminPwInput" placeholder="Password admin" style="margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')tryLogin()"/>
+    <div id="lockErr" style="color:#ef4444;font-size:13px;font-weight:700;margin-bottom:12px;display:none">Salah password</div>
+    <button class="btn-pink" onclick="tryLogin()" style="width:100%;padding:13px;">Masuk</button>
+    <p style="margin-top:16px;font-size:11px;color:#475569">Jangan publish file ini ke publik</p>
   </div>
 </div>
 
-<!-- EDIT MODAL -->
-<div class="modal-bg" id="editModal">
-  <div class="modal">
-    <h3>Edit Akun Pengguna</h3>
-    <p>Ubah data akun pelanggan. Kosongkan password jika tidak ingin mengubahnya.</p>
-    <input type="hidden" id="editUserId"/>
-    <div class="field"><label>Nama</label><input id="editName" type="text"/></div>
-    <div class="field"><label>Email</label><input id="editEmail" type="email"/></div>
-    <div class="field"><label>Username</label><input id="editUsername" type="text"/></div>
-    <div class="field"><label>Password Baru (kosongkan jika sama)</label><input id="editPassword" type="text" placeholder="kosongkan jika tidak diubah"/></div>
-    <div class="field"><label>Plan</label>
-      <select id="editPlan">
-        <option value="free">Free</option>
-        <option value="premium">Premium</option>
-        <option value="admin">Admin</option>
-      </select>
+<div id="mainContent" style="display:none;max-width:1000px;margin:0 auto;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1>⚡ Sparkids Admin</h1>
+      <p style="color:#64748b;font-size:13px;margin-top:3px">Kelola akun dan plan pengguna</p>
     </div>
-    <div class="modal-btns" style="margin-top:16px">
-      <button class="m-btn m-cancel" onclick="closeEdit()">Batal</button>
-      <button class="m-btn m-save" onclick="saveEdit()">Simpan Perubahan</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOPNAV -->
-<nav class="topnav">
-  <div class="nav-brand">⚡ Admin Panel</div>
-  <div class="nav-sub">Sparkids</div>
-  <div class="nav-right">
-    <button class="nav-btn btn-sky" onclick="exportCSV()">📤 Export CSV</button>
-    <button class="nav-btn btn-danger" onclick="if(confirm('Keluar dari admin?'))localStorage.removeItem('sparkids_admin_auth');location.reload()">Keluar</button>
-  </div>
-</nav>
-
-<div class="shell" id="mainContent" style="display:none">
-
-  <!-- STATS -->
-  <div class="stats-grid fade-in">
-    <div class="stat">
-      <div class="stat-num" style="color:var(--sky)" id="statTotal">0</div>
-      <div class="stat-lbl">Total Akun</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" style="color:var(--pink)" id="statPremium">0</div>
-      <div class="stat-lbl">Premium</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" style="color:var(--muted)" id="statFree">0</div>
-      <div class="stat-lbl">Free</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" style="color:var(--lime)" id="statNew">0</div>
-      <div class="stat-lbl">Baru (7 hari)</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-gray" onclick="loadAll()">🔄 Refresh</button>
+      <button class="btn-gray" onclick="adminLogout()" style="font-size:12px;padding:8px 14px;">Keluar</button>
     </div>
   </div>
 
-  <!-- ADD USER -->
-  <div class="card fade-in" style="margin-bottom:20px">
-    <div class="card-title">➕ Tambah Akun Baru</div>
-    <div id="addAlert" class="alert-bar"></div>
-    <div class="form-grid">
-      <div class="field"><label>Nama Lengkap</label><input type="text" id="newName" placeholder="Mis: Ibu Sarah"/></div>
-      <div class="field"><label>Email</label><input type="email" id="newEmail" placeholder="sarah@email.com"/></div>
-      <div class="field"><label>Username</label><input type="text" id="newUsername" placeholder="sarah123"/></div>
-      <div class="field"><label>Password</label><input type="text" id="newPassword" placeholder="min 6 karakter"/></div>
-      <div class="field"><label>Plan</label>
-        <select id="newPlan">
-          <option value="free">🆓 Free</option>
-          <option value="premium" selected>⭐ Premium</option>
-        </select>
-      </div>
-      <div class="field" style="justify-content:flex-end">
-        <label>&nbsp;</label>
-        <button class="submit-btn" onclick="addUser()">Buat Akun & Kirim ✉️</button>
-      </div>
-    </div>
-    <div id="copyBox" class="copy-box" onclick="copyLoginInfo()" title="Klik untuk copy">
-      <!-- Generated login info shown here -->
+  <div class="card" style="border-color:#f47b8680;">
+    <h2>Cara Pakai</h2>
+    <p style="font-size:13px;color:#94a3b8;line-height:1.8;">
+      <b style="color:#f1f5f9;">1. Buat akun</b> → isi email + password → klik Buat Akun<br>
+      <b style="color:#f1f5f9;">2. Kirim ke pelanggan</b> → copy pesan WA yang muncul otomatis<br>
+      <b style="color:#f1f5f9;">3. Ubah plan</b> → klik Premium / Free di tabel user kapanpun<br>
+      <b style="color:#f1f5f9;">Catatan:</b> Login ke Sparkids dulu di tab lain agar tabel user bisa dimuat.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="statTotal">–</div><div class="stat-label">Total Users</div></div>
+      <div class="stat-card"><div class="stat-num" id="statPremium">–</div><div class="stat-label">Premium</div></div>
+      <div class="stat-card"><div class="stat-num" id="statFree">–</div><div class="stat-label">Free</div></div>
     </div>
   </div>
 
-  <!-- USER LIST -->
-  <div class="card fade-in">
-    <div class="card-title">
-      👥 Semua Pengguna
-      <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍  Cari nama, email, username..." style="margin-left:auto;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--ink);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;outline:none;min-width:200px"/>
+  <div class="card">
+    <h2>Buat Akun User Baru</h2>
+    <div id="addAlert" style="display:none;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
+      <div><label>Email</label><input type="email" id="newEmail" placeholder="user@email.com"/></div>
+      <div><label>Password (min 6 karakter)</label><input type="text" id="newPass" placeholder="contoh: main1234"/></div>
+      <button class="btn-pink" onclick="addUser()" style="height:42px;padding:0 18px;white-space:nowrap;">✨ Buat Akun</button>
     </div>
-    <div class="table-wrap">
-      <table id="userTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nama</th>
-            <th>Email / Username</th>
-            <th>Password</th>
-            <th>Plan</th>
-            <th>Dibuat</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="userTbody"></tbody>
+    <p style="font-size:12px;color:#64748b;margin-top:8px;">Semua akun baru otomatis <b style="color:#fde047;">Premium</b>.</p>
+  </div>
+
+  <div class="card">
+    <h2>Pesan WA untuk Pelanggan</h2>
+    <div id="waTemplate" style="background:#0f172a;border-radius:10px;padding:16px;font-size:13px;line-height:1.8;color:#e2e8f0;white-space:pre-wrap;border:1px solid #334155;min-height:60px;">Buat akun dulu, pesan WA akan muncul di sini.</div>
+    <button class="btn-gray" onclick="copyWA()" style="margin-top:10px;padding:8px 16px;">📋 Copy Pesan</button>
+  </div>
+
+  <div class="card">
+    <h2>Semua User</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Email</th><th>Nama</th><th>Plan</th><th>Games</th><th>Aksi</th></tr></thead>
+        <tbody id="userTable"><tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px;">Login ke Sparkids dulu di tab lain, lalu klik Refresh.</td></tr></tbody>
       </table>
     </div>
   </div>
-
-  <!-- QUICK TIPS -->
-  <div class="card fade-in" style="margin-top:20px;background:rgba(56,189,248,.06);border-color:rgba(56,189,248,.2)">
-    <div class="card-title" style="color:var(--sky)">💡 Cara Pakai Admin Panel Sparkids</div>
-    <div style="display:grid;gap:10px;font-size:13px;font-weight:700;color:var(--muted);line-height:1.6">
-      <div>1️⃣ <strong style="color:var(--ink)">Buat akun baru</strong> setelah pembayaran masuk → isi nama, email, username, password → klik "Buat Akun"</div>
-      <div>2️⃣ <strong style="color:var(--ink)">Salin info login</strong> yang muncul di kotak biru → kirim ke pelanggan via WA/DM</div>
-      <div>3️⃣ <strong style="color:var(--ink)">Upgrade/downgrade</strong> plan kapan saja dengan tombol di kolom Aksi</div>
-      <div>4️⃣ <strong style="color:var(--ink)">Export CSV</strong> untuk backup data atau rekap ke spreadsheet</div>
-      <div>⚠️ <strong style="color:var(--orange)">Ganti password admin</strong> di kode: cari <code style="background:rgba(255,255,255,.1);padding:1px 6px;border-radius:4px">ADMIN_PASSWORD</code> di script bawah</div>
-    </div>
-  </div>
-
 </div>
 
 <script>
-// ⚠️  ADMIN PANEL – SECRET KEY INSIDE
-// ⚠️  NEVER commit this file to a public GitHub repo
-// ⚠️  Keep this file local or on a private server only
-// ⚠️  Rotate your secret key at: Supabase Dashboard → Settings → API Keys
+var SUPABASE_URL = 'https://hxfqvbjfezzwtngfdqdv.supabase.co';
+var SUPABASE_ANON = 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM';
+var ADMIN_PW = 'admin123';
 
-const { createClient } = window.supabase;
-const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_secret_e1m6YjArW_dDR_nNu6_p2g_Y31313kJ');
+var _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+var users = [];
 
-// ─── ADMIN PASSWORD (local lock screen) ───────────────────────────────────
-const ADMIN_PASSWORD = 'admin123'; // ⚠️ Change before deploying!
-
-function tryAdminLogin(){
-  const pw = document.getElementById('adminPwInput').value;
-  if(pw === ADMIN_PASSWORD){
+function tryLogin(){
+  var pw = document.getElementById('adminPwInput').value;
+  if(pw === ADMIN_PW){
     localStorage.setItem('spk_admin_auth','1');
     document.getElementById('lockScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
     loadAll();
-  }else{
+  } else {
     document.getElementById('lockErr').style.display = 'block';
     document.getElementById('adminPwInput').value = '';
   }
 }
 
-if(localStorage.getItem('spk_admin_auth')==='1'){
-  document.getElementById('lockScreen').style.display = 'none';
-  document.getElementById('mainContent').style.display = 'block';
-}
-
-// ─── LOAD ALL DATA ────────────────────────────────────────────────────────
-let allUsers = [];
-let allProfiles = {};
-
-async function loadAll(){
-  await loadUsers();
-  renderStats();
-  renderTable();
-}
-
-async function loadUsers(){
-  // Get all auth users
-  const { data, error } = await _db.auth.admin.listUsers({ perPage:1000 });
-  if(error){ showAddAlert('err','❌ Error loading users: '+error.message); return; }
-  allUsers = data?.users || [];
-
-  // Get all profiles
-  const { data: profiles } = await _db.from('profiles').select('id, name, plan, children, updated_at');
-  (profiles || []).forEach(p => allProfiles[p.id] = p);
-}
-
-// ─── STATS ─────────────────────────────────────────────────────────────────
-function renderStats(){
-  const week = Date.now() - 7*24*60*60*1000;
-  const regular = allUsers.filter(u => allProfiles[u.id]?.plan !== 'admin');
-  document.getElementById('statTotal').textContent   = regular.length;
-  document.getElementById('statPremium').textContent = regular.filter(u => allProfiles[u.id]?.plan === 'premium').length;
-  document.getElementById('statFree').textContent    = regular.filter(u => (allProfiles[u.id]?.plan||'free') === 'free').length;
-  document.getElementById('statNew').textContent     = regular.filter(u => new Date(u.created_at).getTime() > week).length;
-}
-
-// ─── TABLE ────────────────────────────────────────────────────────────────
-function renderTable(){
-  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
-  const filtered = allUsers.filter(u =>{
-    const p = allProfiles[u.id] || {};
-    const searchStr = [(p.name||''), (u.email||'')].join(' ').toLowerCase();
-    return !q || searchStr.includes(q);
-  });
-
-  const tbody = document.getElementById('userTbody');
-  if(filtered.length===0){
-    tbody.innerHTML='<tr class="empty-row"><td colspan="6">Belum ada pengguna. Tambahkan akun pertama di atas!</td></tr>';
-    return;
-  }
-  tbody.innerHTML='';
-  filtered.forEach((u,i)=>{
-    const p = allProfiles[u.id] || {};
-    const plan  = p.plan || 'free';
-    const name  = p.name || u.email;
-    const dateStr = new Date(u.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
-    const planCls = plan==='premium'?'chip-premium':plan==='admin'?'chip-admin':'chip-free';
-    const planLabel = plan==='premium'?'⭐ Premium':plan==='admin'?'🔑 Admin':'🆓 Free';
-    tbody.innerHTML+=`
-      <tr>
-        <td style="color:#64748b">${i+1}</td>
-        <td><strong>${name}</strong></td>
-        <td><div>${u.email}</div></td>
-        <td><span class="plan-chip ${planCls}">${planLabel}</span></td>
-        <td style="color:#64748b;font-size:12px">${dateStr}</td>
-        <td>
-          <button class="action-btn btn-copy" onclick="copyUser('${u.id}')">📋 Copy</button>
-          ${plan==='premium'
-            ?`<button class="action-btn btn-downgrade" onclick="changePlan('${u.id}','free')">⬇️ Free</button>`
-            :`<button class="action-btn btn-upgrade"   onclick="changePlan('${u.id}','premium')">⬆️ Premium</button>`
-          }
-          <button class="action-btn btn-delete" onclick="deleteUser('${u.id}','${name}')">🗑️</button>
-        </td>
-      </tr>`;
-  });
-}
-
-// ─── ADD USER ────────────────────────────────────────────────────────────
-async function addUser(){
-  const name     = document.getElementById('newName').value.trim();
-  const email    = document.getElementById('newEmail').value.trim().toLowerCase();
-  const password = document.getElementById('newPassword').value.trim();
-  const plan     = document.getElementById('newPlan').value;
-
-  if(!name||!email||!password){ showAddAlert('err','⚠️ Semua field wajib diisi!'); return; }
-  if(password.length<6){ showAddAlert('err','⚠️ Password minimal 6 karakter!'); return; }
-
-  showAddAlert('ok','⏳ Membuat akun...');
-
-  const { data, error } = await _db.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { name, plan }
-  });
-
-  if(error){
-    showAddAlert('err','❌ '+error.message); return;
-  }
-
-  // Update profile plan (trigger creates profile, but plan might default to free)
-  await _db.from('profiles').upsert({
-    id: data.user.id,
-    email,
-    name,
-    plan
-  }, {onConflict:'id'});
-
-  showAddAlert('ok', `✅ Akun "${name}" berhasil dibuat!`);
-
-  // Show copy box
-  const loginMsg = `⚡ *Halo ${name}!*\n\nAkun Sparkids kamu sudah aktif!\n\n🌐 Link: ${location.origin}/auth.html\n📧 Email: ${email}\n🔑 Password: ${password}\n⭐ Plan: ${plan==='premium'?'Premium':'Free'}\n\nSelamat bermain bersama anak! 🎮`;
-  const box = document.getElementById('copyBox');
-  box.style.display = 'block';
-  box.innerHTML = `<strong style="color:#22c55e">✅ Klik untuk copy pesan ke pelanggan:</strong><br/><br/>${loginMsg.replace(/\n/g,'<br/>')}`;
-  box.setAttribute('data-msg', loginMsg);
-
-  ['newName','newEmail','newPassword'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('newPlan').value='premium';
-
-  await loadUsers();
-  renderStats();
-  renderTable();
-}
-
-function copyLoginInfo(){
-  const msg = document.getElementById('copyBox').getAttribute('data-msg')||'';
-  navigator.clipboard.writeText(msg).then(()=>{
-    const box = document.getElementById('copyBox');
-    const orig = box.innerHTML;
-    box.innerHTML = '<strong style="color:#22c55e">✅ Tersalin! Paste ke WhatsApp atau DM Instagram.</strong>';
-    setTimeout(()=>box.innerHTML=orig, 2000);
-  });
-}
-
-function copyUser(uid){
-  const u = allUsers.find(u=>u.id===uid);
-  const p = allProfiles[uid]||{};
-  if(!u) return;
-  const msg = `⚡ *Halo ${p.name||u.email}!*\n\nAkun Sparkids:\n🌐 ${location.origin}/auth.html\n📧 Email: ${u.email}\n⭐ Plan: ${(p.plan||'free')==='premium'?'Premium':'Free'}`;
-  navigator.clipboard.writeText(msg).then(()=>alert('✅ Info login tersalin! Paste ke WA/DM.'));
-}
-
-function showAddAlert(type, msg){
-  const el = document.getElementById('addAlert');
-  el.className = 'alert-bar alert-'+(type==='ok'?'ok':'err');
-  el.style.display='block'; el.textContent=msg;
-  if(type==='ok') setTimeout(()=>el.style.display='none', 4000);
-}
-
-// ─── CHANGE PLAN ─────────────────────────────────────────────────────────
-async function changePlan(uid, plan){
-  const p = allProfiles[uid]||{};
-  if(!confirm(`Ubah plan ${p.name||uid} ke ${plan}?`)) return;
-  const { error } = await _db.from('profiles').update({plan}).eq('id', uid);
-  if(error){ alert('❌ Error: '+error.message); return; }
-  allProfiles[uid] = {...allProfiles[uid], plan};
-  renderStats(); renderTable();
-}
-
-// ─── DELETE ──────────────────────────────────────────────────────────────
-async function deleteUser(uid, name){
-  if(!confirm(`Hapus akun "${name}"? Tindakan ini tidak bisa dibatalkan.`)) return;
-  const { error } = await _db.auth.admin.deleteUser(uid);
-  if(error){ alert('❌ Error: '+error.message); return; }
-  allUsers = allUsers.filter(u=>u.id!==uid);
-  delete allProfiles[uid];
-  renderStats(); renderTable();
-}
-
-// ─── SEARCH ──────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', ()=>{
-  const si = document.getElementById('searchInput');
-  if(si) si.addEventListener('input', renderTable);
-  if(localStorage.getItem('spk_admin_auth')==='1') loadAll();
-});
-
-// ─── EXPORT CSV ──────────────────────────────────────────────────────────
-function exportCSV(){
-  const rows = [['ID','Nama','Email','Plan','Dibuat']];
-  allUsers.forEach(u=>{
-    const p = allProfiles[u.id]||{};
-    rows.push([u.id, p.name||'', u.email, p.plan||'free', new Date(u.created_at).toLocaleDateString('id-ID')]);
-  });
-  const csv = rows.map(r=>r.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download = 'sparkids_users_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
-}
-
-// ─── LOGOUT ──────────────────────────────────────────────────────────────
 function adminLogout(){
   localStorage.removeItem('spk_admin_auth');
   location.reload();
 }
+
+if(localStorage.getItem('spk_admin_auth') === '1'){
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+}
+
+async function loadAll(){
+  document.getElementById('userTable').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px;">Memuat...</td></tr>';
+
+  var result = await _db.from('profiles').select('id, email, name, plan, scores');
+
+  if(result.error){
+    document.getElementById('userTable').innerHTML =
+      '<tr><td colspan="5" style="padding:20px;color:#94a3b8;font-size:13px;">'
+      + 'Error: ' + result.error.message + '<br><br>'
+      + 'Login ke <a href="index.html" style="color:#f472b6">Sparkids</a> dulu di tab lain, lalu Refresh.'
+      + '</td></tr>';
+    return;
+  }
+
+  users = result.data || [];
+  renderStats();
+  renderTable();
+}
+
+function renderStats(){
+  var premium = users.filter(function(u){ return u.plan==='premium'||u.plan==='admin'; }).length;
+  document.getElementById('statTotal').textContent = users.length;
+  document.getElementById('statPremium').textContent = premium;
+  document.getElementById('statFree').textContent = users.length - premium;
+}
+
+function renderTable(){
+  var tb = document.getElementById('userTable');
+  if(!users.length){
+    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px;">Belum ada user.</td></tr>';
+    return;
+  }
+  tb.innerHTML = users.map(function(u){
+    var isPrem = u.plan==='premium'||u.plan==='admin';
+    var bcls = isPrem ? 'badge-premium' : 'badge-free';
+    var games = u.scores ? Object.keys(u.scores).length : 0;
+    var email = u.email || u.id.slice(0,12)+'...';
+    return '<tr>'
+      + '<td style="font-size:12px;color:#94a3b8;">' + email + '</td>'
+      + '<td>' + (u.name||'–') + '</td>'
+      + '<td><span class="badge '+bcls+'">' + (u.plan||'free') + '</span></td>'
+      + '<td style="color:#64748b;">' + games + '</td>'
+      + '<td style="display:flex;gap:6px;padding:8px 12px;">'
+      + '<button class="btn-green" onclick="setPlan(\''+u.id+'\',\'premium\')">⭐ Premium</button>'
+      + '<button class="btn-gray" style="padding:5px 12px;font-size:12px;" onclick="setPlan(\''+u.id+'\',\'free\')">Free</button>'
+      + '</td></tr>';
+  }).join('');
+}
+
+async function addUser(){
+  var email = document.getElementById('newEmail').value.trim().toLowerCase();
+  var pass  = document.getElementById('newPass').value;
+  if(!email||!pass){ showAlert('err','Isi email dan password!'); return; }
+  if(pass.length<6){ showAlert('err','Password minimal 6 karakter.'); return; }
+  showAlert('ok','⏳ Membuat akun...');
+  var r = await _db.auth.signUp({ email:email, password:pass,
+    options:{ data:{ name:email.split('@')[0] } }
+  });
+  if(r.error){ showAlert('err','❌ '+r.error.message); return; }
+  if(r.data.user){
+    await _db.from('profiles').upsert({
+      id:r.data.user.id, email:email, name:email.split('@')[0], plan:'premium'
+    });
+  }
+  showAlert('ok','✅ Akun dibuat: '+email);
+  document.getElementById('waTemplate').textContent =
+    'Halo! 👋\n\nAkun Sparkids kamu sudah aktif! ⚡\n\n'
+    +'🌐 Link: [link website kamu]\n📧 Email: '+email+'\n🔑 Password: '+pass
+    +'\n\nLogin dan ajak anak bermain! Kalau ada kendala hubungi kami ya 😊';
+  document.getElementById('newEmail').value='';
+  document.getElementById('newPass').value='';
+  setTimeout(loadAll,1500);
+}
+
+async function setPlan(id, plan){
+  var r = await _db.from('profiles').update({plan:plan}).eq('id',id);
+  if(r.error){ alert('Error: '+r.error.message); return; }
+  loadAll();
+}
+
+function showAlert(type, msg){
+  var el = document.getElementById('addAlert');
+  el.className = 'alert alert-'+(type==='ok'?'ok':'err');
+  el.textContent = msg;
+  el.style.display = 'block';
+  if(type==='ok') setTimeout(function(){ el.style.display='none'; }, 5000);
+}
+
+function copyWA(){
+  var text = document.getElementById('waTemplate').textContent;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){ alert('Pesan berhasil dicopy!'); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');ta.remove();alert('Dicopy!');
+  }
+}
+
+if(localStorage.getItem('spk_admin_auth')==='1') loadAll();
 </script>
 </body>
 </html>
