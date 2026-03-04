@@ -809,6 +809,13 @@ function syncFromDB() {
     // Load profile — async, calls renderDashboard when done
     loadFromDB();
 
+    // Failsafe: if RPC hangs, force-render after 4s so dashboard isn't blank
+    setTimeout(function(){
+      if(document.getElementById('childList') && document.getElementById('childList').innerHTML === '') {
+        renderDashboard();
+      }
+    }, 4000);
+
     // Re-sync when tab becomes visible (back from game on iOS)
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();

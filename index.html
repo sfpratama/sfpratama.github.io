@@ -254,11 +254,19 @@ document.documentElement.style.opacity='0';
 
   function showPage(){ document.documentElement.style.opacity='1'; }
 
+  // Failsafe: always show page within 3s no matter what
+  var _shown = false;
+  function showPageOnce(){ if(!_shown){ _shown=true; showPage(); } }
+  setTimeout(showPageOnce, 3000);
+
   _c.auth.getSession().then(function(res){
     var session = res && res.data && res.data.session;
     if(!session){ location.replace('auth.html?redirect=index.html'); return; }
 
-    // RPC (POST) — bypasses CDN cache, handles auth automatically
+    // Show page immediately — user is logged in, don't wait for profile RPC
+    showPageOnce();
+
+    // Then enrich UI with profile data (non-blocking)
     _c.rpc('get_profile', {p_user_id: session.user.id}).then(function(r2){
       var profile   = r2 && r2.data;
       var plan      = (profile && profile.plan) || 'premium';
@@ -290,9 +298,7 @@ document.documentElement.style.opacity='0';
       }
       var upgradeCard=document.getElementById('upgradeCard');
       if(upgradeCard) upgradeCard.style.display=isPremium?'none':'block';
-
-      showPage();
-    }).catch(function(){ showPage(); });
+    }).catch(function(){});
   }).catch(function(){ location.replace('auth.html?redirect=index.html'); });
 })();
 
