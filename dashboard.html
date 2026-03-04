@@ -499,7 +499,6 @@ var _children     = [];    // profile.children array
 var _activeIdx    = 0;     // which child is selected
 var _premium      = true;  // default true — never block buttons before DB loads
 var _uid              = '';
-var _sessionKidPicked = false;
 
 // ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
 
@@ -548,7 +547,7 @@ async function saveChild() {
     }
 
     cancelChild();
-    loadFromDB(); // re-read from DB
+    readDB(); // re-read from DB
   } catch (e) {
     alert('Error: ' + e.message);
     console.error('saveChild:', e);
@@ -557,22 +556,21 @@ async function saveChild() {
   if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 
-function selectChild(i) {
-  _activeIdx        = i;
-  _sessionKidPicked = true;
+async function selectChild(i) {
+  _activeIdx = i;
+  renderDashboard();
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    Promise.resolve(_db.from('profiles').update({ active_child_id: cid }).eq('id', _uid))
-      .catch(function(e) { console.warn('selectChild:', e); });
+    try {
+      await _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid);
+    } catch(e) { console.warn('selectChild:', e); }
   }
-  renderDashboard();
 }
 
 async function doLogout() {
-  _sessionKidPicked = false;
-  _uid              = '';
-  _children         = [];
-  _activeIdx        = 0;
+  _uid       = '';
+  _children  = [];
+  _activeIdx = 0;
   await _db.auth.signOut();
   location.replace('auth.html');
 }
@@ -729,10 +727,9 @@ function renderDashboard() {
 }
 
 // ── DB FUNCTIONS ─────────────────────────────────────────────────────────────
-// readDB — reads everything from DB and renders.
-// forceActiveFromDB=true  → always set _activeIdx from DB  (page load / new child)
-// forceActiveFromDB=false → keep _activeIdx if user already picked this session
-function readDB(forceActiveFromDB) {
+// readDB — always reads everything fresh from DB and renders.
+// Called on every page load, pageshow, and visibilitychange.
+function readDB() {
   if (!_uid) return;
   _db.from('profiles')
     .select('name, plan, children, scores, weekly, active_child_id')
@@ -744,22 +741,20 @@ function readDB(forceActiveFromDB) {
       _profile  = r.data;
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
-      if (forceActiveFromDB || !_sessionKidPicked) {
-        var cid = String(r.data.active_child_id || '');
-        if (cid && cid !== 'null' && cid !== 'undefined') {
-          var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-          _activeIdx = (ni >= 0) ? ni : 0;
-        } else {
-          _activeIdx = 0;
-        }
+      var cid = String(r.data.active_child_id || '');
+      if (cid && cid !== 'null' && cid !== 'undefined') {
+        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+        _activeIdx = (ni >= 0) ? ni : 0;
+      } else {
+        _activeIdx = 0;
       }
       updateAddChildButton();
       renderDashboard();
     })
-    .catch(function(e) { console.error('readDB error:', e); });
+    .catch(function(e) { console.error('readDB fetch error:', e); });
 }
-function loadFromDB() { readDB(true);  }
-function syncFromDB()  { readDB(false); }
+function loadFromDB() { readDB(); }
+function syncFromDB()  { readDB(); }
 
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
