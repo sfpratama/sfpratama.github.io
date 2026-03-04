@@ -546,8 +546,9 @@ async function saveChild() {
       return;
     }
 
+    localStorage.setItem('sk_active_' + _uid, child.id); // new child is active
     cancelChild();
-    loadFromDB(); // re-read from DB including new active_child_id
+    loadFromDB(); // re-read from DB
   } catch (e) {
     alert('Error: ' + e.message);
     console.error('saveChild:', e);
@@ -560,6 +561,7 @@ function selectChild(i) {
   _activeIdx = i;
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
+    localStorage.setItem('sk_active_' + _uid, cid); // instant, survives navigation
     _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
       .catch(function(e) { console.warn('selectChild:', e); });
   }
@@ -567,6 +569,7 @@ function selectChild(i) {
 }
 
 async function doLogout() {
+  if (_uid) localStorage.removeItem('sk_active_' + _uid);
   _uid       = '';
   _children  = [];
   _activeIdx = 0;
@@ -741,8 +744,11 @@ function loadFromDB() {
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-      // Set active child from DB — this is the ONLY place _activeIdx is set from DB
-      var cid = String(r.data.active_child_id || '');
+      // Check localStorage first (set instantly by selectChild, survives navigation).
+      // Fall back to DB's active_child_id (used on first login or new device).
+      var lsCid = localStorage.getItem('sk_active_' + _uid) || '';
+      var dbCid = String(r.data.active_child_id || '');
+      var cid   = (lsCid && lsCid !== 'null') ? lsCid : dbCid;
       if (cid && cid !== 'null' && cid !== 'undefined') {
         var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
         _activeIdx = (ni >= 0) ? ni : 0;
@@ -805,24 +811,10 @@ function syncFromDB() {
       if (uc) uc.style.display = 'block';
     }
 
-    // Realtime: re-sync when game saves a score
-    _db.channel('dash-' + _uid)
-      .on('postgres_changes', {
-        event: 'UPDATE', schema: 'public', table: 'profiles',
-        filter: 'id=eq.' + _uid
-      }, function() {
-        // Small delay so DB write is committed before we read
-        setTimeout(syncFromDB, 300);
-      })
-      .subscribe();
-
-    // Re-sync when user returns to this tab from playing a game
+    // Re-sync scores when user returns to dashboard from a game
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();
     });
-
-    // Fallback poll every 20s
-    setInterval(syncFromDB, 20000);
 
   } catch (e) {
     console.error('init:', e);
