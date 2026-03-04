@@ -284,9 +284,9 @@ a{text-decoration:none;color:inherit}
     <div class="nav-right">
       <a href="index.html" class="nav-pill">🎮 Main Sekarang</a>
       <div class="nav-pill" id="planBadge">⭐ Free</div>
-      <div class="nav-pill" onclick="doLogout()" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626">
+      <button class="nav-pill" onclick="doLogout()" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626;border:1.5px solid #fca5a5;font-family:inherit;font-size:inherit;font-weight:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent">
         🚪 Keluar
-      </div>
+      </button>
     </div>
   </nav>
 
@@ -532,42 +532,27 @@ function cancelChild() {
   if (sel) sel.selectedIndex = 0;
 }
 
-async function saveChild() {
+function saveChild() {
   var name  = document.getElementById('childNameInput').value.trim();
   var age   = parseInt(document.getElementById('childAgeInput').value) || 5;
   var emoji = (document.getElementById('childEmojiInput') || {}).value || '🦊';
-
   if (!name) { alert('Isi nama anak dulu ya!'); return; }
-
   var btn = document.querySelector('button[onclick="saveChild()"]');
   if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan…'; }
-
-  try {
-    var child = { id: String(Date.now()), name: name, age: age, emoji: emoji,
-                  scores: {}, weekly: [0,0,0,0,0,0,0] };
-    var newList = _children.concat([child]);
-
-    var res = await _db.from('profiles')
-      .update({ children: newList, active_child_id: child.id })
-      .eq('id', _uid);
-
-    if (res.error) {
-      alert('Gagal simpan: ' + res.error.message);
+  var child = { id: String(Date.now()), name: name, age: age, emoji: emoji, scores: {}, weekly: [0,0,0,0,0,0,0] };
+  var newList = _children.concat([child]);
+  _db.from('profiles').update({ children: newList, active_child_id: child.id }).eq('id', _uid)
+    .then(function(res) {
       if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
-      return;
-    }
-
-    cancelChild();
-    // New child is last in array — set active immediately
-    if (_uid) localStorage.setItem('sk_' + _uid, child.id);
-    window._loadActiveCid = child.id;
-    syncFromDB();
-  } catch (e) {
-    alert('Error: ' + e.message);
-    console.error('saveChild:', e);
-  }
-
-  if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
+      if (res.error) { alert('Gagal simpan: ' + res.error.message); return; }
+      cancelChild();
+      if (_uid) localStorage.setItem('sk_' + _uid, child.id);
+      window._loadActiveCid = child.id;
+      syncFromDB();
+    }).catch(function(e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
+      alert('Error: ' + e.message);
+    });
 }
 
 function selectChild(i) {
@@ -584,14 +569,11 @@ function selectChild(i) {
   renderDashboard();
 }
 
-async function doLogout() {
+function doLogout() {
   if (_uid) localStorage.removeItem('sk_' + _uid);
   window._loadActiveCid = null;
-  _uid       = '';
-  _children  = [];
-  _activeIdx = 0;
-  await _db.auth.signOut();
-  location.replace('auth.html');
+  _uid = ''; _children = []; _activeIdx = 0;
+  _db.auth.signOut().then(function(){location.replace('auth.html');}).catch(function(){location.replace('auth.html');});
 }
 
 function showUpgradeInfo() {
@@ -721,6 +703,27 @@ function renderStats(scores, weekly) {
 }
 
 function renderDashboard() {
+  // Fill welcome header here — _profile is loaded by the time renderDashboard runs
+  var email = window._userEmail || '';
+  var uname = (_profile && _profile.name) ? _profile.name : (email ? email.split('@')[0] : '');
+  if (uname) {
+    var wn = document.getElementById('welcomeName');
+    if (wn && wn.textContent !== 'Halo, ' + uname + '! 👋') {
+      wn.textContent = 'Halo, ' + uname + '! 👋';
+    }
+  }
+  if (email) {
+    var ws = document.getElementById('welcomeSub');
+    if (ws) ws.textContent = 'Akun: ' + email + ' · ' + (_premium ? 'Premium ⭐' : 'Free Plan');
+  }
+  var badge = document.getElementById('planBadge');
+  if (badge) {
+    badge.textContent = _premium ? '⭐ Premium' : '🆓 Free';
+    badge.className   = 'nav-pill ' + (_premium ? 'plan-premium' : 'plan-free');
+  }
+  var uc = document.getElementById('upgradeCard');
+  if (uc) uc.style.display = _premium ? 'none' : 'block';
+
   var lbl = document.getElementById('activeChildLabel');
   renderChildren();
 
@@ -788,57 +791,51 @@ function syncFromDB() {
 }
 
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-(async function init() {
-  try {
-    var sess = (await _db.auth.getSession()).data.session;
+// ── INIT (no async/await — iOS Safari silently fails async IIFEs) ───────
+(function init() {
+  _db.auth.getSession().then(function(result) {
+    var sess = result && result.data && result.data.session;
     if (!sess) { location.replace('auth.html'); return; }
     _uid = sess.user.id;
+    window._userEmail = sess.user.email || '';
 
-    // Load profile from DB — sets _activeIdx from active_child_id column
+    // Fill welcome header immediately from session (no DB wait)
+    var uname = (sess.user.email || '').split('@')[0];
+    var wn = document.getElementById('welcomeName');
+    var ws = document.getElementById('welcomeSub');
+    if (wn) wn.textContent = 'Halo, ' + uname + '! 👋';
+    if (ws) ws.textContent = 'Akun: ' + (sess.user.email || '') + ' · Memuat…';
+
+    // Load profile — async, calls renderDashboard when done
     loadFromDB();
 
-    // Fill welcome header
-    var uname = _profile.name || sess.user.email.split('@')[0];
-    function $s(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
-    $s('welcomeName', 'Halo, ' + uname + '! 👋');
-    $s('welcomeSub',  'Akun: ' + sess.user.email + ' · ' + (_premium ? 'Premium ⭐' : 'Free Plan'));
-
-    var badge = document.getElementById('planBadge');
-    if (badge) {
-      badge.textContent = _premium ? '⭐ Premium' : '🆓 Free';
-      badge.className   = 'nav-pill ' + (_premium ? 'plan-premium' : 'plan-free');
-    }
-    if (!_premium) {
-      var uc = document.getElementById('upgradeCard');
-      if (uc) uc.style.display = 'block';
-    }
-
-    // Re-sync scores when tab becomes visible (user switches back from game tab)
+    // Re-sync when tab becomes visible (back from game on iOS)
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();
     });
+    // pageshow fires on iOS bfcache restore (back/forward navigation)
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) {
+        window._loadActiveCid = localStorage.getItem('sk_' + _uid) || '';
+        syncFromDB();
+      }
+    });
 
-    // Re-sync at 1s, 3s, 5s after load — catches scores the game just saved
+    // Re-sync at 1s, 3s, 5s — catches scores the game just saved
     setTimeout(syncFromDB, 1000);
     setTimeout(syncFromDB, 3000);
     setTimeout(syncFromDB, 5000);
 
-    // Realtime: fires whenever game saves a score to DB
+    // Realtime subscription
     _db.channel('scores-' + _uid)
-      .on('postgres_changes', {
-        event: 'UPDATE', schema: 'public', table: 'profiles',
-        filter: 'id=eq.' + _uid
-      }, function() {
-        setTimeout(syncFromDB, 300);
-      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + _uid },
+        function() { setTimeout(syncFromDB, 300); })
       .subscribe();
 
-  } catch (e) {
-    console.error('init:', e);
-    var wn = document.getElementById('welcomeName');
-    if (wn) wn.textContent = 'Error memuat. Coba refresh halaman.';
-  }
+  }).catch(function(e) {
+    console.error('init error:', e);
+    location.replace('auth.html');
+  });
 })();
 </script>
 </body>
