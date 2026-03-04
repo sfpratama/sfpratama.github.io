@@ -686,7 +686,7 @@ function renderStats(scores, weekly) {
   if (recentEl) {
     var played2 = allGames.filter(function(g) { return scores[g.id] != null; });
     recentEl.innerHTML = played2.length > 0
-      ? played2.slice(0, 5).map(function(g) {
+      ? played2.map(function(g) {
           return '<div class="game-row">'
             + '<div class="game-icon" style="background:' + g.color + '">' + g.emoji + '</div>'
             + '<div class="game-info"><div class="game-name">' + g.name + '</div>'
@@ -719,17 +719,12 @@ function renderDashboard() {
   var lbl = document.getElementById('activeChildLabel');
   renderChildren();
 
-  // ── Pick which scores to show ──────────────────────────────────────────────
-  // Priority: active child's scores → fall back to account-level scores
-  // This handles the case where scores were saved to account level
-  // (when active_child_id was empty/missing) but child profiles exist.
+  // ── Pick which scores to show — always use active child's scores directly ────
   var scoresToShow, weeklyToShow;
   if (_children.length > 0) {
     var ac = _children[_activeIdx] || _children[0];
-    var childHasScores = ac.scores && Object.keys(ac.scores).length > 0;
-    scoresToShow = childHasScores ? ac.scores : (_profile.scores || {});
-    var childHasWeekly = ac.weekly && ac.weekly.some(function(v) { return v > 0; });
-    weeklyToShow = childHasWeekly ? ac.weekly : (_profile.weekly || [0,0,0,0,0,0,0]);
+    scoresToShow = ac.scores || {};
+    weeklyToShow = Array.isArray(ac.weekly) ? ac.weekly : [0,0,0,0,0,0,0];
     if (lbl) lbl.textContent = '📊 Progress: ' + ac.name;
   } else {
     scoresToShow = _profile.scores || {};
@@ -826,22 +821,17 @@ function syncFromDB() {
       if (uc) uc.style.display = 'block';
     }
 
-    // Re-sync when tab becomes visible (switching tabs)
+    // Re-sync scores when tab becomes visible (user switches back from game tab)
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();
     });
 
-    // pageshow fires on normal load AND when restored from bfcache (back button)
-    // This is the reliable way to catch navigation back from a game page
-    window.addEventListener('pageshow', function(e) {
-      syncFromDB();
-    });
-
-    // Re-sync at 1s and 3s — catches scores committed just before user navigated back
+    // Re-sync at 1s, 3s, 5s after load — catches scores the game just saved
     setTimeout(syncFromDB, 1000);
     setTimeout(syncFromDB, 3000);
+    setTimeout(syncFromDB, 5000);
 
-    // Realtime: re-sync when game score is saved to DB
+    // Realtime: fires whenever game saves a score to DB
     _db.channel('scores-' + _uid)
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'profiles',
