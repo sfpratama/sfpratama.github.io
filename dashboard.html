@@ -556,15 +556,16 @@ async function saveChild() {
   if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 
-async function selectChild(i) {
+function selectChild(i) {
   _activeIdx = i;
-  renderDashboard(); // update UI immediately so user sees selection
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    // Save to DB — this is the global variable that persists across pages and sessions
-    await _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
+    // Fire and forget — request goes out immediately, no await so navigation never blocks it
+    _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
+      .then(function() {})
       .catch(function(e) { console.warn('selectChild:', e); });
   }
+  renderDashboard();
 }
 
 async function doLogout() {
@@ -727,37 +728,35 @@ function renderDashboard() {
 }
 
 // ── SYNC FROM DB ─────────────────────────────────────────────────────────────
-// Always reads from DB. DB is the single source of truth.
-async function syncFromDB() {
+// Reads DB every time it is called. DB is the single source of truth.
+// No async/await — plain .then() so it always fires without blocking.
+function syncFromDB() {
   if (!_uid) return;
-  try {
-    var r = await _db.from('profiles')
-      .select('name, plan, children, scores, weekly, active_child_id')
-      .eq('id', _uid)
-      .single();
+  _db.from('profiles')
+    .select('name, plan, children, scores, weekly, active_child_id')
+    .eq('id', _uid)
+    .single()
+    .then(function(r) {
+      if (r.error) { console.error('syncFromDB:', r.error.message); return; }
+      if (!r.data)  { console.warn('syncFromDB: no row'); return; }
 
-    if (r.error) { console.error('syncFromDB:', r.error.message); return; }
-    if (!r.data)  { console.warn('syncFromDB: no row'); return; }
+      _profile  = r.data;
+      _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
+      _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-    _profile  = r.data;
-    _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
-    _children = Array.isArray(r.data.children) ? r.data.children : [];
+      // active_child_id is the global variable — read it from DB every time
+      var cid = String(r.data.active_child_id || '');
+      if (cid && cid !== 'null' && cid !== 'undefined') {
+        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+        _activeIdx = (ni >= 0) ? ni : 0;
+      } else {
+        _activeIdx = 0;
+      }
 
-    // active_child_id may be stored as TEXT or BIGINT — coerce both sides
-    var cid = String(r.data.active_child_id || '');
-    if (cid && cid !== 'null' && cid !== 'undefined') {
-      var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-      _activeIdx = (ni >= 0) ? ni : 0;
-      // active_child_id from DB is the source of truth — no local storage needed
-    } else {
-      _activeIdx = 0;
-    }
-
-    updateAddChildButton();
-    renderDashboard();
-  } catch (e) {
-    console.error('syncFromDB exception:', e);
-  }
+      updateAddChildButton();
+      renderDashboard();
+    })
+    .catch(function(e) { console.error('syncFromDB error:', e); });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
@@ -768,7 +767,7 @@ async function syncFromDB() {
     _uid = sess.user.id;
 
     // Load profile from DB
-    await syncFromDB();
+    syncFromDB();
 
     // Fill welcome header
     var uname = _profile.name || sess.user.email.split('@')[0];
