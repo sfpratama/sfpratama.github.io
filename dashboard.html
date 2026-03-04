@@ -480,11 +480,11 @@ const { createClient } = window.supabase;
 const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM', {
   global: {
     fetch: function(url, options) {
-      var opts = Object.assign({}, options, { cache: 'no-store' });
-      opts.headers = Object.assign({}, opts.headers || {}, {
-        'Cache-Control': 'no-cache, no-store',
-        'Pragma': 'no-cache'
-      });
+      // Properly merge Headers object (Supabase passes Headers instance, not plain object)
+      var headers = new Headers(options ? options.headers : {});
+      headers.set('Cache-Control', 'no-cache, no-store');
+      headers.set('Pragma', 'no-cache');
+      var opts = Object.assign({}, options, { cache: 'no-store', headers: headers });
       return fetch(url, opts);
     }
   }
