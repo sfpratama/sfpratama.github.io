@@ -747,51 +747,39 @@ function renderDashboard() {
 // Writes winner back to DB so games always read the right value.
 function loadFromDB() {
   if (!_uid) return;
-  // localStorage first — synchronous, set by selectChild, survives same-session navigation
-  // Falls back to DB value — used after logout/login or on new device
+  // localStorage first — set synchronously by selectChild, survives navigation
   var lsCid = localStorage.getItem('sk_' + _uid) || '';
   if (lsCid && lsCid !== 'null') {
-    // Have a local selection — use it, then sync scores from DB
     window._loadActiveCid = lsCid;
-    syncFromDB();
-  } else {
-    // No local selection — read active_child_id fresh from DB
-    _db.from('profiles').select('active_child_id').eq('id', _uid).single()
-      .then(function(r) {
-        if (r.error) { console.error('loadFromDB error:', r.error.message); return; }
-        var dbCid = String((r.data && r.data.active_child_id) || '');
-        if (dbCid && dbCid !== 'null' && dbCid !== 'undefined') {
-          window._loadActiveCid = dbCid;
-          // Also save to localStorage for future navigations this session
-          localStorage.setItem('sk_' + _uid, dbCid);
-        }
-        syncFromDB();
-      })
-      .catch(function(e) { console.error('loadFromDB error:', e); });
   }
+  // Always sync from DB via RPC (POST — never cached by CDN)
+  syncFromDB();
 }
 
-// syncFromDB — always reads children+scores fresh from DB and renders.
-// _activeIdx is only set from _loadActiveCid (set by loadFromDB on page load).
-// All other calls just refresh data, never touch _activeIdx.
+// syncFromDB — uses RPC (POST request) which is NEVER cached by CDN.
+// This guarantees fresh data every time, unlike GET selects which Supabase CDN caches.
 function syncFromDB() {
   if (!_uid) return;
-  _db.from('profiles')
-    .select('name, plan, children, scores, weekly, active_child_id')
-    .eq('id', _uid)
-    .single()
+  _db.rpc('get_profile', { p_user_id: _uid })
     .then(function(r) {
       if (r.error) { console.error('syncFromDB error:', r.error.message); return; }
       if (!r.data)  { return; }
-      _profile  = r.data;
-      _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
-      _children = Array.isArray(r.data.children) ? r.data.children : [];
-      // Set _activeIdx only on initial page load
+      var d = r.data;
+      _profile  = d;
+      _premium  = (d.plan === 'premium' || d.plan === 'admin');
+      _children = Array.isArray(d.children) ? d.children : [];
+      // Set _activeIdx only when _loadActiveCid is set (page load / child switch)
       if (window._loadActiveCid) {
         var cid = window._loadActiveCid;
         window._loadActiveCid = null;
-        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+        var ni = _children.findIndex(function(c) { return String(c.id) === String(cid); });
         _activeIdx = (ni >= 0) ? ni : 0;
+      }
+      // If no active child set yet, use active_child_id from DB
+      if (_children.length > 0 && !_activeIdx && _activeIdx !== 0) {
+        var dbCid = String(d.active_child_id || '');
+        var ni2 = _children.findIndex(function(c) { return String(c.id) === dbCid; });
+        _activeIdx = (ni2 >= 0) ? ni2 : 0;
       }
       updateAddChildButton();
       renderDashboard();
