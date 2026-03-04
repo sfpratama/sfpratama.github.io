@@ -193,46 +193,67 @@ a{text-decoration:none;color:inherit}
     var session = res && res.data && res.data.session;
     if(!session){ location.replace('auth.html?redirect=index.html'); return; }
 
-    // Use RPC (POST) — never CDN-cached, always fresh name/plan
-    function _fillNav(uid, email) {
-      _c.rpc('get_profile', {p_user_id: uid})
-        .then(function(r){
-          var profile   = r && r.data;
-          var plan      = (profile && profile.plan) || 'premium';
-          var name      = (profile && profile.name) || email.split('@')[0];
-          var isPremium = plan==='premium' || plan==='admin';
+    // Show name from email IMMEDIATELY — never blank waiting for DB
+    var _uid = session.user.id;
+    var _email = session.user.email || '';
+    var _nameEl = document.getElementById('navUserName');
+    var _planEl = document.getElementById('navPlanBadge');
+    if(_nameEl) _nameEl.textContent = '👤 ' + _email.split('@')[0];
 
-          window.__SPARKIDS_PREMIUM = isPremium;
-          window.__SK_SESSION = {userId:uid, email:email, name:name, plan:plan, isPremium:isPremium};
-
-          var nameEl = document.getElementById('navUserName');
-          var planEl = document.getElementById('navPlanBadge');
-          if(nameEl) nameEl.textContent = '👤 ' + name;
-          if(planEl){
-            planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
-            planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
-            planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
-          }
-
-          if(isPremium){
-            document.querySelectorAll('.lock-card').forEach(function(el){
-              el.classList.remove('lock-card');
-              el.style.opacity='1';
-              var lb = el.querySelector('.lock-badge');
-              if(lb) lb.remove();
-              var oc = el.getAttribute('onclick') || '';
-              var m = oc.match(/['"]([^'"]+\.html)['"]/);
-              if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
-            });
-          }
-          var upgradeCard = document.getElementById('upgradeCard');
-          if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
-        }).catch(function(e){ console.error('profile',e); });
+    function _applyProfile(name, plan) {
+      var isPremium = plan==='premium' || plan==='admin';
+      window.__SPARKIDS_PREMIUM = isPremium;
+      window.__SK_SESSION = {userId:_uid, email:_email, name:name, plan:plan, isPremium:isPremium};
+      if(_nameEl) _nameEl.textContent = '👤 ' + name;
+      if(_planEl){
+        _planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
+        _planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
+        _planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
+      }
+      if(isPremium){
+        document.querySelectorAll('.lock-card').forEach(function(el){
+          el.classList.remove('lock-card');
+          el.style.opacity='1';
+          var lb = el.querySelector('.lock-badge');
+          if(lb) lb.remove();
+          var oc = el.getAttribute('onclick') || '';
+          var m = oc.match(/['"]([\w-]+\.html)['"]/);
+          if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
+        });
+      }
+      var upgradeCard = document.getElementById('upgradeCard');
+      if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
     }
-    _fillNav(session.user.id, session.user.email);
-    // Re-fill nav if page restored from iOS bfcache (back/forward navigation)
+
+    function _fillNav() {
+      // Use direct select (no RPC dependency) with explicit no-cache headers
+      _c.from('profiles').select('name,plan').eq('id',_uid).single()
+        .then(function(r){
+          var profile = r && r.data;
+          var plan = (profile && profile.plan) || 'premium';
+          var name = (profile && profile.name) || _email.split('@')[0];
+          _applyProfile(name, plan);
+        })
+        .catch(function(){
+          // DB failed — still show email-based name, default to premium
+          _applyProfile(_email.split('@')[0], 'premium');
+        });
+    }
+    _fillNav();
+
+    // Re-fill nav if page restored from iOS bfcache — getSession fresh, not stale closure
     window.addEventListener('pageshow', function(ev){
-      if(ev.persisted){ _fillNav(session.user.id, session.user.email); }
+      if(ev.persisted){
+        _c.auth.getSession().then(function(res){
+          var s2 = res && res.data && res.data.session;
+          if(!s2){ location.replace('auth.html?redirect=index.html'); return; }
+          _uid = s2.user.id; _email = s2.user.email || '';
+          _nameEl = document.getElementById('navUserName');
+          _planEl = document.getElementById('navPlanBadge');
+          if(_nameEl) _nameEl.textContent = '👤 ' + _email.split('@')[0];
+          _fillNav();
+        });
+      }
     });
   }).catch(function(){ location.replace('auth.html?redirect=index.html'); });
 })();

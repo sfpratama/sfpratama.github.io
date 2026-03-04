@@ -761,33 +761,52 @@ function loadFromDB() {
 
 // syncFromDB — uses RPC (POST request) which is NEVER cached by CDN.
 // This guarantees fresh data every time, unlike GET selects which Supabase CDN caches.
+function _applyProfileData(d) {
+  _profile  = d;
+  _premium  = (d.plan === 'premium' || d.plan === 'admin');
+  _children = Array.isArray(d.children) ? d.children : [];
+  if (window._loadActiveCid) {
+    var cid = window._loadActiveCid;
+    window._loadActiveCid = null;
+    var ni = _children.findIndex(function(c) { return String(c.id) === String(cid); });
+    _activeIdx = (ni >= 0) ? ni : 0;
+  }
+  if (_children.length > 0 && !_activeIdx && _activeIdx !== 0) {
+    var dbCid = String(d.active_child_id || '');
+    var ni2 = _children.findIndex(function(c) { return String(c.id) === dbCid; });
+    _activeIdx = (ni2 >= 0) ? ni2 : 0;
+  }
+  updateAddChildButton();
+  renderDashboard();
+}
+
+function _syncDirect() {
+  // Fallback: direct table select (no RPC dependency)
+  _db.from('profiles')
+    .select('name,plan,children,scores,weekly,active_child_id')
+    .eq('id', _uid).single()
+    .then(function(r2) {
+      if (r2.data) { _applyProfileData(r2.data); }
+      else { renderDashboard(); } // still render even if empty
+    })
+    .catch(function() { renderDashboard(); });
+}
+
 function syncFromDB() {
   if (!_uid) return;
   _db.rpc('get_profile', { p_user_id: _uid })
     .then(function(r) {
-      if (r.error) { console.error('syncFromDB error:', r.error.message); return; }
-      if (!r.data)  { return; }
-      var d = r.data;
-      _profile  = d;
-      _premium  = (d.plan === 'premium' || d.plan === 'admin');
-      _children = Array.isArray(d.children) ? d.children : [];
-      // Set _activeIdx only when _loadActiveCid is set (page load / child switch)
-      if (window._loadActiveCid) {
-        var cid = window._loadActiveCid;
-        window._loadActiveCid = null;
-        var ni = _children.findIndex(function(c) { return String(c.id) === String(cid); });
-        _activeIdx = (ni >= 0) ? ni : 0;
+      if (r.error) {
+        console.warn('syncFromDB RPC error, falling back to direct select:', r.error.message);
+        _syncDirect(); return;
       }
-      // If no active child set yet, use active_child_id from DB
-      if (_children.length > 0 && !_activeIdx && _activeIdx !== 0) {
-        var dbCid = String(d.active_child_id || '');
-        var ni2 = _children.findIndex(function(c) { return String(c.id) === dbCid; });
-        _activeIdx = (ni2 >= 0) ? ni2 : 0;
-      }
-      updateAddChildButton();
-      renderDashboard();
+      if (!r.data) { _syncDirect(); return; }
+      _applyProfileData(r.data);
     })
-    .catch(function(e) { console.error('syncFromDB error:', e); });
+    .catch(function(e) {
+      console.warn('syncFromDB threw, falling back:', e);
+      _syncDirect();
+    });
 }
 
 
@@ -809,12 +828,16 @@ function syncFromDB() {
     // Load profile — async, calls renderDashboard when done
     loadFromDB();
 
-    // Failsafe: if RPC hangs, force-render after 4s so dashboard isn't blank
+    // Failsafe: if all DB calls hang on iOS, force-render after 3s
     setTimeout(function(){
-      if(document.getElementById('childList') && document.getElementById('childList').innerHTML === '') {
-        renderDashboard();
-      }
-    }, 4000);
+      var cl = document.getElementById('childList');
+      if(cl && cl.innerHTML.trim() === '') { renderDashboard(); }
+    }, 3000);
+    // Second failsafe at 7s in case network is very slow
+    setTimeout(function(){
+      var cl = document.getElementById('childList');
+      if(cl && cl.innerHTML.trim() === '') { _syncDirect(); }
+    }, 7000);
 
     // Re-sync when tab becomes visible (back from game on iOS)
     document.addEventListener('visibilitychange', function() {

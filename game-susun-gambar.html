@@ -196,7 +196,20 @@ a{text-decoration:none;color:inherit}
 .slot-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);border-radius:22px}
 .slot.filled .slot-cover{display:none}
 @keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:var(--shadow-card)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(14,165,233,.16),var(--shadow-card)}}
-</style></head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">CREATIVE GAME</div><div class="badge s">PUZZLE VISUAL</div></div><div class="h1">Susun Gambar</div><div class="sub">Susun potongan gambar sederhana sampai membentuk gambar utuh yang benar.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge o" id="rb">Ronde 1</div><div style="font-weight:900">Susun potongan gambar sampai benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Susun gambar menjadi utuh 🧸</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Tap potongan gambar untuk mengisi slot yang kosong</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='ptitle' style='font-weight:900;font-size:24px;margin-bottom:8px'>Susun gambar sesuai contoh di bawah</div><div style='font-weight:800;color:#64748b;margin-bottom:10px'>Contoh urutan gambar</div><div id='pref' class='preview' style='margin-bottom:16px'></div><div class='puzzleboard' id='pboard'></div><div class='pieces' id='pieces'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🧸</div><div class='h2' style='margin-top:10px'>Siap bermain Susun Gambar?</div><div class='sub'>Susun potongan-potongan sederhana sampai gambar menjadi utuh dan benar.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><a class='btn navbtn' href='index.html'>Kembali ke Menu 🎮</a></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#be185d'>Puzzle ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak menyusun gambar lucu dari potongan sederhana dengan langkah yang mudah.</div></div><div class='side-card'><div style='font-weight:900;color:#c2410c'>Satisfying untuk anak</div><div class='sub' style='font-size:14px;margin-top:6px'>Setiap susunan yang benar memberi rasa puas dan membuat anak ingin mencoba gambar lain.</div></div></aside></div></div><script>
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
+(function(){
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  window.__SK=_c;
+  _c.auth.getSession().then(function(res){
+    var sess=res&&res.data&&res.data.session;
+    if(!sess){location.replace('auth.html');return;}
+    window.__SKS={id:sess.user.id,email:sess.user.email};
+  }).catch(function(){location.replace('auth.html');});
+})();
+</script>
+</head><body><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">CREATIVE GAME</div><div class="badge s">PUZZLE VISUAL</div></div><div class="h1">Susun Gambar</div><div class="sub">Susun potongan gambar sederhana sampai membentuk gambar utuh yang benar.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><a href="index.html" class="btn">← Menu</a><div class="badge o" id="rb">Ronde 1</div><div style="font-weight:900">Susun potongan gambar sampai benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Susun gambar menjadi utuh 🧸</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Tap potongan gambar untuk mengisi slot yang kosong</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='ptitle' style='font-weight:900;font-size:24px;margin-bottom:8px'>Susun gambar sesuai contoh di bawah</div><div style='font-weight:800;color:#64748b;margin-bottom:10px'>Contoh urutan gambar</div><div id='pref' class='preview' style='margin-bottom:16px'></div><div class='puzzleboard' id='pboard'></div><div class='pieces' id='pieces'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🧸</div><div class='h2' style='margin-top:10px'>Siap bermain Susun Gambar?</div><div class='sub'>Susun potongan-potongan sederhana sampai gambar menjadi utuh dan benar.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><button class='btn navbtn' onclick='(function(){var b=event.currentTarget;b.disabled=true;b.textContent="Menyimpan...";var go=function(){location.href="index.html";};var p=window._savePromise;if(p&&p.then){var t=setTimeout(go,3000);p.then(function(){clearTimeout(t);go();}).catch(function(){clearTimeout(t);go();});}else{go();}})()'>Kembali ke Menu 🎮</button></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#be185d'>Puzzle ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak menyusun gambar lucu dari potongan sederhana dengan langkah yang mudah.</div></div><div class='side-card'><div style='font-weight:900;color:#c2410c'>Satisfying untuk anak</div><div class='sub' style='font-size:14px;margin-top:6px'>Setiap susunan yang benar memberi rasa puas dan membuat anak ingin mencoba gambar lain.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
@@ -261,6 +274,40 @@ function build(){
 function refreshSlots(){[...e.pboard.children].forEach((sl,idx)=>{sl.classList.toggle('current', idx===s.slot);});}
 function pick(p,b){if(!s.run||b.disabled)return;b.disabled=true;b.classList.add('active');const slots=[...e.pboard.children];const need=s.current.solution[s.slot];if(p===need){slots[s.slot].classList.add('filled');slots[s.slot].querySelector('.slot-cover').textContent='';s.slot++;refreshSlots();if(s.slot>=4){s.score+=12;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);hud();ok(s.streak+1);s.round++;setTimeout(build,700);}}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,750);}}
 function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();clearInterval(s.timerI);s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG();},1000);}
-function endG(){s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
+function endG(){
+(function(){
+  try{
+    var _sk=window.__SK,_ss=window.__SKS;
+    if(!_sk)return;
+    var _sc=Math.round(s.score);
+    var _lsCid=(_ss&&_ss.id)?localStorage.getItem('sk_'+_ss.id)||'':'';
+    function _rawSave(token,uid,cid){
+      var p=fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
+        method:'POST',keepalive:true,
+        headers:{'Content-Type':'application/json',
+          'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',
+          'Authorization':'Bearer '+token,
+          'Prefer':'return=minimal'},
+        body:JSON.stringify({p_user_id:uid,p_child_id:cid,p_game_id:'susun-gambar',p_score:_sc})
+      }).catch(function(){
+        return _sk.rpc('save_game_score',{p_user_id:uid,p_child_id:cid,p_game_id:'susun-gambar',p_score:_sc});
+      });
+      window._savePromise=p;
+      return p;
+    }
+    // Get fresh session at save time — never rely on stale __SKS token
+    window._savePromise=_sk.auth.getSession().then(function(res){
+      var sess=res&&res.data&&res.data.session;
+      if(!sess)return;
+      var uid=sess.user.id;
+      var token=sess.access_token;
+      if(_lsCid&&_lsCid!=='null'){return _rawSave(token,uid,_lsCid);}
+      return _sk.from('profiles').select('active_child_id').eq('id',uid).single()
+        .then(function(r){return _rawSave(token,uid,(r.data&&r.data.active_child_id)||'');})
+        .catch(function(){return _rawSave(token,uid,'');});
+    }).catch(function(e){console.warn('score save failed:',e);});
+  }catch(e){console.warn('score saver:',e);}
+})();
+s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
 go.onclick=startG;again.onclick=startG;hud();build();
 </script></body></html>

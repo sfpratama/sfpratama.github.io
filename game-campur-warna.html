@@ -372,26 +372,34 @@ function endG(){
   (function(){
   try{
     var _sk=window.__SK,_ss=window.__SKS;
-    if(!_sk||!_ss||!_ss.id)return;
+    if(!_sk)return;
     var _sc=Math.round(s.score);
-    // Read active_child_id from localStorage (always fresh, set by dashboard)
-    var _lsCid = localStorage.getItem('sk_' + _ss.id) || '';
-    function _doSave(cid) {
-      // _sk.rpc() uses the Supabase client which handles auth automatically
-      // window._savePromise lets the 'Kembali' button await before navigating
-      var p = _sk.rpc('save_game_score',{p_user_id:_ss.id,p_child_id:cid,p_game_id:'campur-warna',p_score:_sc})
-        .then(function(r){if(r&&r.error)console.warn('save:',r.error.message);});
-      window._savePromise = p;
+    var _lsCid=(_ss&&_ss.id)?localStorage.getItem('sk_'+_ss.id)||'':'';
+    function _rawSave(token,uid,cid){
+      var p=fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
+        method:'POST',keepalive:true,
+        headers:{'Content-Type':'application/json',
+          'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',
+          'Authorization':'Bearer '+token,
+          'Prefer':'return=minimal'},
+        body:JSON.stringify({p_user_id:uid,p_child_id:cid,p_game_id:'campur-warna',p_score:_sc})
+      }).catch(function(){
+        return _sk.rpc('save_game_score',{p_user_id:uid,p_child_id:cid,p_game_id:'campur-warna',p_score:_sc});
+      });
+      window._savePromise=p;
       return p;
     }
-    // Store promise so "Kembali" button can await it before navigating (iOS fix)
-    if (_lsCid && _lsCid !== 'null') {
-      window._savePromise = _doSave(_lsCid);
-    } else {
-      window._savePromise = _sk.from('profiles').select('active_child_id')
-        .eq('id',_ss.id).single()
-        .then(function(r){ return _doSave((r.data&&r.data.active_child_id)||''); });
-    }
+    // Get fresh session at save time — never rely on stale __SKS token
+    window._savePromise=_sk.auth.getSession().then(function(res){
+      var sess=res&&res.data&&res.data.session;
+      if(!sess)return;
+      var uid=sess.user.id;
+      var token=sess.access_token;
+      if(_lsCid&&_lsCid!=='null'){return _rawSave(token,uid,_lsCid);}
+      return _sk.from('profiles').select('active_child_id').eq('id',uid).single()
+        .then(function(r){return _rawSave(token,uid,(r.data&&r.data.active_child_id)||'');})
+        .catch(function(){return _rawSave(token,uid,'');});
+    }).catch(function(e){console.warn('score save failed:',e);});
   }catch(e){console.warn('score saver:',e);}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
