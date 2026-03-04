@@ -553,7 +553,8 @@ async function saveChild() {
     }
 
     cancelChild();
-    // New child is last in array — set active immediately, then sync scores
+    // New child is last in array — set active immediately
+    if (_uid) localStorage.setItem('sk_' + _uid, child.id);
     window._loadActiveCid = child.id;
     syncFromDB();
   } catch (e) {
@@ -564,18 +565,22 @@ async function saveChild() {
   if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 
-async function selectChild(i) {
+function selectChild(i) {
   _activeIdx = i;
-  renderDashboard();
   var cid = String((_children[i] || {}).id || '');
-  if (cid) {
-    try {
-      await _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid);
-    } catch(e) { console.warn('selectChild:', e); }
+  if (cid && _uid) {
+    // localStorage is synchronous — survives navigation even if browser cancels the fetch
+    localStorage.setItem('sk_' + _uid, cid);
+    // Also persist to DB (best-effort, may be cancelled if user navigates immediately)
+    Promise.resolve(
+      _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
+    ).catch(function(e) { console.warn('selectChild DB:', e); });
   }
+  renderDashboard();
 }
 
 async function doLogout() {
+  if (_uid) localStorage.removeItem('sk_' + _uid);
   window._loadActiveCid = null;
   _uid       = '';
   _children  = [];
@@ -737,29 +742,42 @@ function renderDashboard() {
 
 // ── DB FUNCTIONS ─────────────────────────────────────────────────────────────
 // loadFromDB — called ONCE on page load.
-// Does a tiny separate query for active_child_id (always fresh, no cache issues),
-// then calls syncFromDB to load scores/children.
+// localStorage is checked first (set synchronously by selectChild, survives navigation).
+// Falls back to DB's active_child_id (correct on new device / after clearing storage).
+// Writes winner back to DB so games always read the right value.
 function loadFromDB() {
   if (!_uid) return;
-  _db.from('profiles').select('active_child_id').eq('id', _uid).single()
-    .then(function(r) {
-      if (r.error) { console.error('loadFromDB error:', r.error.message); return; }
-      var cid = String((r.data && r.data.active_child_id) || '');
-      if (cid && cid !== 'null' && cid !== 'undefined') {
-        // Store for syncFromDB to apply once children are loaded
-        window._loadActiveCid = cid;
-      }
-      syncFromDB();
-    })
-    .catch(function(e) { console.error('loadFromDB error:', e); });
+  // localStorage first — synchronous, set by selectChild, survives same-session navigation
+  // Falls back to DB value — used after logout/login or on new device
+  var lsCid = localStorage.getItem('sk_' + _uid) || '';
+  if (lsCid && lsCid !== 'null') {
+    // Have a local selection — use it, then sync scores from DB
+    window._loadActiveCid = lsCid;
+    syncFromDB();
+  } else {
+    // No local selection — read active_child_id fresh from DB
+    _db.from('profiles').select('active_child_id').eq('id', _uid).single()
+      .then(function(r) {
+        if (r.error) { console.error('loadFromDB error:', r.error.message); return; }
+        var dbCid = String((r.data && r.data.active_child_id) || '');
+        if (dbCid && dbCid !== 'null' && dbCid !== 'undefined') {
+          window._loadActiveCid = dbCid;
+          // Also save to localStorage for future navigations this session
+          localStorage.setItem('sk_' + _uid, dbCid);
+        }
+        syncFromDB();
+      })
+      .catch(function(e) { console.error('loadFromDB error:', e); });
+  }
 }
 
-// syncFromDB — refreshes children and scores from DB. Never touches _activeIdx
-// EXCEPT on first call after page load when _loadActiveCid is set.
+// syncFromDB — always reads children+scores fresh from DB and renders.
+// _activeIdx is only set from _loadActiveCid (set by loadFromDB on page load).
+// All other calls just refresh data, never touch _activeIdx.
 function syncFromDB() {
   if (!_uid) return;
   _db.from('profiles')
-    .select('name, plan, children, scores, weekly')
+    .select('name, plan, children, scores, weekly, active_child_id')
     .eq('id', _uid)
     .single()
     .then(function(r) {
@@ -768,11 +786,10 @@ function syncFromDB() {
       _profile  = r.data;
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
-      // Only set _activeIdx on initial page load (when _loadActiveCid is set)
-      // All other calls keep _activeIdx exactly as the user left it
+      // Set _activeIdx only on initial page load
       if (window._loadActiveCid) {
         var cid = window._loadActiveCid;
-        window._loadActiveCid = null; // clear — only apply once
+        window._loadActiveCid = null;
         var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
         _activeIdx = (ni >= 0) ? ni : 0;
       }
