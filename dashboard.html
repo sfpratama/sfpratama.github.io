@@ -499,7 +499,6 @@ var _children     = [];    // profile.children array
 var _activeIdx    = 0;     // which child is selected
 var _premium      = true;  // default true — never block buttons before DB loads
 var _uid          = '';
-var _userSelected = false; // true once user explicitly picks a kid this session
 
 // ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
 
@@ -547,9 +546,8 @@ async function saveChild() {
       return;
     }
 
-    _userSelected = true; // new child is now the explicit selection
     cancelChild();
-    syncFromDB(); // re-read from DB — it is the source of truth
+    loadFromDB(); // re-read from DB including new active_child_id
   } catch (e) {
     alert('Error: ' + e.message);
     console.error('saveChild:', e);
@@ -559,8 +557,7 @@ async function saveChild() {
 }
 
 function selectChild(i) {
-  _activeIdx    = i;
-  _userSelected = true; // lock: syncFromDB will not reset this choice
+  _activeIdx = i;
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
     _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
@@ -570,10 +567,9 @@ function selectChild(i) {
 }
 
 async function doLogout() {
-  _userSelected = false;
-  _uid          = '';
-  _children     = [];
-  _activeIdx    = 0;
+  _uid       = '';
+  _children  = [];
+  _activeIdx = 0;
   await _db.auth.signOut();
   location.replace('auth.html');
 }
@@ -729,9 +725,39 @@ function renderDashboard() {
   renderStats(scoresToShow, weeklyToShow);
 }
 
-// ── SYNC FROM DB ─────────────────────────────────────────────────────────────
-// Reads DB every time it is called. DB is the single source of truth.
-// No async/await — plain .then() so it always fires without blocking.
+// ── DB FUNCTIONS ─────────────────────────────────────────────────────────────
+// loadFromDB: called ONCE on page load — reads active_child_id from DB and sets _activeIdx
+function loadFromDB() {
+  if (!_uid) return;
+  _db.from('profiles')
+    .select('name, plan, children, scores, weekly, active_child_id')
+    .eq('id', _uid)
+    .single()
+    .then(function(r) {
+      if (r.error) { console.error('loadFromDB:', r.error.message); return; }
+      if (!r.data)  { console.warn('loadFromDB: no row'); return; }
+
+      _profile  = r.data;
+      _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
+      _children = Array.isArray(r.data.children) ? r.data.children : [];
+
+      // Set active child from DB — this is the ONLY place _activeIdx is set from DB
+      var cid = String(r.data.active_child_id || '');
+      if (cid && cid !== 'null' && cid !== 'undefined') {
+        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+        _activeIdx = (ni >= 0) ? ni : 0;
+      } else {
+        _activeIdx = 0;
+      }
+
+      updateAddChildButton();
+      renderDashboard();
+    })
+    .catch(function(e) { console.error('loadFromDB error:', e); });
+}
+
+// syncFromDB: called on realtime events / visibility change — refreshes scores ONLY
+// NEVER touches _activeIdx so user selection is never overwritten
 function syncFromDB() {
   if (!_uid) return;
   _db.from('profiles')
@@ -745,22 +771,7 @@ function syncFromDB() {
       _profile  = r.data;
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
-
-      // Only restore active child from DB if user has NOT explicitly picked one this session.
-      // If _userSelected is true, the user clicked a child — respect that choice,
-      // just clamp in case children array shrank.
-      if (!_userSelected) {
-        var cid = String(r.data.active_child_id || '');
-        if (cid && cid !== 'null' && cid !== 'undefined') {
-          var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-          _activeIdx = (ni >= 0) ? ni : 0;
-        } else {
-          _activeIdx = 0;
-        }
-      } else {
-        // User already selected — just clamp index to be safe
-        _activeIdx = Math.min(_activeIdx, _children.length - 1);
-      }
+      // _activeIdx intentionally NOT updated here — only selectChild and loadFromDB set it
 
       updateAddChildButton();
       renderDashboard();
@@ -775,8 +786,8 @@ function syncFromDB() {
     if (!sess) { location.replace('auth.html'); return; }
     _uid = sess.user.id;
 
-    // Load profile from DB
-    syncFromDB();
+    // Load profile from DB — sets _activeIdx from active_child_id column
+    loadFromDB();
 
     // Fill welcome header
     var uname = _profile.name || sess.user.email.split('@')[0];
