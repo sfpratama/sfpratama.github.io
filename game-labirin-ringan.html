@@ -262,7 +262,7 @@ a{text-decoration:none;color:inherit}
 document.documentElement.style.opacity='0';
 (async function(){
   try{
-    var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){return fetch(u,Object.assign({},o,{cache:'no-store'}));}}});
+    var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
     window.__SK=_c;
     var sess=(await _c.auth.getSession()).data.session;
     if(!sess){location.replace('auth.html');return;}
@@ -473,20 +473,25 @@ function mazeEnd(){
     var _sk=window.__SK,_ss=window.__SKS;
     if(!_sk||!_ss||!_ss.id)return;
     var _sc=Math.round(mazeState.score);
-    // Fetch active_child_id fresh from DB then save score atomically
-    _sk.from('profiles').select('active_child_id')
-      .eq('id',_ss.id).single()
-      .then(function(r){
-        var cid=(r.data&&r.data.active_child_id)||'';
-        _sk.rpc('save_game_score',{
-          p_user_id:_ss.id,
-          p_child_id:cid,
-          p_game_id:'labirin-ringan',
-          p_score:_sc
-        }).then(function(r2){
-          if(r2.error)console.warn('score save error:',r2.error);
-        });
+    // Read active_child_id from localStorage (always fresh, set by dashboard)
+    var _lsCid = localStorage.getItem('sk_' + _ss.id) || '';
+    function _doSave(cid) {
+      _sk.rpc('save_game_score',{
+        p_user_id:_ss.id,
+        p_child_id:cid,
+        p_game_id:'labirin-ringan',
+        p_score:_sc
+      }).then(function(r2){
+        if(r2.error)console.warn('score save error:',r2.error);
       });
+    }
+    if (_lsCid && _lsCid !== 'null') {
+      _doSave(_lsCid);
+    } else {
+      _sk.from('profiles').select('active_child_id')
+        .eq('id',_ss.id).single()
+        .then(function(r){ _doSave((r.data&&r.data.active_child_id)||''); });
+    }
   }catch(e){console.warn('score saver:',e);}
 })();
   mazeEls.end.classList.remove('hidden');
