@@ -480,9 +480,12 @@ const { createClient } = window.supabase;
 const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM', {
   global: {
     fetch: function(url, options) {
-      // Add timestamp to bust CDN cache on every request
-      var bust = (url.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
-      return fetch(url + bust, Object.assign({}, options, { cache: 'no-store' }));
+      var opts = Object.assign({}, options, { cache: 'no-store' });
+      opts.headers = Object.assign({}, opts.headers || {}, {
+        'Cache-Control': 'no-cache, no-store',
+        'Pragma': 'no-cache'
+      });
+      return fetch(url, opts);
     }
   }
 });
