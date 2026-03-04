@@ -498,7 +498,8 @@ var _profile      = {};    // raw profile row from DB
 var _children     = [];    // profile.children array
 var _activeIdx    = 0;     // which child is selected
 var _premium      = true;  // default true — never block buttons before DB loads
-var _uid          = '';
+var _uid              = '';
+var _sessionKidPicked = false;
 
 // ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
 
@@ -546,7 +547,6 @@ async function saveChild() {
       return;
     }
 
-    localStorage.setItem('sk_active_' + _uid, child.id); // new child is active
     cancelChild();
     loadFromDB(); // re-read from DB
   } catch (e) {
@@ -558,10 +558,10 @@ async function saveChild() {
 }
 
 function selectChild(i) {
-  _activeIdx = i;
+  _activeIdx        = i;
+  _sessionKidPicked = true;
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    localStorage.setItem('sk_active_' + _uid, cid); // instant, survives navigation
     Promise.resolve(_db.from('profiles').update({ active_child_id: cid }).eq('id', _uid))
       .catch(function(e) { console.warn('selectChild:', e); });
   }
@@ -569,10 +569,10 @@ function selectChild(i) {
 }
 
 async function doLogout() {
-  if (_uid) localStorage.removeItem('sk_active_' + _uid);
-  _uid       = '';
-  _children  = [];
-  _activeIdx = 0;
+  _sessionKidPicked = false;
+  _uid              = '';
+  _children         = [];
+  _activeIdx        = 0;
   await _db.auth.signOut();
   location.replace('auth.html');
 }
@@ -729,61 +729,38 @@ function renderDashboard() {
 }
 
 // ── DB FUNCTIONS ─────────────────────────────────────────────────────────────
-// loadFromDB: called ONCE on page load — reads active_child_id from DB and sets _activeIdx
-function loadFromDB() {
+// readDB — reads everything from DB and renders.
+// forceActiveFromDB=true  → always set _activeIdx from DB  (page load / new child)
+// forceActiveFromDB=false → keep _activeIdx if user already picked this session
+function readDB(forceActiveFromDB) {
   if (!_uid) return;
   _db.from('profiles')
     .select('name, plan, children, scores, weekly, active_child_id')
     .eq('id', _uid)
     .single()
     .then(function(r) {
-      if (r.error) { console.error('loadFromDB:', r.error.message); return; }
-      if (!r.data)  { console.warn('loadFromDB: no row'); return; }
-
+      if (r.error) { console.error('readDB error:', r.error.message); return; }
+      if (!r.data)  { console.warn('readDB: no row'); return; }
       _profile  = r.data;
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
-
-      // Check localStorage first (set instantly by selectChild, survives navigation).
-      // Fall back to DB's active_child_id (used on first login or new device).
-      var lsCid = localStorage.getItem('sk_active_' + _uid) || '';
-      var dbCid = String(r.data.active_child_id || '');
-      var cid   = (lsCid && lsCid !== 'null') ? lsCid : dbCid;
-      if (cid && cid !== 'null' && cid !== 'undefined') {
-        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-        _activeIdx = (ni >= 0) ? ni : 0;
-      } else {
-        _activeIdx = 0;
+      if (forceActiveFromDB || !_sessionKidPicked) {
+        var cid = String(r.data.active_child_id || '');
+        if (cid && cid !== 'null' && cid !== 'undefined') {
+          var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+          _activeIdx = (ni >= 0) ? ni : 0;
+        } else {
+          _activeIdx = 0;
+        }
       }
-
       updateAddChildButton();
       renderDashboard();
     })
-    .catch(function(e) { console.error('loadFromDB error:', e); });
+    .catch(function(e) { console.error('readDB error:', e); });
 }
+function loadFromDB() { readDB(true);  }
+function syncFromDB()  { readDB(false); }
 
-// syncFromDB: called on realtime events / visibility change — refreshes scores ONLY
-// NEVER touches _activeIdx so user selection is never overwritten
-function syncFromDB() {
-  if (!_uid) return;
-  _db.from('profiles')
-    .select('name, plan, children, scores, weekly, active_child_id')
-    .eq('id', _uid)
-    .single()
-    .then(function(r) {
-      try {
-        if (r.error) { console.error('syncFromDB:', r.error.message); return; }
-        if (!r.data)  { console.warn('syncFromDB: no row'); return; }
-        _profile  = r.data;
-        _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
-        _children = Array.isArray(r.data.children) ? r.data.children : [];
-        // _activeIdx intentionally NOT updated — only selectChild and loadFromDB set it
-        updateAddChildButton();
-        renderDashboard();
-      } catch(e) { console.error('syncFromDB render error:', e); }
-    })
-    .catch(function(e) { console.error('syncFromDB fetch error:', e); });
-}
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 (async function init() {
