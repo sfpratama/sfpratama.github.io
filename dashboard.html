@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard – Sparkids</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#f472b6"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg1:#fde68a;--bg2:#fbcfe8;--bg3:#bfdbfe;--bg4:#bbf7d0;
+  --ink:#1f2937;--muted:#64748b;--line:#fce7f3;
+  --white:rgba(255,255,255,.88);
+  --shadow:0 18px 48px rgba(15,23,42,.14);
+  --card:0 10px 28px rgba(15,23,42,.10);
+  --pink:#f472b6;--sky:#38bdf8;--lime:#84cc16;--orange:#fb923c;--violet:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:'Nunito',sans-serif;color:var(--ink)}
+body{
+  background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 22%,var(--bg3) 48%,var(--bg4) 72%,#fef3c7 100%);
+  min-height:100vh;padding-bottom:40px;
+}
+a{text-decoration:none;color:inherit}
+.orb{position:fixed;border-radius:999px;filter:blur(42px);pointer-events:none;opacity:.28;z-index:0}
+.o1{width:200px;height:200px;left:-50px;top:-30px;background:white}
+.o2{width:180px;height:180px;right:-30px;top:100px;background:#f9a8d4}
+.o3{width:160px;height:160px;left:60px;bottom:40px;background:#fde68a}
+.o4{width:180px;height:180px;right:40px;bottom:20px;background:#93c5fd}
+
+.shell{max-width:1200px;margin:0 auto;padding:16px;position:relative;z-index:1}
+
+/* CARD BASE */
+.card,.panel,.topbar{
+  background:var(--white);backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,.9);border-radius:28px;
+  box-shadow:var(--shadow);
+}
+.card{padding:22px}
+.panel{padding:18px}
+
+/* TOP NAV */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 20px;flex-wrap:wrap;margin-bottom:18px;
+}
+.brand-nav{display:flex;align-items:center;gap:12px}
+.brand-icon{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,#fce7f3,#fef3c7);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  box-shadow:var(--card);
+}
+.brand-name{font-family:'Fredoka One',cursive;font-size:1.2rem;color:#111827}
+.brand-name span{color:#ef4444}
+.nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:999px;font-size:12px;font-weight:900;
+  background:white;box-shadow:var(--card);border:1px solid #fce7f3;
+  cursor:pointer;transition:transform .14s,box-shadow .14s;
+}
+.nav-pill:hover{transform:translateY(-2px)}
+.plan-badge{
+  padding:7px 14px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.04em;
+}
+.plan-free{background:#e0f2fe;color:#0369a1}
+.plan-premium{background:linear-gradient(135deg,#fce7f3,#fef3c7);color:#be185d;border:1px solid #fbcfe8}
+
+/* WELCOME HERO */
+.welcome{
+  background:linear-gradient(135deg,#fce7f3 0%,#fef3c7 50%,#e0f2fe 100%);
+  border:2px solid rgba(255,255,255,.9);border-radius:28px;
+  padding:24px 28px;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+}
+.welcome-left{display:flex;align-items:center;gap:16px}
+.avatar-big{
+  width:64px;height:64px;border-radius:20px;
+  background:linear-gradient(135deg,#fce7f3,#fde68a);
+  display:flex;align-items:center;justify-content:center;font-size:36px;
+  box-shadow:var(--card);flex-shrink:0;
+  animation:bob 2.8s ease-in-out infinite;
+}
+.welcome-title{font-family:'Fredoka One',cursive;font-size:clamp(1.2rem,2.5vw,1.7rem);color:var(--ink)}
+.welcome-sub{font-size:13px;font-weight:700;color:var(--muted);margin-top:4px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+@media(min-width:600px){.stats-row{grid-template-columns:repeat(4,1fr)}}
+.stat-card{
+  background:var(--white);backdrop-filter:blur(14px);
+  border:2px solid rgba(255,255,255,.9);border-radius:24px;
+  padding:16px;box-shadow:var(--card);text-align:center;
+}
+.stat-icon{font-size:28px;margin-bottom:6px}
+.stat-val{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--ink);line-height:1}
+.stat-label{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* MAIN GRID */
+.main-grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:900px){.main-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}}
+
+/* SKILL BARS */
+.skill-title{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.skill-item{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.skill-head{display:flex;justify-content:space-between;align-items:center}
+.skill-name{font-size:14px;font-weight:800}
+.skill-pct{font-size:13px;font-weight:900;color:var(--muted)}
+.skill-bar{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+.skill-fill{height:100%;border-radius:999px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.fill-pink{background:linear-gradient(90deg,#f472b6,#fb7185)}
+.fill-sky{background:linear-gradient(90deg,#38bdf8,#818cf8)}
+.fill-lime{background:linear-gradient(90deg,#84cc16,#22d3ee)}
+.fill-orange{background:linear-gradient(90deg,#fb923c,#fbbf24)}
+
+/* RECENT GAMES */
+.game-row{
+  display:flex;align-items:center;gap:12px;padding:12px;
+  border-radius:18px;background:rgba(255,255,255,.7);
+  margin-bottom:8px;transition:transform .12s;cursor:default;
+}
+.game-row:hover{transform:translateX(3px)}
+.game-icon{
+  width:48px;height:48px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  box-shadow:0 4px 12px rgba(15,23,42,.1);
+}
+.game-info{flex:1;min-width:0}
+.game-name{font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-meta{font-size:12px;font-weight:700;color:var(--muted)}
+.game-score{
+  font-family:'Fredoka One',cursive;font-size:1.3rem;
+  padding:4px 12px;border-radius:999px;background:white;
+  box-shadow:0 4px 10px rgba(15,23,42,.08);
+}
+
+/* CHILD PROFILES */
+.child-card{
+  display:flex;align-items:center;gap:12px;padding:14px;
+  border-radius:22px;background:rgba(255,255,255,.7);
+  border:2px solid transparent;cursor:pointer;transition:all .15s;margin-bottom:10px;
+}
+.child-card.active{border-color:#f9a8d4;background:rgba(252,231,243,.6)}
+.child-card:hover{transform:translateY(-2px);box-shadow:var(--card)}
+.child-avatar{
+  width:52px;height:52px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 4px 12px rgba(15,23,42,.1);flex-shrink:0;
+}
+.child-name{font-size:15px;font-weight:900}
+.child-age{font-size:12px;font-weight:700;color:var(--muted)}
+
+/* WEEKLY CHART */
+.week-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:12px}
+.week-bar{
+  flex:1;border-radius:8px 8px 0 0;
+  background:linear-gradient(to top,#f472b6,#fde68a);
+  min-height:4px;transition:height 1s cubic-bezier(.22,1,.36,1);
+  position:relative;cursor:default;
+}
+.week-bar:hover::after{
+  content:attr(data-val);
+  position:absolute;top:-24px;left:50%;transform:translateX(-50%);
+  background:white;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:900;
+  box-shadow:0 4px 10px rgba(15,23,42,.1);white-space:nowrap;
+}
+.week-labels{display:flex;gap:6px;margin-top:6px}
+.week-label{flex:1;text-align:center;font-size:10px;font-weight:900;color:var(--muted)}
+
+/* PREMIUM UPGRADE CARD */
+.upgrade-card{
+  background:linear-gradient(135deg,#fce7f3,#fef3c7);
+  border:2px solid #fbcfe8;border-radius:28px;padding:22px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.upgrade-card::before{
+  content:'✨';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.12;
+}
+.upgrade-title{font-family:'Fredoka One',cursive;font-size:1.3rem;color:#be185d}
+.upgrade-sub{font-size:13px;font-weight:700;color:#475569;margin-top:6px;line-height:1.5}
+.upgrade-btn{
+  display:inline-block;margin-top:14px;
+  background:linear-gradient(135deg,#f472b6,#fb7185);
+  color:white;border:none;border-radius:999px;
+  padding:12px 24px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;
+  cursor:pointer;box-shadow:0 8px 20px rgba(244,114,182,.4);
+  transition:transform .14s,box-shadow .14s;
+}
+.upgrade-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(244,114,182,.5)}
+
+/* GAMES GRID */
+.games-section{margin-top:18px}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:14px
+}
+.section-title{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.games-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(min-width:600px){.games-mini{grid-template-columns:repeat(3,1fr)}}
+.game-mini{
+  position:relative;padding:14px 10px;border-radius:20px;
+  text-align:center;cursor:pointer;transition:transform .14s,box-shadow .14s;
+  border:2px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(15,23,42,.08);
+}
+.game-mini:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(15,23,42,.12)}
+.game-mini-emoji{font-size:28px;margin-bottom:6px}
+.game-mini-name{font-size:11px;font-weight:900;line-height:1.3}
+.lock-overlay{
+  position:absolute;inset:0;border-radius:18px;
+  background:rgba(255,255,255,.6);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+
+/* SECTION TAG */
+.sec-tag{font-size:10px;font-weight:900;letter-spacing:.06em;padding:4px 10px;border-radius:999px;margin-bottom:10px;display:inline-block}
+.tag-focus{background:#fce7f3;color:#be185d}
+.tag-brain{background:#e0f2fe;color:#0369a1}
+.tag-creative{background:#ecfccb;color:#3f6212}
+
+/* STREAK WIDGET */
+.streak-row{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.streak-day{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;
+  font-size:10px;
+}
+.streak-done{background:linear-gradient(135deg,#fde68a,#f472b6);color:white;box-shadow:0 4px 10px rgba(244,114,182,.3)}
+.streak-missed{background:#f1f5f9;color:#94a3b8}
+.streak-today{background:linear-gradient(135deg,#f472b6,#818cf8);color:white;box-shadow:0 6px 14px rgba(244,114,182,.4);transform:scale(1.1)}
+
+/* LOGOUT MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);
+  backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal-box{
+  background:white;border-radius:28px;border:3px solid #fce7f3;
+  padding:28px;text-align:center;max-width:340px;width:90%;
+  box-shadow:0 20px 60px rgba(15,23,42,.2);animation:popIn .22s ease-out;
+}
+.modal-title{font-family:'Fredoka One',cursive;font-size:1.4rem;margin-bottom:8px}
+.modal-sub{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+.m-btn{
+  padding:11px 22px;border-radius:999px;font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:900;cursor:pointer;border:none;
+  transition:transform .12s;
+}
+.m-btn:hover{transform:translateY(-2px)}
+.m-cancel{background:#f1f5f9;color:var(--ink)}
+.m-confirm{background:linear-gradient(135deg,#f472b6,#fb7185);color:white;box-shadow:0 6px 16px rgba(244,114,182,.35)}
+
+/* ADD CHILD FORM */
+.add-child-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 16px;
+  border-radius:18px;border:2px dashed #fbcfe8;background:transparent;
+  cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;
+  color:#db2777;transition:background .14s;width:100%;
+}
+.add-child-btn:hover{background:rgba(252,231,243,.5)}
+
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}
+@keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-slide{animation:fadeSlide .4s ease-out}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+
+<div class="shell">
+
+  <!-- TOP NAV -->
+  <nav class="topbar">
+    <div class="brand-nav">
+      <div class="brand-icon">🐻</div>
+      <div class="brand-name">Spar<span>kids</span></div>
+    </div>
+    <div class="nav-right">
+      <a href="index.html" class="nav-pill">🎮 Main Sekarang</a>
+      <div class="nav-pill" id="planBadge">⭐ Free</div>
+      <div class="nav-pill" onclick="doLogout()" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626">
+        🚪 Keluar
+      </div>
+    </div>
+  </nav>
+
+  <!-- WELCOME HERO -->
+  <div class="welcome fade-slide" id="welcomeBar">
+    <div class="welcome-left">
+      <div class="avatar-big">👨‍👩‍👧</div>
+      <div>
+        <div class="welcome-title" id="welcomeName">Halo, Parent! 👋</div>
+        <div class="welcome-sub" id="welcomeSub">Pantau perkembangan anak hari ini</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="text-align:center;padding:10px 18px;background:white;border-radius:18px;box-shadow:var(--card)">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.5rem" id="streakCount">0</div>
+        <div style="font-size:11px;font-weight:900;color:var(--muted)">HARI STREAK 🔥</div>
+      </div>
+      <div style="text-align:center;padding:10px 18px;background:white;border-radius:18px;box-shadow:var(--card)">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.5rem" id="totalGames">0</div>
+        <div style="font-size:11px;font-weight:900;color:var(--muted)">TOTAL MAIN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row fade-slide">
+    <div class="stat-card">
+      <div class="stat-icon">🎮</div>
+      <div class="stat-val" id="statGamesPlayed">0</div>
+      <div class="stat-label">Game Dimainkan</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-val" id="statMinutes">0m</div>
+      <div class="stat-label">Waktu Bermain</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-val" id="statBestScore">-</div>
+      <div class="stat-label">Skor Terbaik</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-val" id="statRank">-</div>
+      <div class="stat-label">Peringkat</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid fade-slide">
+
+    <!-- LEFT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- SKILL DEVELOPMENT -->
+      <div class="card">
+        <div class="skill-title" id="activeChildLabel">📊 Perkembangan Skill Anak</div>
+        <div id="skillBars">
+          <div class="skill-item">
+            <div class="skill-head">
+              <div class="skill-name">🎯 Fokus & Konsentrasi</div>
+              <div class="skill-pct" id="skillFocus">0%</div>
+            </div>
+            <div class="skill-bar"><div class="skill-fill fill-pink" id="barFocus" style="width:0%"></div></div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-head">
+              <div class="skill-name">🧠 Kemampuan Berpikir</div>
+              <div class="skill-pct" id="skillBrain">0%</div>
+            </div>
+            <div class="skill-bar"><div class="skill-fill fill-sky" id="barBrain" style="width:0%"></div></div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-head">
+              <div class="skill-name">🎨 Kreativitas & Sensori</div>
+              <div class="skill-pct" id="skillCreative">0%</div>
+            </div>
+            <div class="skill-bar"><div class="skill-fill fill-lime" id="barCreative" style="width:0%"></div></div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-head">
+              <div class="skill-name">⚡ Kecepatan Respon</div>
+              <div class="skill-pct" id="skillSpeed">0%</div>
+            </div>
+            <div class="skill-bar"><div class="skill-fill fill-orange" id="barSpeed" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY ACTIVITY -->
+      <div class="card">
+        <div class="skill-title">📅 Aktivitas Minggu Ini</div>
+        <div class="week-chart" id="weekChart">
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+          <div class="week-bar" style="height:10%" data-val="0 game"></div>
+        </div>
+        <div class="week-labels">
+          <div class="week-label">Sen</div><div class="week-label">Sel</div>
+          <div class="week-label">Rab</div><div class="week-label">Kam</div>
+          <div class="week-label">Jum</div><div class="week-label">Sab</div>
+          <div class="week-label">Min</div>
+        </div>
+      </div>
+
+      <!-- RECENT GAMES -->
+      <div class="card">
+        <div class="skill-title">🕹️ Game Terakhir Dimainkan</div>
+        <div id="recentGames">
+          <div style="text-align:center;padding:24px;color:var(--muted);font-weight:700">
+            Belum ada riwayat game 🎮<br/>
+            <small>Ajak anak mulai bermain sekarang!</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- CHILD PROFILES -->
+      <div class="card">
+        <div class="skill-title">👶 Profil Anak</div>
+        <div id="childList"></div>
+        <button id="addChildBtn" class="add-child-btn" onclick="showAddChild()">➕ Tambah Profil Anak</button>
+
+
+        <!-- ADD CHILD FORM (hidden) -->
+        <div id="addChildForm" style="display:none;margin-top:14px;padding:16px;background:rgba(252,231,243,.4);border-radius:18px;border:2px solid #fce7f3">
+          <div style="font-size:13px;font-weight:900;margin-bottom:10px;color:#be185d">Data Anak Baru</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input id="childNameInput" placeholder="Nama anak" style="padding:10px 14px;border-radius:12px;border:2px solid #fce7f3;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none"/>
+            <input id="childAgeInput" type="number" min="2" max="12" placeholder="Usia (2-12 tahun)" style="padding:10px 14px;border-radius:12px;border:2px solid #fce7f3;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none"/>
+            <select id="childEmojiInput" style="padding:10px 14px;border-radius:12px;border:2px solid #fce7f3;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;outline:none">
+              <option value="🦊">🦊 Rubah</option>
+              <option value="🐸">🐸 Katak</option>
+              <option value="🐰">🐰 Kelinci</option>
+              <option value="🦁">🦁 Singa</option>
+              <option value="🐻">🐻 Beruang</option>
+              <option value="🦄">🦄 Unicorn</option>
+              <option value="🐧">🐧 Pinguin</option>
+              <option value="🐼">🐼 Panda</option>
+            </select>
+            <div style="display:flex;gap:8px">
+              <button onclick="saveChild()" style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,#f472b6,#fb7185);color:white;border:none;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer">Simpan</button>
+              <button onclick="cancelChild()" style="padding:10px 16px;border-radius:12px;background:#f1f5f9;border:none;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer;color:var(--ink)">Batal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STREAK CALENDAR -->
+      <div class="card">
+        <div class="skill-title">🔥 Streak Bermain</div>
+        <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px">Bermain rutin setiap hari untuk menjaga streak!</div>
+        <div class="streak-row" id="streakDays"></div>
+      </div>
+
+      <!-- GAMES OVERVIEW -->
+      <div class="card">
+        <div class="skill-title">🎮 Semua Game</div>
+        <div id="gamesPlanNotice"></div>
+        <div class="games-mini" id="gamesMini"></div>
+      </div>
+
+      <!-- UPGRADE CARD (free only) -->
+      <div class="upgrade-card" id="upgradeCard" style="display:none">
+        <div class="upgrade-title">🌟 Upgrade ke Premium</div>
+        <div class="upgrade-sub">Buka semua 9 game + fitur laporan progress detail untuk anak kamu!</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left">
+          <div style="font-size:13px;font-weight:800;color:#475569">✅ Semua 9 mini game</div>
+          <div style="font-size:13px;font-weight:800;color:#475569">✅ Progress tracking detail</div>
+          <div style="font-size:13px;font-weight:800;color:#475569">✅ Laporan skill bulanan</div>
+          <div style="font-size:13px;font-weight:800;color:#475569">✅ Bisa sampai 3 profil anak</div>
+        </div>
+        <button class="upgrade-btn" onclick="showUpgradeInfo()">Upgrade Sekarang ✨</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SPARKIDS DASHBOARD ───────────────────────────────────────────────────────
+const { createClient } = window.supabase;
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+
+const allGames = [
+  {id:'pop-warna',        name:'Pop Warna',     emoji:'🫧', color:'#fce7f3', cat:'focus',   catColor:'#be185d', free:true,  file:'game-pop-warna.html'},
+  {id:'ingat-urutan',     name:'Ingat Urutan',  emoji:'🧠', color:'#e0f2fe', cat:'focus',   catColor:'#0369a1', free:false, file:'game-ingat-urutan.html'},
+  {id:'cari-yang-berbeda',name:'Cari Berbeda',  emoji:'🔎', color:'#ede9fe', cat:'focus',   catColor:'#7c3aed', free:false, file:'game-cari-yang-berbeda.html'},
+  {id:'temukan-pola',     name:'Temukan Pola',  emoji:'🧩', color:'#e0f2fe', cat:'brain',   catColor:'#0369a1', free:false, file:'game-temukan-pola.html'},
+  {id:'labirin-ringan',   name:'Labirin',       emoji:'🌀', color:'#ecfccb', cat:'brain',   catColor:'#3f6212', free:false, file:'game-labirin-ringan.html'},
+  {id:'hitung-cepat',     name:'Hitung Cepat',  emoji:'➕', color:'#ffedd5', cat:'brain',   catColor:'#a16207', free:true,  file:'game-hitung-cepat-baseline.html'},
+  {id:'campur-warna',     name:'Campur Warna',  emoji:'🎨', color:'#ffedd5', cat:'creative',catColor:'#c2410c', free:false, file:'game-campur-warna.html'},
+  {id:'warna-ajaib',      name:'Warna Ajaib',   emoji:'🧸', color:'#fce7f3', cat:'creative',catColor:'#be185d', free:false, file:'game-warna-ajaib.html'},
+  {id:'cari-pasangan',    name:'Cari Pasangan', emoji:'🔊', color:'#ede9fe', cat:'sensory', catColor:'#7c3aed', free:true,  file:'game-cari-pasangan-bunyi-gambar.html'},
+];
+
+function rank(s){ return s>=160?'S':s>=130?'A':s>=90?'B':s>=50?'C':'D'; }
+
+// ── MODULE STATE ─────────────────────────────────────────────────────────────
+var _profile      = {};    // raw profile row from DB
+var _children     = [];    // profile.children array
+var _activeIdx    = 0;     // which child is selected
+var _premium      = true;  // default true — never block buttons before DB loads
+var _uid              = '';
+
+// ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
+
+function updateAddChildButton() {
+  var btn = document.getElementById('addChildBtn');
+  if (btn) btn.style.display = _children.length >= 5 ? 'none' : '';
+}
+
+function showAddChild() {
+  if (_children.length >= 5) return;
+  document.getElementById('addChildForm').style.display = 'block';
+  setTimeout(function() { document.getElementById('childNameInput').focus(); }, 60);
+}
+
+function cancelChild() {
+  document.getElementById('addChildForm').style.display = 'none';
+  document.getElementById('childNameInput').value = '';
+  document.getElementById('childAgeInput').value  = '';
+  var sel = document.getElementById('childEmojiInput');
+  if (sel) sel.selectedIndex = 0;
+}
+
+async function saveChild() {
+  var name  = document.getElementById('childNameInput').value.trim();
+  var age   = parseInt(document.getElementById('childAgeInput').value) || 5;
+  var emoji = (document.getElementById('childEmojiInput') || {}).value || '🦊';
+
+  if (!name) { alert('Isi nama anak dulu ya!'); return; }
+
+  var btn = document.querySelector('button[onclick="saveChild()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan…'; }
+
+  try {
+    var child = { id: String(Date.now()), name: name, age: age, emoji: emoji,
+                  scores: {}, weekly: [0,0,0,0,0,0,0] };
+    var newList = _children.concat([child]);
+
+    var res = await _db.from('profiles')
+      .update({ children: newList, active_child_id: child.id })
+      .eq('id', _uid);
+
+    if (res.error) {
+      alert('Gagal simpan: ' + res.error.message);
+      if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
+      return;
+    }
+
+    cancelChild();
+    // New child is last in array — set active immediately, then sync scores
+    window._loadActiveCid = child.id;
+    syncFromDB();
+  } catch (e) {
+    alert('Error: ' + e.message);
+    console.error('saveChild:', e);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; }
+}
+
+async function selectChild(i) {
+  _activeIdx = i;
+  renderDashboard();
+  var cid = String((_children[i] || {}).id || '');
+  if (cid) {
+    try {
+      await _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid);
+    } catch(e) { console.warn('selectChild:', e); }
+  }
+}
+
+async function doLogout() {
+  window._loadActiveCid = null;
+  _uid       = '';
+  _children  = [];
+  _activeIdx = 0;
+  await _db.auth.signOut();
+  location.replace('auth.html');
+}
+
+function showUpgradeInfo() {
+  alert('🌟 Upgrade ke Premium!\n\nHubungi kami:\n• WhatsApp: [nomor_wa]\n• Email: support@sparkids.id');
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+
+function renderChildren() {
+  var el = document.getElementById('childList');
+  if (!el) return;
+  if (_children.length === 0) {
+    el.innerHTML = '<div style="font-size:13px;font-weight:700;color:#64748b;padding:10px 0">'
+      + 'Belum ada profil anak. Klik ➕ Tambah di bawah untuk mulai! 👇</div>';
+    return;
+  }
+  el.innerHTML = _children.map(function(ch, i) {
+    var active  = (i === _activeIdx);
+    var scores  = ch.scores || {};
+    var vals    = Object.values(scores);
+    var played  = vals.length;
+    var best    = played > 0 ? Math.max.apply(null, vals) : 0;
+    return '<div class="child-card' + (active ? ' active' : '') + '" '
+      + 'onclick="selectChild(' + i + ')" style="cursor:pointer">'
+      + '<div class="child-avatar" style="background:linear-gradient(135deg,#fce7f3,#fef3c7)">'
+      + (ch.emoji || '🦊') + '</div>'
+      + '<div style="flex:1;min-width:0">'
+        + '<div class="child-name">' + ch.name + '</div>'
+        + '<div class="child-age">Usia ' + ch.age + ' tahun'
+        + (played > 0 ? ' · ' + played + ' game · Best ' + best : '') + '</div>'
+      + '</div>'
+      + '<div style="margin-left:auto;padding:4px 12px;font-size:12px;font-weight:900;'
+        + 'border-radius:999px;white-space:nowrap;'
+        + 'background:' + (active ? '#0ea5e9' : 'white') + ';'
+        + 'color:' + (active ? 'white' : '#0369a1') + ';'
+        + 'box-shadow:0 2px 8px rgba(0,0,0,.08)">'
+        + (active ? '✅ Aktif' : 'Pilih')
+      + '</div></div>';
+  }).join('');
+}
+
+function renderStats(scores, weekly) {
+  scores = scores || {};
+  weekly = (Array.isArray(weekly) && weekly.length === 7) ? weekly : [0,0,0,0,0,0,0];
+
+  var vals   = Object.values(scores);
+  var played = vals.length;
+  var best   = played > 0 ? Math.max.apply(null, vals) : 0;
+  var mins   = vals.reduce(function(a, v) { return a + Math.round((v || 0) / 10); }, 0);
+
+  function $set(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+  $set('statGamesPlayed', played);
+  $set('statMinutes',     mins + 'm');
+  $set('statBestScore',   best || '–');
+  $set('statRank',        rank(best));
+  $set('totalGames',      played);
+  $set('streakCount',     weekly.filter(function(v) { return v > 0; }).length);
+
+  function catPct(ids) {
+    var p = ids.filter(function(id) { return scores[id] != null; }).length;
+    var a = ids.reduce(function(s, id) { return s + (scores[id] || 0); }, 0) / ids.length;
+    return Math.min(100, Math.round((p / ids.length) * 60 + a / 2));
+  }
+  var bars = [
+    ['barFocus',    'skillFocus',    catPct(['pop-warna','ingat-urutan','cari-yang-berbeda'])],
+    ['barBrain',    'skillBrain',    catPct(['temukan-pola','labirin-ringan','hitung-cepat'])],
+    ['barCreative', 'skillCreative', catPct(['campur-warna','warna-ajaib','cari-pasangan'])],
+    ['barSpeed',    'skillSpeed',    Math.min(100, Math.round((best / 200) * 100))],
+  ];
+  setTimeout(function() {
+    bars.forEach(function(row) {
+      var b = document.getElementById(row[0]); if (b) b.style.width = row[2] + '%';
+      var l = document.getElementById(row[1]); if (l) l.textContent = row[2] + '%';
+    });
+  }, 60);
+
+  var maxW = Math.max.apply(null, weekly.concat([1]));
+  setTimeout(function() {
+    document.querySelectorAll('.week-bar').forEach(function(b, i) {
+      b.style.height = Math.max(5, (weekly[i] / maxW) * 100) + '%';
+      b.setAttribute('data-val', weekly[i] + ' game');
+    });
+  }, 80);
+
+  var days = ['S','S','R','K','J','S','M'];
+  var todayIdx = (new Date().getDay() + 6) % 7;
+  var streakEl = document.getElementById('streakDays');
+  if (streakEl) {
+    streakEl.innerHTML = '';
+    for (var d = 0; d < 7; d++) {
+      var cls = d === todayIdx ? 'streak-today' : weekly[d] > 0 ? 'streak-done' : 'streak-missed';
+      streakEl.innerHTML += '<div class="streak-day ' + cls + '">' + days[d] + '</div>';
+    }
+  }
+
+  var recentEl = document.getElementById('recentGames');
+  if (recentEl) {
+    var played2 = allGames.filter(function(g) { return scores[g.id] != null; });
+    recentEl.innerHTML = played2.length > 0
+      ? played2.slice(0, 5).map(function(g) {
+          return '<div class="game-row">'
+            + '<div class="game-icon" style="background:' + g.color + '">' + g.emoji + '</div>'
+            + '<div class="game-info"><div class="game-name">' + g.name + '</div>'
+            + '<div class="game-meta">' + g.cat.toUpperCase() + ' · Rank ' + rank(scores[g.id]) + '</div></div>'
+            + '<div class="game-score" style="color:' + g.catColor + '">' + scores[g.id] + '</div>'
+            + '</div>';
+        }).join('')
+      : '<div style="font-size:13px;font-weight:700;color:#94a3b8;padding:8px 0">'
+        + 'Belum ada game dimainkan. Yuk mulai! 🎮</div>';
+  }
+
+  var miniEl = document.getElementById('gamesMini');
+  if (miniEl) {
+    miniEl.innerHTML = allGames.map(function(g) {
+      var can = _premium || g.free;
+      return '<div class="game-mini" style="background:' + g.color + '" '
+        + 'onclick="' + (can ? "location.href='" + g.file + "'" : 'showUpgradeInfo()') + '">'
+        + '<div class="game-mini-emoji">' + g.emoji + '</div>'
+        + '<div class="game-mini-name">' + g.name + '</div>'
+        + (scores[g.id] != null
+            ? '<div style="font-size:10px;font-weight:900;margin-top:4px;color:'
+              + g.catColor + '">' + scores[g.id] + ' pts</div>' : '')
+        + (can ? '' : '<div class="lock-overlay">🔒</div>')
+        + '</div>';
+    }).join('');
+  }
+}
+
+function renderDashboard() {
+  var lbl = document.getElementById('activeChildLabel');
+  renderChildren();
+
+  // ── Pick which scores to show ──────────────────────────────────────────────
+  // Priority: active child's scores → fall back to account-level scores
+  // This handles the case where scores were saved to account level
+  // (when active_child_id was empty/missing) but child profiles exist.
+  var scoresToShow, weeklyToShow;
+  if (_children.length > 0) {
+    var ac = _children[_activeIdx] || _children[0];
+    var childHasScores = ac.scores && Object.keys(ac.scores).length > 0;
+    scoresToShow = childHasScores ? ac.scores : (_profile.scores || {});
+    var childHasWeekly = ac.weekly && ac.weekly.some(function(v) { return v > 0; });
+    weeklyToShow = childHasWeekly ? ac.weekly : (_profile.weekly || [0,0,0,0,0,0,0]);
+    if (lbl) lbl.textContent = '📊 Progress: ' + ac.name;
+  } else {
+    scoresToShow = _profile.scores || {};
+    weeklyToShow = _profile.weekly || [0,0,0,0,0,0,0];
+    if (lbl) lbl.textContent = '📊 Perkembangan Skill';
+  }
+
+  renderStats(scoresToShow, weeklyToShow);
+}
+
+// ── DB FUNCTIONS ─────────────────────────────────────────────────────────────
+// loadFromDB — called ONCE on page load.
+// Does a tiny separate query for active_child_id (always fresh, no cache issues),
+// then calls syncFromDB to load scores/children.
+function loadFromDB() {
+  if (!_uid) return;
+  _db.from('profiles').select('active_child_id').eq('id', _uid).single()
+    .then(function(r) {
+      if (r.error) { console.error('loadFromDB error:', r.error.message); return; }
+      var cid = String((r.data && r.data.active_child_id) || '');
+      if (cid && cid !== 'null' && cid !== 'undefined') {
+        // Store for syncFromDB to apply once children are loaded
+        window._loadActiveCid = cid;
+      }
+      syncFromDB();
+    })
+    .catch(function(e) { console.error('loadFromDB error:', e); });
+}
+
+// syncFromDB — refreshes children and scores from DB. Never touches _activeIdx
+// EXCEPT on first call after page load when _loadActiveCid is set.
+function syncFromDB() {
+  if (!_uid) return;
+  _db.from('profiles')
+    .select('name, plan, children, scores, weekly')
+    .eq('id', _uid)
+    .single()
+    .then(function(r) {
+      if (r.error) { console.error('syncFromDB error:', r.error.message); return; }
+      if (!r.data)  { return; }
+      _profile  = r.data;
+      _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
+      _children = Array.isArray(r.data.children) ? r.data.children : [];
+      // Only set _activeIdx on initial page load (when _loadActiveCid is set)
+      // All other calls keep _activeIdx exactly as the user left it
+      if (window._loadActiveCid) {
+        var cid = window._loadActiveCid;
+        window._loadActiveCid = null; // clear — only apply once
+        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+        _activeIdx = (ni >= 0) ? ni : 0;
+      }
+      updateAddChildButton();
+      renderDashboard();
+    })
+    .catch(function(e) { console.error('syncFromDB error:', e); });
+}
+
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async function init() {
+  try {
+    var sess = (await _db.auth.getSession()).data.session;
+    if (!sess) { location.replace('auth.html'); return; }
+    _uid = sess.user.id;
+
+    // Load profile from DB — sets _activeIdx from active_child_id column
+    loadFromDB();
+
+    // Fill welcome header
+    var uname = _profile.name || sess.user.email.split('@')[0];
+    function $s(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+    $s('welcomeName', 'Halo, ' + uname + '! 👋');
+    $s('welcomeSub',  'Akun: ' + sess.user.email + ' · ' + (_premium ? 'Premium ⭐' : 'Free Plan'));
+
+    var badge = document.getElementById('planBadge');
+    if (badge) {
+      badge.textContent = _premium ? '⭐ Premium' : '🆓 Free';
+      badge.className   = 'nav-pill ' + (_premium ? 'plan-premium' : 'plan-free');
+    }
+    if (!_premium) {
+      var uc = document.getElementById('upgradeCard');
+      if (uc) uc.style.display = 'block';
+    }
+
+    // Re-sync when tab becomes visible (switching tabs)
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') syncFromDB();
+    });
+
+    // pageshow fires on normal load AND when restored from bfcache (back button)
+    // This is the reliable way to catch navigation back from a game page
+    window.addEventListener('pageshow', function(e) {
+      syncFromDB();
+    });
+
+    // Re-sync at 1s and 3s — catches scores committed just before user navigated back
+    setTimeout(syncFromDB, 1000);
+    setTimeout(syncFromDB, 3000);
+
+    // Realtime: re-sync when game score is saved to DB
+    _db.channel('scores-' + _uid)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'profiles',
+        filter: 'id=eq.' + _uid
+      }, function() {
+        setTimeout(syncFromDB, 300);
+      })
+      .subscribe();
+
+  } catch (e) {
+    console.error('init:', e);
+    var wn = document.getElementById('welcomeName');
+    if (wn) wn.textContent = 'Error memuat. Coba refresh halaman.';
+  }
+})();
+</script>
+</body>
+</html>
