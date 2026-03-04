@@ -477,7 +477,13 @@ a{text-decoration:none;color:inherit}
 <script>
 // ── SPARKIDS DASHBOARD ───────────────────────────────────────────────────────
 const { createClient } = window.supabase;
-const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM', {
+  global: {
+    fetch: function(url, options) {
+      return fetch(url, Object.assign({}, options, { cache: 'no-store' }));
+    }
+  }
+});
 
 const allGames = [
   {id:'pop-warna',        name:'Pop Warna',     emoji:'🫧', color:'#fce7f3', cat:'focus',   catColor:'#be185d', free:true,  file:'game-pop-warna.html'},
