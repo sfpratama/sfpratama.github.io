@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rumah Main Fokus, Brain & Creative Games</title><script src="https://cdn.tailwindcss.com"></script><style>
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Platform untuk Anak Bermain, Belajar, dan Berkembang</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -9,13 +9,15 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:'Nunito',sans-serif;
   color:var(--ink);
   background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 22%,var(--bg3) 48%,var(--bg4) 72%,#fef3c7 100%);
   overflow-x:hidden;
   -webkit-tap-highlight-color:transparent;
 }
 a{text-decoration:none;color:inherit}
+.brand-name{font-family:'Fredoka One',cursive;font-size:1.3rem;font-weight:400;letter-spacing:.01em;color:#111827}
+.brand-name span{color:#ef4444}
 .shell{max-width:1240px;margin:0 auto;padding:16px;position:relative;z-index:1}
 .orb{position:fixed;border-radius:999px;filter:blur(42px);pointer-events:none;opacity:.34;z-index:0}
 .o1{width:160px;height:160px;left:20px;top:20px;background:white}
@@ -180,43 +182,86 @@ a{text-decoration:none;color:inherit}
 @keyframes flashCorrect{0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)}}
 @keyframes flashWrong{0%{filter:brightness(1)}50%{filter:brightness(.85)}100%{filter:brightness(1)}}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-</head><body><script>
+<script>
+// No async/await — Safari iOS silently kills async IIFEs
+// No opacity:0 trick — page always visible, never blank
 (function(){
-  var _c = window.supabase.createClient(
-    'https://hxfqvbjfezzwtngfdqdv.supabase.co',
-    'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM'
-  );
+  var _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
   window.__SK_CLIENT = _c;
+
   _c.auth.getSession().then(function(res){
-    var sess = res && res.data && res.data.session;
-    if(!sess){ location.replace('auth.html?redirect=index.html'); return; }
-    _c.rpc('get_profile',{p_user_id:sess.user.id}).then(function(r){
-      var d=r&&r.data, plan=(d&&d.plan)||'premium', name=(d&&d.name)||sess.user.email.split('@')[0];
-      var isPrem=plan==='premium'||plan==='admin';
-      window.__SPARKIDS_PREMIUM=isPrem;
-      window.__SK_SESSION={userId:sess.user.id,email:sess.user.email,name:name,plan:plan,isPremium:isPrem};
-      var ne=document.getElementById('navUserName'), pe=document.getElementById('navPlanBadge');
-      if(ne) ne.textContent='👤 '+name;
-      if(pe){ pe.textContent=isPrem?'⭐ Premium':'🆓 Free'; pe.style.background=isPrem?'#fde68a':'#e0f2fe'; pe.style.color=isPrem?'#854d0e':'#0369a1'; }
-      if(isPrem) document.querySelectorAll('.lock-card').forEach(function(el){
-        el.classList.remove('lock-card'); el.style.opacity='1';
-        var lb=el.querySelector('.lock-badge'); if(lb)lb.remove();
-        var m=(el.getAttribute('onclick')||'').match(/['"]([^'"]+\.html)['"]/);
-        if(m){el.removeAttribute('onclick');el.onclick=function(){location.href=m[1];};}
-      });
-      var uc=document.getElementById('upgradeCard'); if(uc)uc.style.display=isPrem?'none':'block';
-    }).catch(function(){});
+    var session = res && res.data && res.data.session;
+    if(!session){ location.replace('auth.html?redirect=index.html'); return; }
+
+    // Page is already visible — enrich nav non-blocking
+    _c.from('profiles').select('name,plan').eq('id',session.user.id).single()
+      .then(function(r){
+        var profile   = r && r.data;
+        var plan      = (profile && profile.plan) || 'premium';
+        var name      = (profile && profile.name) || session.user.email.split('@')[0];
+        var isPremium = plan==='premium' || plan==='admin';
+
+        window.__SPARKIDS_PREMIUM = isPremium;
+        window.__SK_SESSION = {userId:session.user.id, email:session.user.email, name:name, plan:plan, isPremium:isPremium};
+
+        var nameEl = document.getElementById('navUserName');
+        var planEl = document.getElementById('navPlanBadge');
+        if(nameEl) nameEl.textContent = '👤 ' + name;
+        if(planEl){
+          planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
+          planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
+          planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
+        }
+
+        if(isPremium){
+          document.querySelectorAll('.lock-card').forEach(function(el){
+            el.classList.remove('lock-card');
+            el.style.opacity='1';
+            var lb = el.querySelector('.lock-badge');
+            if(lb) lb.remove();
+            var oc = el.getAttribute('onclick') || '';
+            var m = oc.match(/['"]([^'"]+\.html)['"]/);
+            if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
+          });
+        }
+        var upgradeCard = document.getElementById('upgradeCard');
+        if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
+      }).catch(function(e){ console.error('profile',e); });
   }).catch(function(){ location.replace('auth.html?redirect=index.html'); });
 })();
-function doLogout(){ if(window.__SK_CLIENT)window.__SK_CLIENT.auth.signOut().then(function(){location.replace('auth.html');}); }
+
+function doLogout(){
+  if(window.__SK_CLIENT) window.__SK_CLIENT.auth.signOut().then(function(){ location.replace('auth.html'); });
+}
 </script>
-<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
-<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-yellow">RUMAH MAIN ANAK</div><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Rumah Main Fokus, Brain & Creative Games</div><div class="sub">Pilih kategori permainan favorit anak. Semua game dibuat singkat, visual, dan mudah dipahami agar terasa seru untuk anak sekaligus informatif untuk parent.</div></div><button class="sound"></button></div></div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+</head><body>
+<nav style="position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);border-bottom:2px solid #fce7f3;
+  padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <div class="brand-name" style="flex:1;min-width:100px">
+    🐻 Spar<span>kids</span>
+  </div>
+  <span id="navUserName" style="font-size:13px;font-weight:900;color:#475569;
+    background:#f1f5f9;padding:5px 12px;border-radius:999px">👤 ...</span>
+  <span id="navPlanBadge" style="font-size:12px;font-weight:900;
+    background:#e0f2fe;color:#0369a1;padding:5px 12px;border-radius:999px">⭐ ...</span>
+  <a href="dashboard.html" style="font-size:12px;font-weight:900;color:#0369a1;
+    background:white;border:2px solid #bae6fd;padding:5px 12px;border-radius:999px;text-decoration:none">
+    📊 Dashboard</a>
+  <button onclick="doLogout()" style="font-size:12px;font-weight:900;color:#dc2626;
+    background:#fef2f2;border:2px solid #fca5a5;padding:5px 12px;border-radius:999px;cursor:pointer">
+    🚪 Keluar</button>
+</nav><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell">
+<div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><div class="badge b-pink">FOCUS GAMES</div><div class="badge b-sky">BRAIN GAMES</div><div class="badge b-orange">CREATIVE & SENSORY</div></div><div class="h1">Platform untuk Anak Bermain, Belajar, dan Berkembang</div><div class="sub">9 mini game interaktif yang dirancang untuk membantu anak fokus, berpikir, dan bereksplorasi — singkat, visual, dan seru dimainkan berulang.</div></div><button class="sound"></button></div></div>
 <div class="grid g2" style="margin-top:18px">
 <section class="card">
   <div class="hero">
     <div>
-      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Bimo!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px"><div class="mascot">🐻</div><div><div style="font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#db2777">Halo, aku Sparky!</div><div style="margin-top:4px;color:#475569;font-weight:700;line-height:1.5">Aku teman main lucu yang membantu anak memilih permainan sesuai mood: fokus, berpikir, atau eksplorasi kreatif.</div></div></div>
       <div class="h2" style="margin-top:18px">Pilih kategori permainan</div>
       <div class="sub">Menu ini dibagi menjadi 3 kategori utama. Parent bisa memilih game sesuai tujuan bermain, sementara anak bisa langsung tertarik karena visualnya cerah, lucu, dan mudah dipahami.</div>
     </div>
