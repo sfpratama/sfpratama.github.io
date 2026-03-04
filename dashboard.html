@@ -494,11 +494,12 @@ const allGames = [
 function rank(s){ return s>=160?'S':s>=130?'A':s>=90?'B':s>=50?'C':'D'; }
 
 // ── MODULE STATE ─────────────────────────────────────────────────────────────
-var _profile   = {};   // raw profile row from DB
-var _children  = [];   // profile.children array
-var _activeIdx = 0;    // which child is selected
-var _premium   = true; // default true — never block buttons before DB loads
-var _uid       = '';
+var _profile      = {};    // raw profile row from DB
+var _children     = [];    // profile.children array
+var _activeIdx    = 0;     // which child is selected
+var _premium      = true;  // default true — never block buttons before DB loads
+var _uid          = '';
+var _userSelected = false; // true once user explicitly picks a kid this session
 
 // ── FUNCTIONS MUST BE GLOBAL (called from HTML onclick) ──────────────────────
 
@@ -546,8 +547,7 @@ async function saveChild() {
       return;
     }
 
-    // Mark new child as active in localStorage immediately
-    localStorage.setItem('sparkids_active_' + _uid, child.id);
+    _userSelected = true; // new child is now the explicit selection
     cancelChild();
     syncFromDB(); // re-read from DB — it is the source of truth
   } catch (e) {
@@ -559,12 +559,10 @@ async function saveChild() {
 }
 
 function selectChild(i) {
-  _activeIdx = i;
+  _activeIdx    = i;
+  _userSelected = true; // lock: syncFromDB will not reset this choice
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    // Write to localStorage FIRST — survives page navigation instantly
-    localStorage.setItem('sparkids_active_' + _uid, cid);
-    // Also persist to DB
     _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
       .catch(function(e) { console.warn('selectChild:', e); });
   }
@@ -572,11 +570,10 @@ function selectChild(i) {
 }
 
 async function doLogout() {
-  // Clear active child from localStorage on logout
-  if (_uid) localStorage.removeItem('sparkids_active_' + _uid);
-  _uid = '';
-  _children = [];
-  _activeIdx = 0;
+  _userSelected = false;
+  _uid          = '';
+  _children     = [];
+  _activeIdx    = 0;
   await _db.auth.signOut();
   location.replace('auth.html');
 }
@@ -749,17 +746,20 @@ function syncFromDB() {
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-      // Resolve active child:
-      // localStorage is the instant write (survives navigation even if DB update was in-flight)
-      // Fall back to DB value if localStorage has nothing
-      var localCid = localStorage.getItem('sparkids_active_' + _uid) || '';
-      var dbCid    = String(r.data.active_child_id || '');
-      var cid      = localCid || dbCid;
-      if (cid && cid !== 'null' && cid !== 'undefined') {
-        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-        _activeIdx = (ni >= 0) ? ni : 0;
+      // Only restore active child from DB if user has NOT explicitly picked one this session.
+      // If _userSelected is true, the user clicked a child — respect that choice,
+      // just clamp in case children array shrank.
+      if (!_userSelected) {
+        var cid = String(r.data.active_child_id || '');
+        if (cid && cid !== 'null' && cid !== 'undefined') {
+          var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+          _activeIdx = (ni >= 0) ? ni : 0;
+        } else {
+          _activeIdx = 0;
+        }
       } else {
-        _activeIdx = 0;
+        // User already selected — just clamp index to be safe
+        _activeIdx = Math.min(_activeIdx, _children.length - 1);
       }
 
       updateAddChildButton();
