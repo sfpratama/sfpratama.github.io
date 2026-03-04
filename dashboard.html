@@ -771,18 +771,18 @@ function syncFromDB() {
     .eq('id', _uid)
     .single()
     .then(function(r) {
-      if (r.error) { console.error('syncFromDB:', r.error.message); return; }
-      if (!r.data)  { console.warn('syncFromDB: no row'); return; }
-
-      _profile  = r.data;
-      _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
-      _children = Array.isArray(r.data.children) ? r.data.children : [];
-      // _activeIdx intentionally NOT updated here — only selectChild and loadFromDB set it
-
-      updateAddChildButton();
-      renderDashboard();
+      try {
+        if (r.error) { console.error('syncFromDB:', r.error.message); return; }
+        if (!r.data)  { console.warn('syncFromDB: no row'); return; }
+        _profile  = r.data;
+        _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
+        _children = Array.isArray(r.data.children) ? r.data.children : [];
+        // _activeIdx intentionally NOT updated — only selectChild and loadFromDB set it
+        updateAddChildButton();
+        renderDashboard();
+      } catch(e) { console.error('syncFromDB render error:', e); }
     })
-    .catch(function(e) { console.error('syncFromDB error:', e); });
+    .catch(function(e) { console.error('syncFromDB fetch error:', e); });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
@@ -811,14 +811,20 @@ function syncFromDB() {
       if (uc) uc.style.display = 'block';
     }
 
-    // Re-sync scores when user returns to this tab (same tab, no reload)
+    // Re-sync when tab becomes visible (switching tabs)
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();
     });
 
-    // Re-sync scores 1.5s after page load — catches game scores that committed
-    // just before the user navigated back (full page reload misses visibilitychange)
-    setTimeout(syncFromDB, 1500);
+    // pageshow fires on normal load AND when restored from bfcache (back button)
+    // This is the reliable way to catch navigation back from a game page
+    window.addEventListener('pageshow', function(e) {
+      syncFromDB();
+    });
+
+    // Re-sync at 1s and 3s — catches scores committed just before user navigated back
+    setTimeout(syncFromDB, 1000);
+    setTimeout(syncFromDB, 3000);
 
     // Realtime: re-sync when game score is saved to DB
     _db.channel('scores-' + _uid)
