@@ -380,7 +380,7 @@ document.documentElement.style.opacity='0';
           </div>
           <div style="margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap">
             <button class="cta" id="again">Main Lagi 🎈</button>
-            <a class="btn navbtn" href="index.html">Kembali ke Menu 🎮</a>
+            <button class="btn navbtn" onclick="(function(){var b=event.currentTarget;b.disabled=true;b.textContent='Menyimpan...';var go=function(){location.href='index.html';};var p=window._savePromise;if(p&&p.then){var t=setTimeout(go,3000);p.then(function(){clearTimeout(t);go();}).catch(function(){clearTimeout(t);go();});}else{go();}})()">Kembali ke Menu 🎮</button>
           </div>
         </div>
       </div>
@@ -590,7 +590,7 @@ function warnaEnd(){
     // Read active_child_id from localStorage (always fresh, set by dashboard)
     var _lsCid = localStorage.getItem('sk_' + _ss.id) || '';
     function _doSave(cid) {
-      _sk.rpc('save_game_score',{
+      return _sk.rpc('save_game_score',{
         p_user_id:_ss.id,
         p_child_id:cid,
         p_game_id:'warna-ajaib',
@@ -599,12 +599,13 @@ function warnaEnd(){
         if(r2.error)console.warn('score save error:',r2.error);
       });
     }
+    // Store promise so "Kembali" button can await it before navigating (iOS fix)
     if (_lsCid && _lsCid !== 'null') {
-      _doSave(_lsCid);
+      window._savePromise = _doSave(_lsCid);
     } else {
-      _sk.from('profiles').select('active_child_id')
+      window._savePromise = _sk.from('profiles').select('active_child_id')
         .eq('id',_ss.id).single()
-        .then(function(r){ _doSave((r.data&&r.data.active_child_id)||''); });
+        .then(function(r){ return _doSave((r.data&&r.data.active_child_id)||''); });
     }
   }catch(e){console.warn('score saver:',e);}
 })();
