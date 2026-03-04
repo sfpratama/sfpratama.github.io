@@ -193,40 +193,47 @@ a{text-decoration:none;color:inherit}
     var session = res && res.data && res.data.session;
     if(!session){ location.replace('auth.html?redirect=index.html'); return; }
 
-    // Page is already visible — enrich nav non-blocking
-    _c.from('profiles').select('name,plan').eq('id',session.user.id).single()
-      .then(function(r){
-        var profile   = r && r.data;
-        var plan      = (profile && profile.plan) || 'premium';
-        var name      = (profile && profile.name) || session.user.email.split('@')[0];
-        var isPremium = plan==='premium' || plan==='admin';
+    // Use RPC (POST) — never CDN-cached, always fresh name/plan
+    function _fillNav(uid, email) {
+      _c.rpc('get_profile', {p_user_id: uid})
+        .then(function(r){
+          var profile   = r && r.data;
+          var plan      = (profile && profile.plan) || 'premium';
+          var name      = (profile && profile.name) || email.split('@')[0];
+          var isPremium = plan==='premium' || plan==='admin';
 
-        window.__SPARKIDS_PREMIUM = isPremium;
-        window.__SK_SESSION = {userId:session.user.id, email:session.user.email, name:name, plan:plan, isPremium:isPremium};
+          window.__SPARKIDS_PREMIUM = isPremium;
+          window.__SK_SESSION = {userId:uid, email:email, name:name, plan:plan, isPremium:isPremium};
 
-        var nameEl = document.getElementById('navUserName');
-        var planEl = document.getElementById('navPlanBadge');
-        if(nameEl) nameEl.textContent = '👤 ' + name;
-        if(planEl){
-          planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
-          planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
-          planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
-        }
+          var nameEl = document.getElementById('navUserName');
+          var planEl = document.getElementById('navPlanBadge');
+          if(nameEl) nameEl.textContent = '👤 ' + name;
+          if(planEl){
+            planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
+            planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
+            planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
+          }
 
-        if(isPremium){
-          document.querySelectorAll('.lock-card').forEach(function(el){
-            el.classList.remove('lock-card');
-            el.style.opacity='1';
-            var lb = el.querySelector('.lock-badge');
-            if(lb) lb.remove();
-            var oc = el.getAttribute('onclick') || '';
-            var m = oc.match(/['"]([^'"]+\.html)['"]/);
-            if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
-          });
-        }
-        var upgradeCard = document.getElementById('upgradeCard');
-        if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
-      }).catch(function(e){ console.error('profile',e); });
+          if(isPremium){
+            document.querySelectorAll('.lock-card').forEach(function(el){
+              el.classList.remove('lock-card');
+              el.style.opacity='1';
+              var lb = el.querySelector('.lock-badge');
+              if(lb) lb.remove();
+              var oc = el.getAttribute('onclick') || '';
+              var m = oc.match(/['"]([^'"]+\.html)['"]/);
+              if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
+            });
+          }
+          var upgradeCard = document.getElementById('upgradeCard');
+          if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
+        }).catch(function(e){ console.error('profile',e); });
+    }
+    _fillNav(session.user.id, session.user.email);
+    // Re-fill nav if page restored from iOS bfcache (back/forward navigation)
+    window.addEventListener('pageshow', function(ev){
+      if(ev.persisted){ _fillNav(session.user.id, session.user.email); }
+    });
   }).catch(function(){ location.replace('auth.html?redirect=index.html'); });
 })();
 

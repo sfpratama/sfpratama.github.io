@@ -259,16 +259,15 @@ a{text-decoration:none;color:inherit}
 
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-document.documentElement.style.opacity='0';
-(async function(){
-  try{
-    var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
-    window.__SK=_c;
-    var sess=(await _c.auth.getSession()).data.session;
+// No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
+(function(){
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  window.__SK=_c;
+  _c.auth.getSession().then(function(res){
+    var sess=res&&res.data&&res.data.session;
     if(!sess){location.replace('auth.html');return;}
     window.__SKS={id:sess.user.id,email:sess.user.email};
-  }catch(e){console.warn('auth guard error',e);}
-  document.documentElement.style.opacity='1';
+  }).catch(function(){location.replace('auth.html');});
 })();
 </script>
 </head><body>
@@ -366,7 +365,7 @@ const s={score:0,stars:0,streak:0,best:0,time:60,round:1,seq:[],idx:0,locked:fal
 function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.hint.textContent=s.locked?'Lihat urutan dulu, lalu bersiap men-tap':s.streak<2?'Ikuti urutan dengan benar':s.streak<4?'Bagus! Kamu mulai hafal urutannya':'Hebat! Ingatanmu makin kuat';}
 function render(){grid.innerHTML='';memoryPool.forEach((c,i)=>{const b=document.createElement('button');b.className='tile';b.style.background=c.bg;b.innerHTML=`<div style="font-size:34px;margin-bottom:8px">${c.emoji}</div><div style="font-size:16px">${c.name}</div>`;b.onclick=()=>pick(c,b,i);grid.appendChild(b);});preview.innerHTML='';s.seq.forEach((c,i)=>{const p=document.createElement('div');p.className='preview-pill';p.style.background='white';p.style.color=c.txt;p.textContent=`${i+1}. ${c.name}`;preview.appendChild(p);});}
 function makeSeq(n){let seq,key='';let guard=0;do{seq=[];for(let i=0;i<n;i++)seq.push(rand(memoryPool));key=seq.map(x=>x.name).join('|');guard++;}while(key===s.lastKey && guard<20);s.lastKey=key;return seq;}
-async function showSeq(){s.locked=true;hud();render();const tiles=[...grid.children];for(let i=0;i<s.seq.length;i++){const c=s.seq[i];const idx=memoryPool.findIndex(x=>x.name===c.name);const t=tiles[idx];t.classList.add('active');memstep(idx);await new Promise(r=>setTimeout(r,540));t.classList.remove('active');await new Promise(r=>setTimeout(r,140));}s.locked=false;hud();e.banner.textContent='Sekarang giliran kamu! Tap sesuai urutan 🌈';}
+function showSeq(){s.locked=true;hud();render();var tiles=[...grid.children];var i=0;function step(){if(i>=s.seq.length){s.locked=false;hud();e.banner.textContent='Sekarang giliran kamu! Tap sesuai urutan 🌈';return;}var mem=s.seq[i];var idx=memoryPool.findIndex(function(x){return x.name===mem.name;});var t=tiles[idx];t.classList.add('active');memstep(idx);setTimeout(function(){t.classList.remove('active');setTimeout(function(){i++;step();},140);},540);}step();}
 function nextRound(){s.idx=0;const len=Math.min(3+Math.floor(s.round/2),9);s.seq=makeSeq(len);render();e.banner.textContent='Lihat urutan dulu 👀';setTimeout(()=>{if(s.run)showSeq();},350);}
 function pick(c,b,i){if(!s.run||s.locked)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),160);memstep(i);const exp=s.seq[s.idx];if(!exp)return;if(c.name===exp.name){s.idx++;s.score+=6;s.stars+=1;s.streak++;s.best=Math.max(s.best,s.streak);hud();if(s.idx>=s.seq.length){s.score+=10;s.stars+=2;s.round++;e.banner.textContent='Hebat! Urutannya benar ⭐';ok(s.streak+2);setTimeout(nextRound,750);}}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();e.banner.textContent='Ups, coba lihat urutannya lagi ya 💛';bad();setTimeout(nextRound,750);}}
 function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.seq=[];s.idx=0;s.locked=false;s.lastKey='';s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();nextRound();clearInterval(s.timerI);s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG();},1000);}

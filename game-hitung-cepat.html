@@ -259,16 +259,15 @@ a{text-decoration:none;color:inherit}
 
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-document.documentElement.style.opacity='0';
-(async function(){
-  try{
-    var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
-    window.__SK=_c;
-    var sess=(await _c.auth.getSession()).data.session;
+// No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
+(function(){
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  window.__SK=_c;
+  _c.auth.getSession().then(function(res){
+    var sess=res&&res.data&&res.data.session;
     if(!sess){location.replace('auth.html');return;}
     window.__SKS={id:sess.user.id,email:sess.user.email};
-  }catch(e){console.warn('auth guard error',e);}
-  document.documentElement.style.opacity='1';
+  }).catch(function(){location.replace('auth.html');});
 })();
 </script>
 </head><body>
