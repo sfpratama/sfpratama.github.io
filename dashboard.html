@@ -562,7 +562,7 @@ function selectChild(i) {
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
     localStorage.setItem('sk_active_' + _uid, cid); // instant, survives navigation
-    _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
+    Promise.resolve(_db.from('profiles').update({ active_child_id: cid }).eq('id', _uid))
       .catch(function(e) { console.warn('selectChild:', e); });
   }
   renderDashboard();
