@@ -480,7 +480,9 @@ const { createClient } = window.supabase;
 const _db = createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co', 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM', {
   global: {
     fetch: function(url, options) {
-      return fetch(url, Object.assign({}, options, { cache: 'no-store' }));
+      // Add timestamp to bust CDN cache on every request
+      var bust = (url.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
+      return fetch(url + bust, Object.assign({}, options, { cache: 'no-store' }));
     }
   }
 });
