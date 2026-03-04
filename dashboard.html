@@ -532,22 +532,13 @@ async function saveChild() {
   if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan…'; }
 
   try {
-    var sess = (await _db.auth.getSession()).data.session;
-    if (!sess) { location.replace('auth.html'); return; }
-
     var child = { id: String(Date.now()), name: name, age: age, emoji: emoji,
                   scores: {}, weekly: [0,0,0,0,0,0,0] };
     var newList = _children.concat([child]);
 
-    // ── Save + get back the committed row in ONE round-trip ──────────────────
-    // Using .select() on the UPDATE returns the row Postgres just wrote.
-    // This is immune to read-replica replication lag AND to the _syncBusy race
-    // (we never need a separate SELECT after a save).
     var res = await _db.from('profiles')
       .update({ children: newList, active_child_id: child.id })
-      .eq('id', sess.user.id)
-      .select('name, plan, children, scores, weekly, active_child_id')
-      .single();
+      .eq('id', _uid);
 
     if (res.error) {
       alert('Gagal simpan: ' + res.error.message);
@@ -555,17 +546,8 @@ async function saveChild() {
       return;
     }
 
-    // ── Use the returned row to update local state immediately ────────────────
-    // This guarantees the UI shows exactly what the DB committed, with no lag.
-    _profile  = res.data;
-    _premium  = (res.data.plan === 'premium' || res.data.plan === 'admin');
-    _children = Array.isArray(res.data.children) ? res.data.children : [];
-    _activeIdx = _children.length - 1; // new child is always last
-
     cancelChild();
-    updateAddChildButton();
-    renderDashboard();
-
+    await syncFromDB(); // re-read from DB — it is the source of truth
   } catch (e) {
     alert('Error: ' + e.message);
     console.error('saveChild:', e);
@@ -742,13 +724,9 @@ function renderDashboard() {
 }
 
 // ── SYNC FROM DB ─────────────────────────────────────────────────────────────
-// Single source of truth. Always re-reads from DB.
-// Uses String() coercion so TEXT and BIGINT column types both match correctly.
-var _syncBusy = false;
+// Always reads from DB. DB is the single source of truth.
 async function syncFromDB() {
   if (!_uid) return;
-  if (_syncBusy) return; // prevent concurrent overlapping syncs
-  _syncBusy = true;
   try {
     var r = await _db.from('profiles')
       .select('name, plan, children, scores, weekly, active_child_id')
@@ -760,35 +738,21 @@ async function syncFromDB() {
 
     _profile  = r.data;
     _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
+    _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-    // ── Anti-regression guard ─────────────────────────────────────────────────
-    // If the DB reports FEWER children than our current local state, this is a
-    // stale read (replication lag or a race with save_game_score RPC). Keep the
-    // local children list so we never "lose" a freshly-added child.
-    var newChildren = Array.isArray(r.data.children) ? r.data.children : [];
-    if (newChildren.length >= _children.length) {
-      _children = newChildren;
-      // ── Restore active child from DB ────────────────────────────────────────
-      // Use String() on BOTH sides: active_child_id might be BIGINT (number) in
-      // Postgres but child.id is always stored as a string in the JSONB array.
-      // Without String() coercion, strict === fails and _activeIdx resets to 0.
-      var cid = String(r.data.active_child_id || '');
-      if (cid && cid !== 'null' && cid !== 'undefined') {
-        var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
-        _activeIdx = (ni >= 0) ? ni : 0;
-      } else {
-        // No active_child_id in DB yet — clamp to valid range, don't reset to 0
-        _activeIdx = Math.min(_activeIdx, Math.max(0, _children.length - 1));
-      }
+    // active_child_id may be stored as TEXT or BIGINT — coerce both sides
+    var cid = String(r.data.active_child_id || '');
+    if (cid && cid !== 'null' && cid !== 'undefined') {
+      var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
+      _activeIdx = (ni >= 0) ? ni : 0;
+    } else {
+      _activeIdx = 0;
     }
-    // (If stale, keep _children and _activeIdx as-is; only _premium/_profile updated)
 
     updateAddChildButton();
-    renderDashboard(); // renderDashboard calls renderChildren internally
+    renderDashboard();
   } catch (e) {
     console.error('syncFromDB exception:', e);
-  } finally {
-    _syncBusy = false;
   }
 }
 
