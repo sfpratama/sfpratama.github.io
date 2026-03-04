@@ -811,10 +811,24 @@ function syncFromDB() {
       if (uc) uc.style.display = 'block';
     }
 
-    // Re-sync scores when user returns to dashboard from a game
+    // Re-sync scores when user returns to this tab (same tab, no reload)
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') syncFromDB();
     });
+
+    // Re-sync scores 1.5s after page load — catches game scores that committed
+    // just before the user navigated back (full page reload misses visibilitychange)
+    setTimeout(syncFromDB, 1500);
+
+    // Realtime: re-sync when game score is saved to DB
+    _db.channel('scores-' + _uid)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'profiles',
+        filter: 'id=eq.' + _uid
+      }, function() {
+        setTimeout(syncFromDB, 300);
+      })
+      .subscribe();
 
   } catch (e) {
     console.error('init:', e);
