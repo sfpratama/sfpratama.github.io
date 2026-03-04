@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"/><link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#f472b6"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"/><title>Labirin Ringan - Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"/><title>Hitung Cepat - Sparkids</title><script src="https://cdn.tailwindcss.com"></script><style>
 :root{
   --bg1:#fde68a; --bg2:#fbcfe8; --bg3:#bfdbfe; --bg4:#bbf7d0;
   --ink:#1f2937; --muted:#475569; --line:#fce7f3; --white:rgba(255,255,255,.82);
@@ -163,7 +163,7 @@ a{text-decoration:none;color:inherit}
 }
 .bubble.bad{background:linear-gradient(135deg,#475569,#0f172a)}
 .maze-wrap{display:flex;align-items:center;justify-content:center;height:100%;padding:16px}
-.maze-board,.maze{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
+.maze-board{display:grid;gap:4px;background:rgba(255,255,255,.18);padding:10px;border-radius:24px;border:2px solid rgba(255,255,255,.65)}
 .cell{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-weight:900}
 .wall{background:#334155}.startcell{background:#86efac}.endcell{background:#fca5a5}.playercell{background:#60a5fa;color:#fff}
 .puzzle-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:360px;margin:0 auto 16px}
@@ -335,7 +335,7 @@ document.documentElement.style.opacity='0';
     })}).observe(endEl,{attributes:true,attributeFilter:['class']});
   });
 })();
-</script><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">BRAIN GAME</div><div class="badge s">MAZE MINI</div></div><div class="h1">Labirin Ringan</div><div class="sub">Arahkan karakter menuju tujuan dengan labirin kecil yang ringan dan mudah dimainkan.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="(function(){var p=window._savePromise;if(p&&p.then){p.then(function(){location.href='index.html';}).catch(function(){location.href='index.html';});}else{location.href='index.html';}})()">← Menu</button><div class="badge l" id="rb">Level 1</div><div style="font-weight:900">Gunakan tombol panah untuk keluar dari labirin</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner">Arahkan karakter menuju tujuan 🌀</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div style="margin-top:6px;font-weight:900">Gunakan tombol panah di bawah untuk bergerak</div></div><div class="maze-wrap"><div><div id="maze" class="maze-board"></div><div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap"><button class="btn" id="up">⬆️</button><button class="btn" id="left">⬅️</button><button class="btn" id="down">⬇️</button><button class="btn" id="right">➡️</button></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>🌀</div><div class='h2' style='margin-top:10px'>Siap bermain Labirin Ringan?</div><div class='sub'>Arahkan karakter biru dari titik awal ke tujuan merah dengan tombol panah.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><button class='btn navbtn' onclick='(function(){var b=this||event.target;b.disabled=true;b.textContent="Menyimpan...";var go=function(){location.href="index.html";};var p=window._savePromise;if(p&&p.then){var t=setTimeout(go,3000);p.then(function(){clearTimeout(t);go();}).catch(function(){clearTimeout(t);go();});}else{go();}})()'>Kembali ke Menu 🎮</button></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#3f6212'>Arah & problem solving</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak belajar memilih arah yang tepat untuk keluar dari labirin kecil.</div></div><div class='side-card'><div style='font-weight:900;color:#0369a1'>Ringan dan tidak bikin pusing</div><div class='sub' style='font-size:14px;margin-top:6px'>Maze dibuat singkat dan sederhana agar tetap terasa seru untuk anak.</div></div></aside></div></div><script>
+</script><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="shell"><div class="top"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div class="badges"><a href="index.html" class="badge y">← KEMBALI KE MENU</a><div class="badge p">BRAIN GAME</div><div class="badge s">ANGKA CEPAT</div></div><div class="h1">Hitung Cepat</div><div class="sub">Pilih jawaban hitung cepat yang benar sebelum waktunya habis.</div></div><button class="sound"></button></div></div><div class="play-wrap" style="margin-top:18px"><div class="game-top"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="(function(){var p=window._savePromise;if(p&&p.then){p.then(function(){location.href='index.html';}).catch(function(){location.href='index.html';});}else{location.href='index.html';}})()">← Menu</button><div class="badge s" id="rb">Ronde 1</div><div style="font-weight:900">Pilih jawaban hitung cepat yang benar</div></div><div class="stats"><div class="stat"><div class="lab">Skor</div><div class="val" id="score">0</div></div><div class="stat"><div class="lab">Bintang</div><div class="val" id="stars" style="color:#eab308">0</div></div><div class="stat"><div class="lab">Streak</div><div class="val" id="streak" style="color:#ec4899">0</div></div><div class="stat"><div class="lab">Waktu</div><div class="val" id="timer">60</div></div></div></div><div class="grid g2"><section class="stage"><div class="banner" id="banner">Pilih jawaban hitung cepat yang benar</div><div class="helper"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:900">Petunjuk</div><div id="hint" style="margin-top:6px;font-weight:900">Pilih jawaban hitung cepat yang benar</div></div><div style='position:absolute;inset:0;padding:16px;display:flex;align-items:center;justify-content:center'><div style='width:100%;max-width:900px;text-align:center'><div id='prompt' style='font-size:clamp(42px,6vw,72px);font-weight:900;margin-bottom:18px;color:#0f172a'>3 + 2 = ?</div><div class='board4' id='mathChoices'></div></div></div><div class='overlay' id='start'><div class='modal'><div style='font-size:56px'>➕</div><div class='h2' style='margin-top:10px'>Siap bermain Hitung Cepat?</div><div class='sub'>Mainkan tantangan singkat ini dan coba jawab secepat mungkin.</div><div style='margin-top:20px'><button class='cta' id='go'>Mulai Main 🚀</button></div></div></div><div class='overlay hidden' id='end'><div class='modal'><div style='font-size:56px'>🏆</div><div class='h2' style='margin-top:10px'>Hebat Sekali!</div><div class='result'><div class='res'><div class='lab'>Skor</div><div class='val' id='fscore'>0</div></div><div class='res'><div class='lab'>Bintang</div><div class='val' id='fstars'>0</div></div><div class='res'><div class='lab'>Streak</div><div class='val' id='fstreak'>0</div></div><div class='res'><div class='lab'>Peringkat</div><div class='val' id='frank'>A</div></div></div><div style='margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap'><button class='cta' id='again'>Main Lagi 🎈</button><button class='btn navbtn' onclick='(function(){var b=this||event.target;b.disabled=true;b.textContent="Menyimpan...";var go=function(){location.href="index.html";};var p=window._savePromise;if(p&&p.then){var t=setTimeout(go,3000);p.then(function(){clearTimeout(t);go();}).catch(function(){clearTimeout(t);go();});}else{go();}})()'>Kembali ke Menu 🎮</button></div></div></div></section><aside class="side-stack"><div class='side-card'><div style='font-weight:900;color:#0369a1'>Angka ringan</div><div class='sub' style='font-size:14px;margin-top:6px'>Soal dibuat sederhana agar anak tetap merasa main, bukan seperti ujian.</div></div><div class='side-card'><div style='font-weight:900;color:#be185d'>Cepat & seru</div><div class='sub' style='font-size:14px;margin-top:6px'>Anak memilih jawaban dengan kartu besar dan visual yang menyenangkan.</div></div></aside></div></div><script>
 const colorPool=[{name:'MERAH MUDA',bg:'#f472b6',txt:'#db2777',emoji:'🌸'},{name:'BIRU',bg:'#38bdf8',txt:'#0284c7',emoji:'🌊'},{name:'KUNING',bg:'#facc15',txt:'#a16207',emoji:'🌟'},{name:'HIJAU',bg:'#84cc16',txt:'#4d7c0f',emoji:'🍀'},{name:'UNGU',bg:'#a78bfa',txt:'#7c3aed',emoji:'🪻'}];
 let soundEnabled=localStorage.getItem('kids_sound')!=='off'; let audioCtx=null;
 function initAudio(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}
@@ -358,127 +358,18 @@ function bindsound(){
   });
   window.addEventListener('pointerdown',initAudio,{once:true});
 }
-</script><script>
-bindsound();
-const mazeEls={
-  rb:document.getElementById('rb'),
-  maze:document.getElementById('maze'),
-  score:document.getElementById('score'),
-  stars:document.getElementById('stars'),
-  streak:document.getElementById('streak'),
-  timer:document.getElementById('timer'),
-  start:document.getElementById('start'),
-  end:document.getElementById('end'),
-  fscore:document.getElementById('fscore'),
-  fstars:document.getElementById('fstars'),
-  fstreak:document.getElementById('fstreak'),
-  frank:document.getElementById('frank'),
-  up:document.getElementById('up'),
-  down:document.getElementById('down'),
-  left:document.getElementById('left'),
-  right:document.getElementById('right')
-};
-const mazeSet=[
-  {r:5,c:5,w:[[1,1],[1,3],[2,3],[3,1]],s:[0,0],e:[4,4]},
-  {r:5,c:5,w:[[0,2],[1,2],[3,1],[3,3]],s:[0,0],e:[4,4]},
-  {r:6,c:6,w:[[0,3],[1,1],[1,3],[2,3],[3,0],[3,1],[4,4]],s:[0,0],e:[5,5]},
-  {r:6,c:6,w:[[0,2],[1,2],[2,2],[2,4],[3,1],[4,1],[4,3]],s:[0,0],e:[5,5]}
-];
-const mazeState={score:0,stars:0,streak:0,best:0,time:60,round:1,run:false,timerI:null,m:null,p:[0,0]};
-function mazeHud(){
-  mazeEls.score.textContent=mazeState.score;
-  mazeEls.stars.textContent=mazeState.stars;
-  mazeEls.streak.textContent=mazeState.streak;
-  mazeEls.timer.textContent=mazeState.time;
-  mazeEls.rb.textContent=`Level ${mazeState.round}`;
-}
-function mkey(r,c){ return `${r},${c}`; }
-function mazeLoad(){
-  mazeState.m = mazeSet[(mazeState.round-1) % mazeSet.length];
-  mazeState.p = [...mazeState.m.s];
-  mazeDraw();
-}
-function mazeDraw(){
-  const m = mazeState.m;
-  mazeEls.maze.style.gridTemplateColumns = `repeat(${m.c},34px)`;
-  mazeEls.maze.innerHTML = '';
-  const walls = new Set(m.w.map(([r,c])=>mkey(r,c)));
-  for(let r=0;r<m.r;r++){
-    for(let c=0;c<m.c;c++){
-      const d=document.createElement('div');
-      d.className='cell';
-      if(walls.has(mkey(r,c))) d.classList.add('wall');
-      else if(r===m.s[0] && c===m.s[1]) d.classList.add('startcell');
-      else if(r===m.e[0] && c===m.e[1]) d.classList.add('endcell');
-      if(r===mazeState.p[0] && c===mazeState.p[1]){
-        d.classList.add('playercell');
-        d.textContent='🙂';
-      }
-      mazeEls.maze.appendChild(d);
-    }
-  }
-}
-function mazeMove(dr,dc){
-  if(!mazeState.run) return;
-  const m=mazeState.m;
-  const nr=mazeState.p[0]+dr, nc=mazeState.p[1]+dc;
-  const walls = new Set(m.w.map(([r,c])=>mkey(r,c)));
-  if(nr<0||nc<0||nr>=m.r||nc>=m.c||walls.has(mkey(nr,nc))){
-    bad();
-    return;
-  }
-  mazeState.p=[nr,nc];
-  mazeDraw();
-  if(nr===m.e[0] && nc===m.e[1]){
-    mazeState.score+=12;
-    mazeState.stars+=2;
-    mazeState.streak+=1;
-    mazeState.best=Math.max(mazeState.best,mazeState.streak);
-    mazeHud();
-    ok(mazeState.streak+1);
-    mazeState.round+=1;
-    setTimeout(()=>{
-      if(!mazeState.run) return;
-      levelup();
-      mazeLoad();
-      mazeHud();
-    },500);
-  }
-}
-function mazeStart(){
-  initAudio();
-  startsound();
-  mazeState.score=0; mazeState.stars=0; mazeState.streak=0; mazeState.best=0; mazeState.time=60; mazeState.round=1; mazeState.run=true;
-  mazeEls.start.classList.add('hidden');
-  mazeEls.end.classList.add('hidden');
-  mazeLoad();
-  mazeHud();
-  clearInterval(mazeState.timerI);
-  mazeState.timerI=setInterval(()=>{
-    mazeState.time-=1;
-    mazeHud();
-    if(mazeState.time<=0) mazeEnd();
-  },1000);
-}
-function mazeEnd(){
-  mazeState.run=false;
-  clearInterval(mazeState.timerI);
-  mazeEls.fscore.textContent=mazeState.score;
-  mazeEls.fstars.textContent=mazeState.stars;
-  mazeEls.fstreak.textContent=mazeState.best;
-  mazeEls.frank.textContent=rank(mazeState.score);
-  finishsound();
+</script><script>bindsound();const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:mathChoices};const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null};function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.rb.textContent=`Ronde ${s.round}`;}function build(){const max=s.round<=3?5:s.round<=6?9:12;const a=Math.floor(Math.random()*max)+1,b=Math.floor(Math.random()*max)+1,useSub=s.round>=4&&Math.random()>.5;s.answer=useSub?Math.max(a,b)-Math.min(a,b):a+b;e.prompt.textContent=useSub?`${Math.max(a,b)} - ${Math.min(a,b)} = ?`:`${a} + ${b} = ?`;const set=new Set([s.answer]);while(set.size<4){const d=Math.floor(Math.random()*5)+1;set.add(Math.max(0,s.answer+(Math.random()>.5?d:-d)))}const opts=[...set].sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#facc15']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
   (function(){
   try{
     var _sk=window.__SK,_ss=window.__SKS;
     if(!_sk||!_ss||!_ss.id)return;
-    var _sc=Math.round(mazeState.score);
+    var _sc=Math.round(s.score);
     // Read active_child_id from localStorage (always fresh, set by dashboard)
     var _lsCid = localStorage.getItem('sk_' + _ss.id) || '';
     function _doSave(cid) {
       // _sk.rpc() uses the Supabase client which handles auth automatically
       // window._savePromise lets the 'Kembali' button await before navigating
-      var p = _sk.rpc('save_game_score',{p_user_id:_ss.id,p_child_id:cid,p_game_id:'labirin-ringan',p_score:_sc})
+      var p = _sk.rpc('save_game_score',{p_user_id:_ss.id,p_child_id:cid,p_game_id:'hitung-cepat',p_score:_sc})
         .then(function(r){if(r&&r.error)console.warn('save:',r.error.message);});
       window._savePromise = p;
       return p;
@@ -493,20 +384,4 @@ function mazeEnd(){
     }
   }catch(e){console.warn('score saver:',e);}
 })();
-  mazeEls.end.classList.remove('hidden');
-}
-document.getElementById('go').onclick=mazeStart;
-document.getElementById('again').onclick=mazeStart;
-mazeEls.up.onclick=()=>mazeMove(-1,0);
-mazeEls.down.onclick=()=>mazeMove(1,0);
-mazeEls.left.onclick=()=>mazeMove(0,-1);
-mazeEls.right.onclick=()=>mazeMove(0,1);
-window.addEventListener('keydown',(ev)=>{
-  if(ev.key==='ArrowUp') mazeMove(-1,0);
-  if(ev.key==='ArrowDown') mazeMove(1,0);
-  if(ev.key==='ArrowLeft') mazeMove(0,-1);
-  if(ev.key==='ArrowRight') mazeMove(0,1);
-});
-mazeHud();
-mazeLoad();
-</script></body></html>
+  s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>

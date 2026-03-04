@@ -379,16 +379,10 @@ function endG(){
     // Read active_child_id from localStorage (always fresh, set by dashboard)
     var _lsCid = localStorage.getItem('sk_' + _ss.id) || '';
     function _doSave(cid) {
-      // Use fetch with keepalive:true so iOS doesn't cancel on navigation
-      var payload = {p_user_id:_ss.id,p_child_id:cid,p_game_id:'ingat-urutan',p_score:_sc};
-      var p = fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
-        method:'POST',keepalive:true,
-        headers:{'Content-Type':'application/json','apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM','Authorization':'Bearer '+(_sk.auth.currentSession||(_sk._session)||''),'Prefer':'return=minimal'},
-        body:JSON.stringify(payload)
-      }).catch(function(){
-        // Fallback to Supabase client if raw fetch fails
-        return _sk.rpc('save_game_score',payload);
-      });
+      // _sk.rpc() uses the Supabase client which handles auth automatically
+      // window._savePromise lets the 'Kembali' button await before navigating
+      var p = _sk.rpc('save_game_score',{p_user_id:_ss.id,p_child_id:cid,p_game_id:'ingat-urutan',p_score:_sc})
+        .then(function(r){if(r&&r.error)console.warn('save:',r.error.message);});
       window._savePromise = p;
       return p;
     }
