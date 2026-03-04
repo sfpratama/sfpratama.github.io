@@ -558,16 +558,19 @@ async function saveChild() {
 
 async function selectChild(i) {
   _activeIdx = i;
-  renderDashboard();
-  // String() coercion: active_child_id column may return BIGINT (number) from DB
+  renderDashboard(); // update UI immediately so user sees selection
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
+    // Save to DB — this is the global variable that persists across pages and sessions
+    await _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
       .catch(function(e) { console.warn('selectChild:', e); });
   }
 }
 
 async function doLogout() {
+  _uid = '';
+  _children = [];
+  _activeIdx = 0;
   await _db.auth.signOut();
   location.replace('auth.html');
 }
@@ -745,6 +748,7 @@ async function syncFromDB() {
     if (cid && cid !== 'null' && cid !== 'undefined') {
       var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
       _activeIdx = (ni >= 0) ? ni : 0;
+      // active_child_id from DB is the source of truth — no local storage needed
     } else {
       _activeIdx = 0;
     }
