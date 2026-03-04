@@ -546,8 +546,10 @@ async function saveChild() {
       return;
     }
 
+    // Mark new child as active in localStorage immediately
+    localStorage.setItem('sparkids_active_' + _uid, child.id);
     cancelChild();
-    await syncFromDB(); // re-read from DB — it is the source of truth
+    syncFromDB(); // re-read from DB — it is the source of truth
   } catch (e) {
     alert('Error: ' + e.message);
     console.error('saveChild:', e);
@@ -560,15 +562,18 @@ function selectChild(i) {
   _activeIdx = i;
   var cid = String((_children[i] || {}).id || '');
   if (cid) {
-    // Fire and forget — request goes out immediately, no await so navigation never blocks it
+    // Write to localStorage FIRST — survives page navigation instantly
+    localStorage.setItem('sparkids_active_' + _uid, cid);
+    // Also persist to DB
     _db.from('profiles').update({ active_child_id: cid }).eq('id', _uid)
-      .then(function() {})
       .catch(function(e) { console.warn('selectChild:', e); });
   }
   renderDashboard();
 }
 
 async function doLogout() {
+  // Clear active child from localStorage on logout
+  if (_uid) localStorage.removeItem('sparkids_active_' + _uid);
   _uid = '';
   _children = [];
   _activeIdx = 0;
@@ -744,8 +749,12 @@ function syncFromDB() {
       _premium  = (r.data.plan === 'premium' || r.data.plan === 'admin');
       _children = Array.isArray(r.data.children) ? r.data.children : [];
 
-      // active_child_id is the global variable — read it from DB every time
-      var cid = String(r.data.active_child_id || '');
+      // Resolve active child:
+      // localStorage is the instant write (survives navigation even if DB update was in-flight)
+      // Fall back to DB value if localStorage has nothing
+      var localCid = localStorage.getItem('sparkids_active_' + _uid) || '';
+      var dbCid    = String(r.data.active_child_id || '');
+      var cid      = localCid || dbCid;
       if (cid && cid !== 'null' && cid !== 'undefined') {
         var ni = _children.findIndex(function(c) { return String(c.id) === cid; });
         _activeIdx = (ni >= 0) ? ni : 0;
