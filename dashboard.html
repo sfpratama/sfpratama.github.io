@@ -818,6 +818,23 @@ function syncFromDB() {
     _uid = sess.user.id;
     window._userEmail = sess.user.email || '';
 
+    // ALSO try to save pending score here (belt and suspenders)
+    try {
+      var _praw = localStorage.getItem('_sk_pending');
+      if (_praw) {
+        var _pp = JSON.parse(_praw);
+        if (_pp && _pp.game && typeof _pp.score === 'number') {
+          var _pcid = _pp.cid || localStorage.getItem('sk_' + _uid) || '';
+          _db.rpc('save_game_score', {
+            p_user_id: _uid, p_child_id: _pcid || '', p_game_id: _pp.game, p_score: _pp.score
+          }).then(function(r) {
+            if (r && !r.error) { try{localStorage.removeItem('_sk_pending');}catch(x){} syncFromDB(); }
+          }).catch(function(){});
+        }
+      }
+    } catch(e) {}
+
+
     // Fill welcome header immediately from session (no DB wait)
     var uname = (sess.user.email || '').split('@')[0];
     var wn = document.getElementById('welcomeName');

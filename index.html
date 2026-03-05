@@ -186,7 +186,7 @@ a{text-decoration:none;color:inherit}
 // No async/await — Safari iOS silently kills async IIFEs
 // No opacity:0 trick — page always visible, never blank
 (function(){
-  var _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){var h=new Headers(o?o.headers:{});h.set('Cache-Control','no-cache, no-store');var op=Object.assign({},o,{cache:'no-store',headers:h});return fetch(u,op);}}});
+  var _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){var h=new Headers(o?o.headers:{});h.set('Cache-Control','no-cache, no-store');return fetch(u,Object.assign({},o,{cache:'no-store',headers:h}));}}});
   window.__SK_CLIENT = _c;
 
   // ── STEP 1: Fill nav SYNCHRONOUSLY from cached Supabase session in localStorage
@@ -247,15 +247,20 @@ a{text-decoration:none;color:inherit}
     } catch(e) {}
     if (pending && pending.game && typeof pending.score === 'number') {
       var cid = pending.cid || localStorage.getItem('sk_' + uid) || '';
-      _c.rpc('save_game_score', {
-        p_user_id: uid,
-        p_child_id: cid || '',
-        p_game_id: pending.game,
-        p_score: pending.score
-      }).then(function(r){
-        if(r && !r.error) { try{localStorage.removeItem('_sk_pending');}catch(x){} console.log('pending saved:',pending.game,pending.score); }
-        else console.warn('pending RPC error:', r && r.error);
-      }).catch(function(e){ console.warn('pending save threw:', e); });
+      // Try to save via RPC — retry up to 3 times with 1s delay
+      var _attempts = 0;
+      function _trySave() {
+        _attempts++;
+        _c.rpc('save_game_score', {
+          p_user_id: uid, p_child_id: cid || '', p_game_id: pending.game, p_score: pending.score
+        }).then(function(r){
+          if(r && !r.error) { try{localStorage.removeItem('_sk_pending');}catch(x){} }
+          else if(_attempts < 3) { setTimeout(_trySave, 1000); }
+        }).catch(function(e){
+          if(_attempts < 3) setTimeout(_trySave, 1000);
+        });
+      }
+      _trySave();
     }
 
     // ── FETCH PROFILE FROM DB ──
