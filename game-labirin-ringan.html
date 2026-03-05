@@ -261,7 +261,7 @@ a{text-decoration:none;color:inherit}
 <script>
 // No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
 (function(){
-  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){var h=new Headers(o?o.headers:{});h.set('Cache-Control','no-cache, no-store');var op=Object.assign({},o,{cache:'no-store',headers:h});return fetch(u,op);}}});
   window.__SK=_c;
   _c.auth.getSession().then(function(res){
     var sess=res&&res.data&&res.data.session;
@@ -470,7 +470,7 @@ function mazeEnd(){
   finishsound();
   (function(){
   try{
-    var _sc=Math.round(s.score);
+    var _sc=Math.round(mazeState.score);
     var _sk=window.__SK;
     var _uid=(window.__SKS&&window.__SKS.id)||'';
     var _cid='';
