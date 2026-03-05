@@ -375,40 +375,23 @@ function end(){
   (function(){
   try{
     var _sc=Math.round(s.score);
+    var _sk=window.__SK;
     var _uid=(window.__SKS&&window.__SKS.id)||'';
-    var _token=(window.__SKS&&window.__SKS.token)||'';
     var _cid='';
     try{_cid=localStorage.getItem('sk_'+_uid)||'';}catch(x){}
-    // Always backup to localStorage (synchronous, never fails)
+    // Step 1: Always backup to localStorage (sync, never fails)
     try{localStorage.setItem('_sk_pending',JSON.stringify({game:'pop-warna',score:_sc,uid:_uid,cid:_cid,ts:Date.now()}));}catch(x){}
-    // Send via fetch+keepalive → survives Safari page navigation
-    // Calls save_game_score RPC: single POST, server does atomic update
-    if(_uid&&_token){
-      try{
-        var ok=fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
-          method:'POST',
-          keepalive:true,
-          headers:{
-            'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',
-            'Authorization':'Bearer '+_token,
-            'Content-Type':'application/json',
-            'Prefer':'return=minimal'
-          },
-          body:JSON.stringify({
-            p_user_id:_uid,
-            p_child_id:_cid||'',
-            p_game_id:'pop-warna',
-            p_score:_sc
-          })
-        });
-        window._savePromise=ok.then(function(resp){
-          if(resp.ok)try{localStorage.removeItem('_sk_pending');}catch(x){}
-          else console.warn('score RPC status:',resp.status);
-        }).catch(function(e){console.warn('score fetch error:',e);});
-      }catch(e){
-        console.warn('score keepalive error:',e);
-        window._savePromise=Promise.resolve();
-      }
+    // Step 2: Save via Supabase JS client RPC (single call, atomic server-side)
+    if(_sk&&_uid){
+      window._savePromise=_sk.rpc('save_game_score',{
+        p_user_id:_uid,
+        p_child_id:_cid||'',
+        p_game_id:'pop-warna',
+        p_score:_sc
+      }).then(function(r){
+        if(r&&!r.error){try{localStorage.removeItem('_sk_pending');}catch(x){} console.log('score saved:pop-warna',_sc);}
+        else console.warn('score RPC error:',r&&r.error);
+      }).catch(function(e){console.warn('score save error:',e);});
     }else{
       window._savePromise=Promise.resolve();
     }

@@ -247,16 +247,15 @@ a{text-decoration:none;color:inherit}
     } catch(e) {}
     if (pending && pending.game && typeof pending.score === 'number') {
       var cid = pending.cid || localStorage.getItem('sk_' + uid) || '';
-      // Use Supabase client for retry (page is stable here)
       _c.rpc('save_game_score', {
         p_user_id: uid,
         p_child_id: cid || '',
         p_game_id: pending.game,
         p_score: pending.score
       }).then(function(r){
-        if(r && r.error) console.warn('pending RPC error:', r.error.message);
-        else { console.log('pending score saved:', pending.game, pending.score); try{localStorage.removeItem('_sk_pending');}catch(x){} }
-      }).catch(function(e){ console.warn('pending score threw:', e); });
+        if(r && !r.error) { try{localStorage.removeItem('_sk_pending');}catch(x){} console.log('pending saved:',pending.game,pending.score); }
+        else console.warn('pending RPC error:', r && r.error);
+      }).catch(function(e){ console.warn('pending save threw:', e); });
     }
 
     // ── FETCH PROFILE FROM DB ──
