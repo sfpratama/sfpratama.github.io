@@ -261,7 +261,7 @@ a{text-decoration:none;color:inherit}
 <script>
 // No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
 (function(){
-  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){var h=new Headers(o?o.headers:{});h.set('Cache-Control','no-cache, no-store');var op=Object.assign({},o,{cache:'no-store',headers:h});return fetch(u,op);}}});
   window.__SK=_c;
   _c.auth.getSession().then(function(res){
     var sess=res&&res.data&&res.data.session;
@@ -377,28 +377,23 @@ function endG(){
     var _uid=(window.__SKS&&window.__SKS.id)||'';
     var _cid='';
     try{_cid=localStorage.getItem('sk_'+_uid)||'';}catch(x){}
+    // Step 1: Always backup to localStorage (sync, never fails)
     try{localStorage.setItem('_sk_pending',JSON.stringify({game:'campur-warna',score:_sc,uid:_uid,cid:_cid,ts:Date.now()}));}catch(x){}
-    window._savePromise=Promise.resolve();
+    // Step 2: Save via Supabase JS client RPC (single call, atomic server-side)
     if(_sk&&_uid){
-      _sk.from('profiles').select('children').eq('id',_uid).single().then(function(r){
-        if(!r.data)return;
-        var ch=Array.isArray(r.data.children)?r.data.children:[];
-        if(ch.length===0)return;
-        var idx=0;
-        for(var i=0;i<ch.length;i++){if(String(ch[i].id)===String(_cid)){idx=i;break;}}
-        var c=ch[idx];
-        if(!c.scores||typeof c.scores!=='object')c.scores={};
-        if(!Array.isArray(c.weekly))c.weekly=[0,0,0,0,0,0,0];
-        if(!c.scores['campur-warna']||c.scores['campur-warna']<_sc)c.scores['campur-warna']=_sc;
-        var di=new Date().getDay();di=di===0?6:di-1;
-        c.weekly[di]=(c.weekly[di]||0)+1;
-        ch[idx]=c;
-        return _sk.from('profiles').update({children:ch,updated_at:new Date().toISOString()}).eq('id',_uid);
+      window._savePromise=_sk.rpc('save_game_score',{
+        p_user_id:_uid,
+        p_child_id:_cid||'',
+        p_game_id:'campur-warna',
+        p_score:_sc
       }).then(function(r){
-        if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}
-      }).catch(function(){});
+        if(r&&!r.error){try{localStorage.removeItem('_sk_pending');}catch(x){} console.log('score saved:campur-warna',_sc);}
+        else console.warn('score RPC error:',r&&r.error);
+      }).catch(function(e){console.warn('score save error:',e);});
+    }else{
+      window._savePromise=Promise.resolve();
     }
-  }catch(e){window._savePromise=Promise.resolve();}
+  }catch(e){console.warn('score saver:',e);window._savePromise=Promise.resolve();}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
 go.onclick=startG;again.onclick=startG;hud();
