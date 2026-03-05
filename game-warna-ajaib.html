@@ -249,15 +249,20 @@ a{text-decoration:none;color:inherit}
 
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
+// No async/await — iOS Safari silently kills async IIFEs
 (function(){
   var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
   window.__SK=_c;
   _c.auth.getSession().then(function(res){
     var sess=res&&res.data&&res.data.session;
     if(!sess){location.replace('auth.html');return;}
-    // Store token NOW so score saver can use it synchronously at game end
     window.__SKS={id:sess.user.id,email:sess.user.email,token:sess.access_token};
+    // Write to localStorage so index.html can save score WITHOUT needing getSession()
+    try{
+      localStorage.setItem('_sk_uid', sess.user.id);
+      localStorage.setItem('_sk_email', sess.user.email||'');
+      localStorage.setItem('_sk_token', sess.access_token||'');
+    }catch(e){}
   }).catch(function(){location.replace('auth.html');});
 })();
 </script>
@@ -380,7 +385,7 @@ a{text-decoration:none;color:inherit}
           </div>
           <div style="margin-top:22px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap">
             <button class="cta" id="again">Main Lagi 🎈</button>
-            <button class="btn navbtn" onclick="(function(){var b=event.currentTarget;b.disabled=true;b.textContent='Menyimpan...';var go=function(){location.href='index.html';};var p=window._savePromise;if(p&&p.then){var t=setTimeout(go,3000);p.then(function(){clearTimeout(t);go();}).catch(function(){clearTimeout(t);go();});}else{go();}})()">Kembali ke Menu 🎮</button>
+            <button class="btn navbtn" onclick="location.href='index.html'">Kembali ke Menu 🎮</button>
           </div>
         </div>
       </div>
@@ -584,11 +589,16 @@ function warnaEnd(){
   finishsound();
   (function(){
   try{
-    // Store score in localStorage — index.html saves it to DB on fresh page load
-    // Avoids ALL iOS keepalive/fetch/navigation-cancel issues
     var _sc=Math.round(warnaState.score);
+    var _ss=window.__SKS||{};
+    // Store everything needed to save: no getSession() required on index.html
     localStorage.setItem('_sk_pending',JSON.stringify({
-      game:'warna-ajaib',score:_sc,ts:Date.now()
+      game:'warna-ajaib',
+      score:_sc,
+      uid:_ss.id||localStorage.getItem('_sk_uid')||'',
+      token:_ss.token||localStorage.getItem('_sk_token')||'',
+      cid:(_ss.id?localStorage.getItem('sk_'+_ss.id):'')||'',
+      ts:Date.now()
     }));
     window._savePromise=Promise.resolve();
   }catch(e){console.warn('score store:',e);}
