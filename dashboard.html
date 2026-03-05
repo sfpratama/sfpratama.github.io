@@ -728,13 +728,17 @@ function renderDashboard() {
   renderChildren();
 
   // ── Pick which scores to show — always use active child's scores directly ────
-  // Always read scores from profiles.scores (account-level) - this is where games write
-  var scoresToShow = (_profile && _profile.scores && typeof _profile.scores === 'object') ? _profile.scores : {};
-  var weeklyToShow = (_profile && Array.isArray(_profile.weekly)) ? _profile.weekly : [0,0,0,0,0,0,0];
+  // Per-child scores: read from children[activeChild].scores
+  var scoresToShow, weeklyToShow;
   if (_children.length > 0) {
     var ac = _children[_activeIdx] || _children[0];
+    scoresToShow = (ac.scores && typeof ac.scores === 'object') ? ac.scores : {};
+    weeklyToShow = Array.isArray(ac.weekly) ? ac.weekly : [0,0,0,0,0,0,0];
     if (lbl) lbl.textContent = '📊 Progress: ' + ac.name;
   } else {
+    // No children — fallback to account-level scores
+    scoresToShow = (_profile && _profile.scores && typeof _profile.scores === 'object') ? _profile.scores : {};
+    weeklyToShow = (_profile && Array.isArray(_profile.weekly)) ? _profile.weekly : [0,0,0,0,0,0,0];
     if (lbl) lbl.textContent = '📊 Perkembangan Skill';
   }
 

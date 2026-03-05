@@ -364,20 +364,30 @@ function bindsound(){
     var _sc=Math.round(s.score);
     var _sk=window.__SK;
     var _uid=(window.__SKS&&window.__SKS.id)||'';
-    // Backup to localStorage (index.html will retry if this direct save fails)
-    try{localStorage.setItem('_sk_pending',JSON.stringify({game:'cari-yang-berbeda',score:_sc,uid:_uid,ts:Date.now()}));}catch(x){}
+    var _cid='';
+    try{_cid=localStorage.getItem('sk_'+_uid)||'';}catch(x){}
+    // Backup to localStorage
+    try{localStorage.setItem('_sk_pending',JSON.stringify({game:'cari-yang-berbeda',score:_sc,uid:_uid,cid:_cid,ts:Date.now()}));}catch(x){}
     if(_sk&&_uid){
-      window._savePromise=_sk.from('profiles').select('scores,weekly').eq('id',_uid).single()
+      window._savePromise=_sk.from('profiles').select('children').eq('id',_uid).single()
         .then(function(r){
           if(!r.data)return;
-          var scores=(r.data.scores&&typeof r.data.scores==='object')?r.data.scores:{};
-          var weekly=Array.isArray(r.data.weekly)?r.data.weekly:[0,0,0,0,0,0,0];
+          var children=Array.isArray(r.data.children)?r.data.children:[];
+          if(children.length===0)return;
+          // Find active child
+          var idx=-1;
+          for(var i=0;i<children.length;i++){if(String(children[i].id)===String(_cid)){idx=i;break;}}
+          if(idx<0)idx=0; // fallback to first child
+          var ch=children[idx];
+          if(!ch.scores||typeof ch.scores!=='object')ch.scores={};
+          if(!Array.isArray(ch.weekly))ch.weekly=[0,0,0,0,0,0,0];
           // Only update if new score is higher
-          if(!scores['cari-yang-berbeda']||scores['cari-yang-berbeda']<_sc)scores['cari-yang-berbeda']=_sc;
+          if(!ch.scores['cari-yang-berbeda']||ch.scores['cari-yang-berbeda']<_sc)ch.scores['cari-yang-berbeda']=_sc;
           // Increment today's play count
           var di=new Date().getDay();di=di===0?6:di-1;
-          weekly[di]=(weekly[di]||0)+1;
-          return _sk.from('profiles').update({scores:scores,weekly:weekly,updated_at:new Date().toISOString()}).eq('id',_uid);
+          ch.weekly[di]=(ch.weekly[di]||0)+1;
+          children[idx]=ch;
+          return _sk.from('profiles').update({children:children,updated_at:new Date().toISOString()}).eq('id',_uid);
         })
         .then(function(r){
           if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}

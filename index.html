@@ -246,20 +246,27 @@ a{text-decoration:none;color:inherit}
       }
     } catch(e) {}
     if (pending && pending.game && typeof pending.score === 'number') {
-      var cid = localStorage.getItem('sk_' + uid) || '';
-      _c.from('profiles').select('scores,weekly').eq('id',uid).single()
-      .then(function(r){
-        if(!r.data)return;
-        var scores=(r.data.scores&&typeof r.data.scores==='object')?r.data.scores:{};
-        var weekly=Array.isArray(r.data.weekly)?r.data.weekly:[0,0,0,0,0,0,0];
-        if(!scores[pending.game]||scores[pending.game]<pending.score)scores[pending.game]=pending.score;
-        var di=new Date().getDay();di=di===0?6:di-1;weekly[di]=(weekly[di]||0)+1;
-        return _c.from('profiles').update({scores:scores,weekly:weekly,updated_at:new Date().toISOString()}).eq('id',uid);
-      })
-      .then(function(r){
-        if(r&&!r.error)console.log('pending score saved:',pending.game,pending.score);
-        else console.warn('pending score save error:',r&&r.error);
-      }).catch(function(e){ console.warn('pending score save threw:', e); });
+      var cid = pending.cid || localStorage.getItem('sk_' + uid) || '';
+      _c.from('profiles').select('children').eq('id',uid).single()
+        .then(function(r){
+          if(!r.data)return;
+          var children=Array.isArray(r.data.children)?r.data.children:[];
+          if(children.length===0)return;
+          var idx=-1;
+          for(var i=0;i<children.length;i++){if(String(children[i].id)===String(cid)){idx=i;break;}}
+          if(idx<0)idx=0;
+          var ch=children[idx];
+          if(!ch.scores||typeof ch.scores!=='object')ch.scores={};
+          if(!Array.isArray(ch.weekly))ch.weekly=[0,0,0,0,0,0,0];
+          if(!ch.scores[pending.game]||ch.scores[pending.game]<pending.score)ch.scores[pending.game]=pending.score;
+          var di=new Date().getDay();di=di===0?6:di-1;ch.weekly[di]=(ch.weekly[di]||0)+1;
+          children[idx]=ch;
+          return _c.from('profiles').update({children:children,updated_at:new Date().toISOString()}).eq('id',uid);
+        })
+        .then(function(r){
+          if(r&&!r.error)console.log('pending score saved:',pending.game,pending.score);
+          else console.warn('pending score save error:',r&&r.error);
+        }).catch(function(e){ console.warn('pending score save threw:', e); });
     }
 
     // ── FETCH PROFILE FROM DB ──
