@@ -372,38 +372,40 @@ function endG(){
   (function(){
   try{
     var _sc=Math.round(s.score);
-    var _sk=window.__SK;
     var _uid=(window.__SKS&&window.__SKS.id)||'';
+    var _token=(window.__SKS&&window.__SKS.token)||'';
     var _cid='';
     try{_cid=localStorage.getItem('sk_'+_uid)||'';}catch(x){}
-    // Backup to localStorage
+    // Always backup to localStorage (synchronous, never fails)
     try{localStorage.setItem('_sk_pending',JSON.stringify({game:'cari-pasangan',score:_sc,uid:_uid,cid:_cid,ts:Date.now()}));}catch(x){}
-    if(_sk&&_uid){
-      window._savePromise=_sk.from('profiles').select('children').eq('id',_uid).single()
-        .then(function(r){
-          if(!r.data)return;
-          var children=Array.isArray(r.data.children)?r.data.children:[];
-          if(children.length===0)return;
-          // Find active child
-          var idx=-1;
-          for(var i=0;i<children.length;i++){if(String(children[i].id)===String(_cid)){idx=i;break;}}
-          if(idx<0)idx=0; // fallback to first child
-          var ch=children[idx];
-          if(!ch.scores||typeof ch.scores!=='object')ch.scores={};
-          if(!Array.isArray(ch.weekly))ch.weekly=[0,0,0,0,0,0,0];
-          // Only update if new score is higher
-          if(!ch.scores['cari-pasangan']||ch.scores['cari-pasangan']<_sc)ch.scores['cari-pasangan']=_sc;
-          // Increment today's play count
-          var di=new Date().getDay();di=di===0?6:di-1;
-          ch.weekly[di]=(ch.weekly[di]||0)+1;
-          children[idx]=ch;
-          return _sk.from('profiles').update({children:children,updated_at:new Date().toISOString()}).eq('id',_uid);
-        })
-        .then(function(r){
-          if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}
-          else console.warn('score update result:',r&&r.error);
-        })
-        .catch(function(e){console.warn('score save error:',e);});
+    // Send via fetch+keepalive → survives Safari page navigation
+    // Calls save_game_score RPC: single POST, server does atomic update
+    if(_uid&&_token){
+      try{
+        var ok=fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
+          method:'POST',
+          keepalive:true,
+          headers:{
+            'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',
+            'Authorization':'Bearer '+_token,
+            'Content-Type':'application/json',
+            'Prefer':'return=minimal'
+          },
+          body:JSON.stringify({
+            p_user_id:_uid,
+            p_child_id:_cid||'',
+            p_game_id:'cari-pasangan',
+            p_score:_sc
+          })
+        });
+        window._savePromise=ok.then(function(resp){
+          if(resp.ok)try{localStorage.removeItem('_sk_pending');}catch(x){}
+          else console.warn('score RPC status:',resp.status);
+        }).catch(function(e){console.warn('score fetch error:',e);});
+      }catch(e){
+        console.warn('score keepalive error:',e);
+        window._savePromise=Promise.resolve();
+      }
     }else{
       window._savePromise=Promise.resolve();
     }
