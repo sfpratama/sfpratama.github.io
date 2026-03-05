@@ -762,7 +762,6 @@ function loadFromDB() {
 // syncFromDB — uses RPC (POST request) which is NEVER cached by CDN.
 // This guarantees fresh data every time, unlike GET selects which Supabase CDN caches.
 function _applyProfileData(d) {
-  if (!d) { renderDashboard(); return; }
   _profile  = d;
   _premium  = (d.plan === 'premium' || d.plan === 'admin');
   _children = Array.isArray(d.children) ? d.children : [];
@@ -782,11 +781,13 @@ function _applyProfileData(d) {
 }
 
 function _syncDirect() {
-  // Fallback: direct table select — only select columns we know exist
-  _db.from('profiles').select('*').eq('id', _uid).single()
+  // Fallback: direct table select (no RPC dependency)
+  _db.from('profiles')
+    .select('name,plan,children,scores,weekly,active_child_id')
+    .eq('id', _uid).single()
     .then(function(r2) {
-      if (r2 && r2.data) { _applyProfileData(r2.data); }
-      else { renderDashboard(); }
+      if (r2.data) { _applyProfileData(r2.data); }
+      else { renderDashboard(); } // still render even if empty
     })
     .catch(function() { renderDashboard(); });
 }

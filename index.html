@@ -186,155 +186,23 @@ a{text-decoration:none;color:inherit}
 // No async/await — Safari iOS silently kills async IIFEs
 // No opacity:0 trick — page always visible, never blank
 (function(){
-  var SUPA_URL = 'https://hxfqvbjfezzwtngfdqdv.supabase.co';
-  var SUPA_KEY = 'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM';
-
-  // ── STEP 1: Fill nav SYNCHRONOUSLY — never blank ──────────────────────────
-  // We stored _sk_email in localStorage when the game auth ran
-  (function(){
-    try {
-      var email = localStorage.getItem('_sk_email') || '';
-      if (!email) return;
-      var el = document.getElementById('navUserName');
-      if (el) el.textContent = '👤 ' + email.split('@')[0];
-    } catch(e) {}
-  })();
-
-  // ── STEP 2: Save pending score IMMEDIATELY — no auth needed ───────────────
-  // The pending record includes uid + token written by the game auth script
-  (function(){
-    try {
-      var raw = localStorage.getItem('_sk_pending');
-      if (!raw) return;
-      var p = JSON.parse(raw);
-      localStorage.removeItem('_sk_pending');
-      if (!p || !p.game || typeof p.score !== 'number' || !p.uid || !p.token) return;
-      // Direct fetch with the stored token — no Supabase client, no getSession()
-      fetch(SUPA_URL + '/rest/v1/rpc/save_game_score', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPA_KEY,
-          'Authorization': 'Bearer ' + p.token
-        },
-        body: JSON.stringify({
-          p_user_id: p.uid,
-          p_child_id: p.cid || '',
-          p_game_id: p.game,
-          p_score: p.score
-        })
-      }).then(function(r){
-        if (!r.ok) {
-          // Token may be expired — retry via Supabase client after auth
-          localStorage.setItem('_sk_retry', raw);
-        }
-      }).catch(function(){
-        localStorage.setItem('_sk_retry', raw);
-      });
-    } catch(e) {}
-  })();
-
-  // ── STEP 3: Supabase client for profile + nav enrichment ─────────────────
-  var _c = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  var _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
   window.__SK_CLIENT = _c;
 
-  function _applyProfile(uid, email, name, plan) {
-    var isPremium = plan === 'premium' || plan === 'admin';
-    window.__SPARKIDS_PREMIUM = isPremium;
-    window.__SK_SESSION = {userId:uid, email:email, name:name, plan:plan, isPremium:isPremium};
-    var nameEl = document.getElementById('navUserName');
-    var planEl = document.getElementById('navPlanBadge');
-    if (nameEl) nameEl.textContent = '👤 ' + name;
-    if (planEl) {
-      planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
-      planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
-      planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
-    }
-    if (isPremium) {
-      document.querySelectorAll('.lock-card').forEach(function(el) {
-        el.classList.remove('lock-card');
-        el.style.opacity = '1';
-        var lb = el.querySelector('.lock-badge');
-        if (lb) lb.remove();
-        var oc = el.getAttribute('onclick') || '';
-        var m = oc.match(/['"]([^'"]+\.html)['"]/);
-        if (m) { el.removeAttribute('onclick'); el.onclick = function(){ location.href = m[1]; }; }
-      });
-    }
-    var upgradeCard = document.getElementById('upgradeCard');
-    if (upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
-  }
-
-  function _loadSession(sess) {
-    var uid   = sess.user.id;
-    var email = sess.user.email || '';
-    var token = sess.access_token;
-
-    // Update localStorage keys for next game session
+  // ── STEP 1: Fill nav SYNCHRONOUSLY from cached Supabase session in localStorage
+  // This means nav is NEVER blank, even before any async call completes
+  (function(){
     try {
-      localStorage.setItem('_sk_uid',   uid);
-      localStorage.setItem('_sk_email', email);
-      localStorage.setItem('_sk_token', token);
+      var raw = localStorage.getItem('sb-hxfqvbjfezzwtngfdqdv-auth-token');
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      var u = parsed && (parsed.user || (parsed.currentSession && parsed.currentSession.user));
+      if (!u) return;
+      var email = u.email || '';
+      var nameEl = document.getElementById('navUserName');
+      if (nameEl && email) nameEl.textContent = '👤 ' + email.split('@')[0];
     } catch(e) {}
-
-    // Retry any score that failed because token was expired
-    try {
-      var retry = localStorage.getItem('_sk_retry');
-      if (retry) {
-        localStorage.removeItem('_sk_retry');
-        var rp = JSON.parse(retry);
-        if (rp && rp.game && typeof rp.score === 'number') {
-          _c.rpc('save_game_score', {
-            p_user_id: uid,
-            p_child_id: rp.cid || localStorage.getItem('sk_' + uid) || '',
-            p_game_id:  rp.game,
-            p_score:    rp.score
-          }).catch(function(){});
-        }
-      }
-    } catch(e) {}
-
-    // Show email name immediately (may already be set from sync step above)
-    var nameEl = document.getElementById('navUserName');
-    if (nameEl) nameEl.textContent = '👤 ' + email.split('@')[0];
-
-    // Fetch profile — with timeout fallback so nav is never stuck
-    var done = false;
-    var t = setTimeout(function(){
-      if (done) return; done = true;
-      _applyProfile(uid, email, email.split('@')[0], 'premium');
-    }, 3000);
-
-    _c.from('profiles').select('name,plan').eq('id', uid).single()
-      .then(function(r) {
-        if (done) return; done = true;
-        clearTimeout(t);
-        var d = r && r.data;
-        _applyProfile(uid, email, (d && d.name) || email.split('@')[0], (d && d.plan) || 'premium');
-      })
-      .catch(function() {
-        if (done) return; done = true;
-        clearTimeout(t);
-        _applyProfile(uid, email, email.split('@')[0], 'premium');
-      });
-  }
-
-  _c.auth.getSession().then(function(res) {
-    var sess = res && res.data && res.data.session;
-    if (!sess) { location.replace('auth.html?redirect=index.html'); return; }
-    _loadSession(sess);
-
-    window.addEventListener('pageshow', function(ev) {
-      if (!ev.persisted) return;
-      _c.auth.getSession().then(function(res2) {
-        var s2 = res2 && res2.data && res2.data.session;
-        if (!s2) { location.replace('auth.html?redirect=index.html'); return; }
-        _loadSession(s2);
-      }).catch(function() {});
-    });
-  }).catch(function() { location.replace('auth.html?redirect=index.html'); });
-})();
-
+  })();
 
   function _applyProfile(uid, email, name, plan) {
     var isPremium = plan==='premium' || plan==='admin';
