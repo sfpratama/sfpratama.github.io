@@ -247,14 +247,18 @@ a{text-decoration:none;color:inherit}
     } catch(e) {}
     if (pending && pending.game && typeof pending.score === 'number') {
       var cid = localStorage.getItem('sk_' + uid) || '';
-      _c.rpc('save_game_score', {
-        p_user_id: uid,
-        p_child_id: cid,
-        p_game_id: pending.game,
-        p_score: pending.score
-      }).then(function(r){
-        if(r && r.error) console.warn('pending score save error:', r.error.message);
-        else console.log('score saved:', pending.game, pending.score);
+      _c.from('profiles').select('scores,weekly').eq('id',uid).single()
+      .then(function(r){
+        if(!r.data)return;
+        var scores=(r.data.scores&&typeof r.data.scores==='object')?r.data.scores:{};
+        var weekly=Array.isArray(r.data.weekly)?r.data.weekly:[0,0,0,0,0,0,0];
+        if(!scores[pending.game]||scores[pending.game]<pending.score)scores[pending.game]=pending.score;
+        var di=new Date().getDay();di=di===0?6:di-1;weekly[di]=(weekly[di]||0)+1;
+        return _c.from('profiles').update({scores:scores,weekly:weekly,updated_at:new Date().toISOString()}).eq('id',uid);
+      })
+      .then(function(r){
+        if(r&&!r.error)console.log('pending score saved:',pending.game,pending.score);
+        else console.warn('pending score save error:',r&&r.error);
       }).catch(function(e){ console.warn('pending score save threw:', e); });
     }
 

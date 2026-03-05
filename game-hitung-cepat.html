@@ -361,13 +361,32 @@ function bindsound(){
 </script><script>bindsound();const e={rb:rb,banner:banner,score:score,stars:stars,streak:streak,timer:timer,start:start,end:end,fscore:fscore,fstars:fstars,fstreak:fstreak,frank:frank,prompt:document.getElementById('prompt'),choices:mathChoices};const s={score:0,stars:0,streak:0,best:0,time:60,round:1,answer:null,run:false,timerI:null};function hud(){e.score.textContent=s.score;e.stars.textContent=s.stars;e.streak.textContent=s.streak;e.timer.textContent=s.time;e.rb.textContent=`Ronde ${s.round}`;}function build(){const max=s.round<=3?5:s.round<=6?9:12;const a=Math.floor(Math.random()*max)+1,b=Math.floor(Math.random()*max)+1,useSub=s.round>=4&&Math.random()>.5;s.answer=useSub?Math.max(a,b)-Math.min(a,b):a+b;e.prompt.textContent=useSub?`${Math.max(a,b)} - ${Math.min(a,b)} = ?`:`${a} + ${b} = ?`;const set=new Set([s.answer]);while(set.size<4){const d=Math.floor(Math.random()*5)+1;set.add(Math.max(0,s.answer+(Math.random()>.5?d:-d)))}const opts=[...set].sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#facc15']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
   (function(){
   try{
-    // Store score in localStorage — index.html saves it to DB on fresh page load
-    // Avoids ALL iOS keepalive/fetch/navigation-cancel issues
     var _sc=Math.round(s.score);
-    localStorage.setItem('_sk_pending',JSON.stringify({
-      game:'hitung-cepat',score:_sc,ts:Date.now()
-    }));
-    window._savePromise=Promise.resolve();
-  }catch(e){console.warn('score store:',e);}
+    var _sk=window.__SK;
+    var _uid=(window.__SKS&&window.__SKS.id)||'';
+    // Backup to localStorage (index.html will retry if this direct save fails)
+    try{localStorage.setItem('_sk_pending',JSON.stringify({game:'hitung-cepat',score:_sc,uid:_uid,ts:Date.now()}));}catch(x){}
+    if(_sk&&_uid){
+      window._savePromise=_sk.from('profiles').select('scores,weekly').eq('id',_uid).single()
+        .then(function(r){
+          if(!r.data)return;
+          var scores=(r.data.scores&&typeof r.data.scores==='object')?r.data.scores:{};
+          var weekly=Array.isArray(r.data.weekly)?r.data.weekly:[0,0,0,0,0,0,0];
+          // Only update if new score is higher
+          if(!scores['hitung-cepat']||scores['hitung-cepat']<_sc)scores['hitung-cepat']=_sc;
+          // Increment today's play count
+          var di=new Date().getDay();di=di===0?6:di-1;
+          weekly[di]=(weekly[di]||0)+1;
+          return _sk.from('profiles').update({scores:scores,weekly:weekly,updated_at:new Date().toISOString()}).eq('id',_uid);
+        })
+        .then(function(r){
+          if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}
+          else console.warn('score update result:',r&&r.error);
+        })
+        .catch(function(e){console.warn('score save error:',e);});
+    }else{
+      window._savePromise=Promise.resolve();
+    }
+  }catch(e){console.warn('score saver:',e);window._savePromise=Promise.resolve();}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>

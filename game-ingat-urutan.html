@@ -373,14 +373,33 @@ function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best
 function endG(){
   (function(){
   try{
-    // Store score in localStorage — index.html saves it to DB on fresh page load
-    // Avoids ALL iOS keepalive/fetch/navigation-cancel issues
     var _sc=Math.round(s.score);
-    localStorage.setItem('_sk_pending',JSON.stringify({
-      game:'ingat-urutan',score:_sc,ts:Date.now()
-    }));
-    window._savePromise=Promise.resolve();
-  }catch(e){console.warn('score store:',e);}
+    var _sk=window.__SK;
+    var _uid=(window.__SKS&&window.__SKS.id)||'';
+    // Backup to localStorage (index.html will retry if this direct save fails)
+    try{localStorage.setItem('_sk_pending',JSON.stringify({game:'ingat-urutan',score:_sc,uid:_uid,ts:Date.now()}));}catch(x){}
+    if(_sk&&_uid){
+      window._savePromise=_sk.from('profiles').select('scores,weekly').eq('id',_uid).single()
+        .then(function(r){
+          if(!r.data)return;
+          var scores=(r.data.scores&&typeof r.data.scores==='object')?r.data.scores:{};
+          var weekly=Array.isArray(r.data.weekly)?r.data.weekly:[0,0,0,0,0,0,0];
+          // Only update if new score is higher
+          if(!scores['ingat-urutan']||scores['ingat-urutan']<_sc)scores['ingat-urutan']=_sc;
+          // Increment today's play count
+          var di=new Date().getDay();di=di===0?6:di-1;
+          weekly[di]=(weekly[di]||0)+1;
+          return _sk.from('profiles').update({scores:scores,weekly:weekly,updated_at:new Date().toISOString()}).eq('id',_uid);
+        })
+        .then(function(r){
+          if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}
+          else console.warn('score update result:',r&&r.error);
+        })
+        .catch(function(e){console.warn('score save error:',e);});
+    }else{
+      window._savePromise=Promise.resolve();
+    }
+  }catch(e){console.warn('score saver:',e);window._savePromise=Promise.resolve();}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden');}
 go.onclick=startG;again.onclick=startG;hud();render();
