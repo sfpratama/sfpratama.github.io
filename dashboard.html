@@ -735,8 +735,8 @@ function renderDashboard() {
     weeklyToShow = Array.isArray(ac.weekly) ? ac.weekly : [0,0,0,0,0,0,0];
     if (lbl) lbl.textContent = '📊 Progress: ' + ac.name;
   } else {
-    scoresToShow = _profile.scores || {};
-    weeklyToShow = _profile.weekly || [0,0,0,0,0,0,0];
+    scoresToShow = (_profile && _profile.scores) || {};
+    weeklyToShow = (_profile && _profile.weekly) || [0,0,0,0,0,0,0];
     if (lbl) lbl.textContent = '📊 Perkembangan Skill';
   }
 
@@ -825,19 +825,22 @@ function syncFromDB() {
     if (wn) wn.textContent = 'Halo, ' + uname + '! 👋';
     if (ws) ws.textContent = 'Akun: ' + (sess.user.email || '') + ' · Memuat…';
 
-    // Load profile — async, calls renderDashboard when done
+    // Render immediately with loading state — never blank, even if DB is slow
+    renderDashboard();
+
+    // Load profile from DB — re-renders when done
     loadFromDB();
 
-    // Failsafe: if all DB calls hang on iOS, force-render after 3s
-    setTimeout(function(){
-      var cl = document.getElementById('childList');
-      if(cl && cl.innerHTML.trim() === '') { renderDashboard(); }
-    }, 3000);
-    // Second failsafe at 7s in case network is very slow
+    // Failsafe: if RPC hangs, try direct table select at 2s
     setTimeout(function(){
       var cl = document.getElementById('childList');
       if(cl && cl.innerHTML.trim() === '') { _syncDirect(); }
-    }, 7000);
+    }, 2000);
+    // Hard failsafe at 5s — force syncDirect again
+    setTimeout(function(){
+      var cl = document.getElementById('childList');
+      if(cl && cl.innerHTML.trim() === '') { _syncDirect(); }
+    }, 5000);
 
     // Re-sync when tab becomes visible (back from game on iOS)
     document.addEventListener('visibilitychange', function() {

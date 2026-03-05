@@ -189,74 +189,114 @@ a{text-decoration:none;color:inherit}
   var _c = window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
   window.__SK_CLIENT = _c;
 
+  // ── STEP 1: Fill nav SYNCHRONOUSLY from cached Supabase session in localStorage
+  // This means nav is NEVER blank, even before any async call completes
+  (function(){
+    try {
+      var raw = localStorage.getItem('sb-hxfqvbjfezzwtngfdqdv-auth-token');
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      var u = parsed && (parsed.user || (parsed.currentSession && parsed.currentSession.user));
+      if (!u) return;
+      var email = u.email || '';
+      var nameEl = document.getElementById('navUserName');
+      if (nameEl && email) nameEl.textContent = '👤 ' + email.split('@')[0];
+    } catch(e) {}
+  })();
+
+  function _applyProfile(uid, email, name, plan) {
+    var isPremium = plan==='premium' || plan==='admin';
+    window.__SPARKIDS_PREMIUM = isPremium;
+    window.__SK_SESSION = {userId:uid, email:email, name:name, plan:plan, isPremium:isPremium};
+    var nameEl = document.getElementById('navUserName');
+    var planEl = document.getElementById('navPlanBadge');
+    if(nameEl) nameEl.textContent = '👤 ' + name;
+    if(planEl){
+      planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
+      planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
+      planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
+    }
+    if(isPremium){
+      document.querySelectorAll('.lock-card').forEach(function(el){
+        el.classList.remove('lock-card');
+        el.style.opacity='1';
+        var lb = el.querySelector('.lock-badge');
+        if(lb) lb.remove();
+        var oc = el.getAttribute('onclick') || '';
+        var m = oc.match(/['"]([^'"]+\.html)['"]/);
+        if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
+      });
+    }
+    var upgradeCard = document.getElementById('upgradeCard');
+    if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
+  }
+
+  function _loadProfile(uid, email) {
+    // Fallback: show email name immediately
+    var nameEl = document.getElementById('navUserName');
+    if(nameEl) nameEl.textContent = '👤 ' + email.split('@')[0];
+
+    // ── SAVE PENDING SCORE (from game localStorage store-and-forward) ──
+    var pending = null;
+    try {
+      var raw = localStorage.getItem('_sk_pending');
+      if (raw) {
+        pending = JSON.parse(raw);
+        localStorage.removeItem('_sk_pending'); // clear immediately — prevent double-save
+      }
+    } catch(e) {}
+    if (pending && pending.game && typeof pending.score === 'number') {
+      var cid = localStorage.getItem('sk_' + uid) || '';
+      _c.rpc('save_game_score', {
+        p_user_id: uid,
+        p_child_id: cid,
+        p_game_id: pending.game,
+        p_score: pending.score
+      }).then(function(r){
+        if(r && r.error) console.warn('pending score save error:', r.error.message);
+        else console.log('score saved:', pending.game, pending.score);
+      }).catch(function(e){ console.warn('pending score save threw:', e); });
+    }
+
+    // ── FETCH PROFILE FROM DB ──
+    var done = false;
+    function apply(name, plan) {
+      if(done) return; done = true;
+      _applyProfile(uid, email, name, plan);
+    }
+    // Fallback: if DB doesn't respond in 4s, use email name + premium default
+    var t = setTimeout(function(){ apply(email.split('@')[0], 'premium'); }, 4000);
+    _c.from('profiles').select('name,plan').eq('id', uid).single()
+      .then(function(r){
+        clearTimeout(t);
+        var d = r && r.data;
+        apply((d && d.name) || email.split('@')[0], (d && d.plan) || 'premium');
+      })
+      .catch(function(){
+        clearTimeout(t);
+        apply(email.split('@')[0], 'premium');
+      });
+  }
+
+  // ── STEP 2: Async auth — redirect if no session, otherwise load profile
   _c.auth.getSession().then(function(res){
     var session = res && res.data && res.data.session;
     if(!session){ location.replace('auth.html?redirect=index.html'); return; }
+    _loadProfile(session.user.id, session.user.email || '');
 
-    // Show name from email IMMEDIATELY — never blank waiting for DB
-    var _uid = session.user.id;
-    var _email = session.user.email || '';
-    var _nameEl = document.getElementById('navUserName');
-    var _planEl = document.getElementById('navPlanBadge');
-    if(_nameEl) _nameEl.textContent = '👤 ' + _email.split('@')[0];
-
-    function _applyProfile(name, plan) {
-      var isPremium = plan==='premium' || plan==='admin';
-      window.__SPARKIDS_PREMIUM = isPremium;
-      window.__SK_SESSION = {userId:_uid, email:_email, name:name, plan:plan, isPremium:isPremium};
-      if(_nameEl) _nameEl.textContent = '👤 ' + name;
-      if(_planEl){
-        _planEl.textContent = isPremium ? '⭐ Premium' : '🆓 Free';
-        _planEl.style.background = isPremium ? '#fde68a' : '#e0f2fe';
-        _planEl.style.color      = isPremium ? '#854d0e' : '#0369a1';
-      }
-      if(isPremium){
-        document.querySelectorAll('.lock-card').forEach(function(el){
-          el.classList.remove('lock-card');
-          el.style.opacity='1';
-          var lb = el.querySelector('.lock-badge');
-          if(lb) lb.remove();
-          var oc = el.getAttribute('onclick') || '';
-          var m = oc.match(/['"]([\w-]+\.html)['"]/);
-          if(m){ el.removeAttribute('onclick'); el.onclick = function(){ location.href=m[1]; }; }
-        });
-      }
-      var upgradeCard = document.getElementById('upgradeCard');
-      if(upgradeCard) upgradeCard.style.display = isPremium ? 'none' : 'block';
-    }
-
-    function _fillNav() {
-      // Use direct select (no RPC dependency) with explicit no-cache headers
-      _c.from('profiles').select('name,plan').eq('id',_uid).single()
-        .then(function(r){
-          var profile = r && r.data;
-          var plan = (profile && profile.plan) || 'premium';
-          var name = (profile && profile.name) || _email.split('@')[0];
-          _applyProfile(name, plan);
-        })
-        .catch(function(){
-          // DB failed — still show email-based name, default to premium
-          _applyProfile(_email.split('@')[0], 'premium');
-        });
-    }
-    _fillNav();
-
-    // Re-fill nav if page restored from iOS bfcache — getSession fresh, not stale closure
+    // ── pageshow: fired on iOS bfcache restore (back-forward navigation)
+    // Re-run getSession to refresh, re-fill nav, re-check pending score
     window.addEventListener('pageshow', function(ev){
-      if(ev.persisted){
-        _c.auth.getSession().then(function(res){
-          var s2 = res && res.data && res.data.session;
-          if(!s2){ location.replace('auth.html?redirect=index.html'); return; }
-          _uid = s2.user.id; _email = s2.user.email || '';
-          _nameEl = document.getElementById('navUserName');
-          _planEl = document.getElementById('navPlanBadge');
-          if(_nameEl) _nameEl.textContent = '👤 ' + _email.split('@')[0];
-          _fillNav();
-        });
-      }
+      if(!ev.persisted) return;
+      _c.auth.getSession().then(function(res2){
+        var s2 = res2 && res2.data && res2.data.session;
+        if(!s2){ location.replace('auth.html?redirect=index.html'); return; }
+        _loadProfile(s2.user.id, s2.user.email || '');
+      }).catch(function(){});
     });
   }).catch(function(){ location.replace('auth.html?redirect=index.html'); });
 })();
+
 
 function doLogout(){
   if(window.__SK_CLIENT) window.__SK_CLIENT.auth.signOut().then(function(){ location.replace('auth.html'); });

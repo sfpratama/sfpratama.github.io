@@ -266,7 +266,8 @@ a{text-decoration:none;color:inherit}
   _c.auth.getSession().then(function(res){
     var sess=res&&res.data&&res.data.session;
     if(!sess){location.replace('auth.html');return;}
-    window.__SKS={id:sess.user.id,email:sess.user.email};
+    // Store token NOW so score saver can use it synchronously at game end
+    window.__SKS={id:sess.user.id,email:sess.user.email,token:sess.access_token};
   }).catch(function(){location.replace('auth.html');});
 })();
 </script>
@@ -380,35 +381,13 @@ const extra=['🌸','🌊','⭐','🍀','🟣','🟡','🔺','🔵','🍎','🍌
   '1','2','3','4','5','6','7','8','9','10','20','30','40'];function build(){const base=rand(patterns),ans=base[base.length-1];s.answer=ans;e.prompt.innerHTML='';base.slice(0,base.length-1).forEach(x=>{const p=document.createElement('div');p.className='pill';p.textContent=x;e.prompt.appendChild(p)});let opts=[ans];while(opts.length<4){const c=rand(extra);if(!opts.includes(c))opts.push(c)}opts.sort(()=>Math.random()-.5);e.choices.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.style.background=rand(['#38bdf8','#f472b6','#a78bfa','#84cc16']);b.innerHTML=`<div>${o}</div>`;b.onclick=()=>choose(o,b);e.choices.appendChild(b)})}function choose(v,b){if(!s.run)return;b.classList.add('active');setTimeout(()=>b.classList.remove('active'),180);if(v===s.answer){s.score+=10;s.stars+=2;s.streak++;s.best=Math.max(s.best,s.streak);ok(s.streak+1);s.round++;hud();setTimeout(()=>{if(!s.run)return;build()},650);}else{s.score=Math.max(0,s.score-3);s.streak=0;hud();bad();setTimeout(build,650);}}function startG(){initAudio();startsound();s.score=0;s.stars=0;s.streak=0;s.best=0;s.time=60;s.round=1;s.run=true;start.classList.add('hidden');end.classList.add('hidden');hud();build();s.timerI=setInterval(()=>{s.time--;hud();if(s.time<=0)endG()},1000)}function endG(){
   (function(){
   try{
-    var _sk=window.__SK,_ss=window.__SKS;
-    if(!_sk)return;
+    // Store score in localStorage — index.html saves it to DB on fresh page load
+    // Avoids ALL iOS keepalive/fetch/navigation-cancel issues
     var _sc=Math.round(s.score);
-    var _lsCid=(_ss&&_ss.id)?localStorage.getItem('sk_'+_ss.id)||'':'';
-    function _rawSave(token,uid,cid){
-      var p=fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
-        method:'POST',keepalive:true,
-        headers:{'Content-Type':'application/json',
-          'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',
-          'Authorization':'Bearer '+token,
-          'Prefer':'return=minimal'},
-        body:JSON.stringify({p_user_id:uid,p_child_id:cid,p_game_id:'temukan-pola',p_score:_sc})
-      }).catch(function(){
-        return _sk.rpc('save_game_score',{p_user_id:uid,p_child_id:cid,p_game_id:'temukan-pola',p_score:_sc});
-      });
-      window._savePromise=p;
-      return p;
-    }
-    // Get fresh session at save time — never rely on stale __SKS token
-    window._savePromise=_sk.auth.getSession().then(function(res){
-      var sess=res&&res.data&&res.data.session;
-      if(!sess)return;
-      var uid=sess.user.id;
-      var token=sess.access_token;
-      if(_lsCid&&_lsCid!=='null'){return _rawSave(token,uid,_lsCid);}
-      return _sk.from('profiles').select('active_child_id').eq('id',uid).single()
-        .then(function(r){return _rawSave(token,uid,(r.data&&r.data.active_child_id)||'');})
-        .catch(function(){return _rawSave(token,uid,'');});
-    }).catch(function(e){console.warn('score save failed:',e);});
-  }catch(e){console.warn('score saver:',e);}
+    localStorage.setItem('_sk_pending',JSON.stringify({
+      game:'temukan-pola',score:_sc,ts:Date.now()
+    }));
+    window._savePromise=Promise.resolve();
+  }catch(e){console.warn('score store:',e);}
 })();
   s.run=false;clearInterval(s.timerI);fscore.textContent=s.score;fstars.textContent=s.stars;fstreak.textContent=s.best;frank.textContent=rank(s.score);finishsound();end.classList.remove('hidden')}go.onclick=startG;again.onclick=startG;hud();</script></body></html>
