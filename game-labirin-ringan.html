@@ -261,7 +261,7 @@ a{text-decoration:none;color:inherit}
 <script>
 // No async/await — iOS Safari silently kills async IIFEs (blank page / scores lost)
 (function(){
-  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM',{global:{fetch:function(u,o){var h=new Headers(o?o.headers:{});h.set('Cache-Control','no-cache, no-store');return fetch(u,Object.assign({},o,{cache:'no-store',headers:h}));}}};
+  var _c=window.supabase.createClient('https://hxfqvbjfezzwtngfdqdv.supabase.co','sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM');
   window.__SK=_c;
   _c.auth.getSession().then(function(res){
     var sess=res&&res.data&&res.data.session;
@@ -471,33 +471,18 @@ function mazeEnd(){
   (function(){
   try{
     var _sc=Math.round(mazeState.score);
-    var _sk=window.__SK;
     var _uid=(window.__SKS&&window.__SKS.id)||'';
-    var _token=(window.__SKS&&window.__SKS.token)||'';
     var _cid='';
     try{_cid=localStorage.getItem('sk_'+_uid)||'';}catch(x){}
-    // LAYER 3: localStorage backup (sync, 100% reliable, never fails)
     try{localStorage.setItem('_sk_pending',JSON.stringify({game:'labirin-ringan',score:_sc,uid:_uid,cid:_cid,ts:Date.now()}));}catch(x){}
-    if(!_uid){window._savePromise=Promise.resolve();return;}
-    // LAYER 1: Supabase JS client RPC (works on Chrome, sometimes Safari)
-    var p1=_sk?_sk.rpc('save_game_score',{
-      p_user_id:_uid,p_child_id:_cid||'',p_game_id:'labirin-ringan',p_score:_sc
-    }).then(function(r){
-      if(r&&!r.error){try{localStorage.removeItem('_sk_pending');}catch(x){}}
-      else{console.warn('L1 rpc err:',r&&r.error);}
-    }).catch(function(e){console.warn('L1 rpc catch:',e);}):Promise.resolve();
-    // LAYER 2: Raw fetch+keepalive (survives Safari page navigation)
-    if(_token){
-      try{fetch('https://hxfqvbjfezzwtngfdqdv.supabase.co/rest/v1/rpc/save_game_score',{
-        method:'POST',keepalive:true,
-        headers:{'apikey':'sb_publishable_YVtrAxIiDSRbs_6YftuXCQ_39B_nvKM','Authorization':'Bearer '+_token,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({p_user_id:_uid,p_child_id:_cid||'',p_game_id:'labirin-ringan',p_score:_sc})
-      }).then(function(r){
-        if(r.ok)try{localStorage.removeItem('_sk_pending');}catch(x){}
-      }).catch(function(){});}catch(x){}
+    window._savePromise=Promise.resolve();
+    var _sk=window.__SK;
+    if(_sk&&_uid){
+      _sk.rpc('save_game_score',{p_user_id:_uid,p_child_id:_cid||'',p_game_id:'labirin-ringan',p_score:_sc}).then(function(r){
+        if(r&&!r.error)try{localStorage.removeItem('_sk_pending');}catch(x){}
+      }).catch(function(){});
     }
-    window._savePromise=p1;
-  }catch(e){console.warn('score saver:',e);window._savePromise=Promise.resolve();}
+  }catch(e){window._savePromise=Promise.resolve();}
 })();
   mazeEls.end.classList.remove('hidden');
 }
