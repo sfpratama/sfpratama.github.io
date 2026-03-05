@@ -794,19 +794,7 @@ function _syncDirect() {
 
 function syncFromDB() {
   if (!_uid) return;
-  _db.rpc('get_profile', { p_user_id: _uid })
-    .then(function(r) {
-      if (r.error) {
-        console.warn('syncFromDB RPC error, falling back to direct select:', r.error.message);
-        _syncDirect(); return;
-      }
-      if (!r.data) { _syncDirect(); return; }
-      _applyProfileData(r.data);
-    })
-    .catch(function(e) {
-      console.warn('syncFromDB threw, falling back:', e);
-      _syncDirect();
-    });
+  _syncDirect();
 }
 
 
