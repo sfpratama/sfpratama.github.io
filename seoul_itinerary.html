@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seoul Trip · May 18–25</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0f1b2d;
+    --gold: #c9924a;
+    --gold-light: #f5e6d0;
+    --rose: #e8c4c4;
+    --sage: #c4dbc4;
+    --sky: #c4d8e8;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e5e5e5;
+    --bg: #fafaf8;
+    --white: #ffffff;
+    --card-radius: 16px;
+    --pill-radius: 30px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    color: #fff;
+    padding: 60px 24px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(201,146,74,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,146,74,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold); font-weight: 500; margin-bottom: 12px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 700; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero-title em { font-style: italic; color: var(--gold); }
+  .hero-sub {
+    font-size: 15px; color: rgba(255,255,255,0.6);
+    font-weight: 300; margin-bottom: 28px;
+  }
+  .hero-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+  }
+  .hero-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--pill-radius);
+    padding: 6px 16px; font-size: 12px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* NAV TABS */
+  .nav-wrap {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    padding: 0 24px;
+  }
+  .nav-tabs {
+    display: flex; gap: 0;
+    overflow-x: auto; scrollbar-width: none;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex-shrink: 0;
+    padding: 16px 20px;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted); background: none;
+    border: none; border-bottom: 2px solid transparent;
+    cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+  .section-inner {
+    max-width: 1100px; margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* SECTION TITLE */
+  .sec-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    margin-bottom: 6px; color: var(--navy);
+  }
+  .sec-sub {
+    font-size: 14px; color: var(--muted);
+    font-weight: 300; margin-bottom: 32px;
+  }
+
+  /* CARD GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  /* SPOT CARD */
+  .spot-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .spot-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  }
+  .card-img {
+    width: 100%; height: 200px;
+    object-fit: cover; display: block;
+    background: #e8e8e8;
+  }
+  .card-body { padding: 16px; }
+  .card-badge-row {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .badge {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.3px;
+    padding: 3px 9px; border-radius: var(--pill-radius);
+  }
+  .badge-tiktok { background: #fff0eb; color: #c84b1a; }
+  .badge-michelin { background: #fff8eb; color: #b8750a; }
+  .badge-kol { background: #f0eeff; color: #5040b8; }
+  .badge-insta { background: #fff0f5; color: #c83080; }
+  .badge-must { background: var(--navy); color: #fff; }
+  .badge-concept { background: #e8f0ff; color: #1040a8; }
+  .badge-flagship { background: #e8fff0; color: #106830; }
+  .badge-korean { background: #e8f8f0; color: #0a6040; }
+  .badge-hotel { background: #eeeeff; color: #3828b8; }
+  .badge-airbnb { background: #e8fff8; color: #0a6050; }
+
+  .card-name {
+    font-size: 16px; font-weight: 500;
+    margin-bottom: 4px; color: var(--navy);
+    line-height: 1.3;
+  }
+  .card-loc {
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 4px;
+    margin-bottom: 10px;
+  }
+  .card-loc svg { flex-shrink: 0; }
+  .card-desc {
+    font-size: 13px; color: #444;
+    line-height: 1.65; font-weight: 300;
+    margin-bottom: 12px;
+  }
+  .card-price {
+    font-size: 12px; color: var(--muted);
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .card-subway {
+    font-size: 11px; color: #185fa5;
+    margin-top: 4px; font-weight: 500;
+  }
+
+  /* TIP BOX */
+  .tip-box {
+    background: #fffbf0;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px; margin-bottom: 28px;
+    font-size: 13px; color: #444; line-height: 1.65;
+  }
+  .tip-box strong { color: var(--navy); font-weight: 500; }
+
+  /* STAY CARDS */
+  .stay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .stay-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .stay-img {
+    width: 100%; height: 180px;
+    object-fit: cover; display: block;
+    background: #e8e8e8;
+  }
+  .stay-body { padding: 16px; }
+  .stay-name {
+    font-size: 16px; font-weight: 500;
+    color: var(--navy); margin-bottom: 4px;
+  }
+  .stay-loc {
+    font-size: 12px; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stay-price-row {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .stay-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; color: var(--navy);
+  }
+  .stay-price-note { font-size: 12px; color: var(--muted); }
+  .stay-subway {
+    font-size: 11px; font-weight: 500;
+    color: #185fa5; background: #e8f1ff;
+    border-radius: var(--pill-radius);
+    padding: 3px 10px; display: inline-block;
+    margin-bottom: 10px;
+  }
+  .stay-desc {
+    font-size: 13px; color: #444;
+    line-height: 1.65; font-weight: 300;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  /* DAY ITINERARY */
+  .days-wrap { display: flex; flex-direction: column; gap: 28px; }
+
+  .day-block {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .day-head {
+    background: var(--navy);
+    color: #fff; padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .day-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold); color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .day-head-text {}
+  .day-title { font-size: 15px; font-weight: 500; }
+  .day-sub-text { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+  .day-photos {
+    display: flex; gap: 0;
+    height: 160px; overflow: hidden;
+  }
+  .day-photo {
+    flex: 1; object-fit: cover;
+    display: block; background: #e8e8e8;
+  }
+
+  .events { padding: 0; }
+  .event-row {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: stretch;
+  }
+  .event-row:last-child { border-bottom: none; }
+  .event-time-col {
+    width: 60px; flex-shrink: 0;
+    padding: 14px 12px;
+    font-size: 11px; color: var(--muted);
+    text-align: center;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding-top: 18px;
+    gap: 6px;
+  }
+  .event-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-fnb { background: #D85A30; }
+  .dot-cafe { background: #3B7D40; }
+  .dot-store { background: #185FA5; }
+  .dot-travel { background: #888; }
+
+  .event-content-col {
+    flex: 1; padding: 14px 16px;
+  }
+  .event-name { font-size: 14px; font-weight: 500; color: var(--navy); }
+  .event-detail { font-size: 12px; color: var(--muted); font-weight: 300; margin-top: 3px; line-height: 1.55; }
+
+  /* LEGEND */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero { padding: 40px 16px 60px; }
+    .section-inner { padding: 24px 16px 40px; }
+    .card-grid, .stay-grid { grid-template-columns: 1fr; }
+    .day-photos { height: 120px; }
+  }
+
+  /* PRINT / DOWNLOAD feel */
+  a { color: inherit; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Seoul, South Korea · 18–25 May 2025</div>
+  <h1 class="hero-title">Your <em>dream</em> Seoul trip 🇰🇷</h1>
+  <p class="hero-sub">8 days · Viral F&B · Aesthetic Cafes · Concept Stores · Activewear Inspo</p>
+  <div class="hero-pills">
+    <span class="hero-pill">🍜 Viral F&B spots</span>
+    <span class="hero-pill">☕ Picturesque cafes</span>
+    <span class="hero-pill">🏪 Concept stores</span>
+    <span class="hero-pill">🧘 Activewear brands</span>
+    <span class="hero-pill">🏨 All near subway · ≤ Rp 2 Jt/night</span>
+  </div>
+</div>
+
+<!-- STICKY NAV -->
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('fnb', this)">🍜 F&amp;B Spots</button>
+    <button class="nav-tab" onclick="showSection('cafe', this)">☕ Cafes</button>
+    <button class="nav-tab" onclick="showSection('store', this)">🏪 Concept Stores</button>
+    <button class="nav-tab" onclick="showSection('stay', this)">🏨 Where to Stay</button>
+    <button class="nav-tab" onclick="showSection('plan', this)">📅 Day-by-Day</button>
+  </div>
+</div>
+
+<!-- ===================== F&B ===================== -->
+<div id="s-fnb" class="section active">
+  <div class="section-inner">
+    <h2 class="sec-title">Trending F&B Spots</h2>
+    <p class="sec-sub">Viral on TikTok · visited by Indonesian KOLs · May 2025 picks</p>
+
+    <div class="tip-box">
+      <strong>May weather:</strong> Late May is gorgeous in Seoul — 18–24°C, sunny, minimal rain. Best time for outdoor eating and content creation at all these spots!
+    </div>
+
+    <div class="card-grid">
+
+      <div class="spot-card">
+        <img class="card-img" src="https://eatwith.com/blog/wp-content/uploads/2023/08/ganjang-gejang.jpg" alt="Gebangsikdang soy marinated crab" onerror="this.src='https://images.unsplash.com/photo-1590301157890-4810ed352733?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-michelin">Michelin Bib Gourmand 2025</span>
+            <span class="badge badge-must">Must Try</span>
+          </div>
+          <div class="card-name">Gebangsikdang (간장게장)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Mapo-gu (near Hongdae area)
+          </div>
+          <p class="card-desc">The #1 viral soy-marinated raw crab in Seoul — literally called "the rice thief" because you can't stop eating rice with it. Michelin Bib Gourmand every year 2018–2025. Featured by countless Indonesian food KOLs. Set comes with seasonal banchan, crispy seaweed, and clam soup. Queue early — typically 30–45 min wait!</p>
+          <div class="card-price">₩36,000–38,000 per set (~Rp 420–445K)</div>
+          <div class="card-subway">🚇 Subway Line 2 · Hongdae Univ. Station (5 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/2022_Woomoolzip_restaurant_interior.jpg/1280px-2022_Woomoolzip_restaurant_interior.jpg" alt="Woomoolzip private hot pot" onerror="this.src='https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral TikTok</span>
+            <span class="badge badge-kol">Indonesian KOL fave</span>
+          </div>
+          <div class="card-name">Woomoolzip (우물집)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Changsin-dong, Jongno-gu
+          </div>
+          <p class="card-desc">Seoul's most viral private hot pot dining experience. Intimate traditional setting inside a beautifully preserved space — feels like stepping into a K-drama. Book via Catchtable app weeks in advance. A full evening experience perfect for couples.</p>
+          <div class="card-price">₩40,000–60,000 pp (~Rp 470–700K)</div>
+          <div class="card-subway">🚇 Line 1 · Dongdaemun Station (10 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80" alt="Tosokchon samgyetang ginseng chicken" onerror="this.src='https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-kol">Indonesian KOL staple</span>
+          </div>
+          <div class="card-name">Tosokchon (토속촌)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Jongno-gu, near Gyeongbokgung
+          </div>
+          <p class="card-desc">The legendary samgyetang restaurant — whole young chicken stuffed with glutinous rice, ginseng, and dates in a rich broth. One of Seoul's most iconic restaurants, open since 1983. Featured in virtually every Indonesian KOL's Seoul trip. Warm, healing, and deeply photogenic.</p>
+          <div class="card-price">₩18,000 per bowl (~Rp 210K)</div>
+          <div class="card-subway">🚇 Line 3 · Gyeongbokgung Station Exit 2 (5 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600&q=80" alt="Sol Sot dolsot rice" onerror="this.src='https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral TikTok</span>
+          </div>
+          <div class="card-name">Sol Sot (솔솥)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Multiple Seoul locations
+          </div>
+          <p class="card-desc">Famous for crispy dolsot (stone pot) rice — the ASMR sound of scorched rice scraping off the pot gets millions of TikTok views. Beautifully curated toppings, gorgeous presentation. Very popular with Southeast Asian visitors. Branch in Myeongdong is easiest to reach.</p>
+          <div class="card-price">₩14,000–20,000 (~Rp 165–235K)</div>
+          <div class="card-subway">🚇 Line 4 · Myeongdong Station Exit 6 (3 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80" alt="Gwangjang Market street food Seoul" onerror="this.src='https://images.unsplash.com/photo-1567337710282-00832b415979?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-kol">Every Korean KOL</span>
+          </div>
+          <div class="card-name">Gwangjang Market (광장시장)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Jongno-gu (Seoul's oldest market)
+          </div>
+          <p class="card-desc">Korea's most famous traditional market and a pilgrimage spot for every Indonesian influencer visiting Seoul. Try bindaetteok (mung bean pancakes), spicy tteokbokki, and raw beef bibimbap. Night market atmosphere is electric and super content-worthy.</p>
+          <div class="card-price">₩3,000–10,000 per item (~Rp 35–120K)</div>
+          <div class="card-subway">🚇 Line 1 · Jongno 5-ga Station Exit 8 (1 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&q=80" alt="Jayeondo viral salt bread Korea" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral Salt Bread</span>
+          </div>
+          <div class="card-name">Jayeondo Salt Bread (자연도소금빵)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Multiple locations across Seoul
+          </div>
+          <p class="card-desc">THE viral salt bread of Korea — buttery, flaky, slightly salty, totally addictive. Gets millions of views on TikTok with people lined up at opening time. Sold out daily before noon. Best eaten warm straight from the bag while walking. Grab it first thing in the morning!</p>
+          <div class="card-price">₩2,500–4,000 each (~Rp 30–47K)</div>
+          <div class="card-subway">🚇 Multiple locations — nearest subway varies by branch</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1544025162-d76594e917c4?w=600&q=80" alt="Sancheong Charcoal Garden Korean BBQ Euljiro" onerror="this.src='https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-kol">Indonesian KOL fave</span>
+          </div>
+          <div class="card-name">Sancheong Charcoal Garden (산청숯불가든)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Euljiro (을지로) — hip industrial district
+          </div>
+          <p class="card-desc">Authentic charcoal-grilled Korean BBQ in the hip Euljiro district — a retro industrial neighborhood that's become insanely popular with local creatives and Indonesian content creators. Smoky pork belly, old-school atmosphere, great for dinner with a group.</p>
+          <div class="card-price">₩20,000–35,000 pp (~Rp 235–410K)</div>
+          <div class="card-subway">🚇 Line 2 · Euljiro 3-ga Station Exit 1 (3 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80" alt="Speakeasy fried chicken Itaewon Seoul" onerror="this.src='https://images.unsplash.com/photo-1619961602105-16fa2a5465c7?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral speakeasy concept</span>
+          </div>
+          <div class="card-name">Speakeasy Fried Chicken, Itaewon</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Itaewon, Yongsan-gu
+          </div>
+          <p class="card-desc">A hidden speakeasy-concept fried chicken restaurant in Itaewon that went viral on TikTok. Unique hidden-bar vibe meets Korean fried chicken perfection. The hunt to find it is part of the experience — great story to tell and amazing content to create.</p>
+          <div class="card-price">₩20,000–30,000 pp (~Rp 235–350K)</div>
+          <div class="card-subway">🚇 Line 6 · Itaewon Station Exit 1 (5–8 min walk)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CAFES ===================== -->
+<div id="s-cafe" class="section">
+  <div class="section-inner">
+    <h2 class="sec-title">Trending & Picturesque Cafes</h2>
+    <p class="sec-sub">Aesthetic · Instagrammable · Unique concept · All TikTok-viral</p>
+
+    <div class="card-grid">
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80" alt="Seoul Angmusae parrot cafe Seongsu" onerror="this.src='https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral TikTok 2025</span>
+            <span class="badge badge-must">Top Pick</span>
+          </div>
+          <div class="card-name">Seoul Angmusae (서울앵무새)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Seongsu-dong (+ Yongsan branch)
+          </div>
+          <p class="card-desc">Neon parrot logo, rainbow-colored exterior — impossible to miss and impossible not to post. Famous for Queen Amann pastries and the unique ritual of drawing on your dessert plate with colored markers. Every visit is personal. A viral sensation since day one, now with multiple branches.</p>
+          <div class="card-price">₩8,000–18,000 (~Rp 95–210K)</div>
+          <div class="card-subway">🚇 Line 2 · Seongsu Station Exit 3 (7 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1513530534585-c7b1394c6d51?w=600&q=80" alt="Rafre Fruits seasonal fruit cafe Seoul" onerror="this.src='https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-insta">Instagrammable</span>
+            <span class="badge badge-must">May pick</span>
+          </div>
+          <div class="card-name">Rafre Fruits (라프레)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Seochon (near Gyeongbokgung) + Seongsu
+          </div>
+          <p class="card-desc">Seoul's most stunning seasonal fruit cafe — May menu features mango and the first melons of summer. Fruit displayed like art, cottage farmhouse interior, the best OJ you'll ever taste. Mango bingsu, layered fruit parfaits, fruit crepe cakes. Go at opening — sells out fast!</p>
+          <div class="card-price">₩15,000–35,000 (~Rp 175–410K)</div>
+          <div class="card-subway">🚇 Line 3 · Gyeongbokgung Station Exit 2 (8 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80" alt="943 Kings Cross Harry Potter cafe Hongdae" onerror="this.src='https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">TikTok viral</span>
+          </div>
+          <div class="card-name">943 King's Cross</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Hongdae, Mapo-gu
+          </div>
+          <p class="card-desc">4-floor Harry Potter-themed cafe — wand boxes à la Ollivander's, grand Hogwarts-style halls, moody atmospheric lighting. Butterbeer-inspired drinks, themed pastries. Broomstick photo op outside is iconic. Even non-Potterheads will be floored by the level of detail. Global viral hit.</p>
+          <div class="card-price">₩12,000–22,000 (~Rp 140–260K)</div>
+          <div class="card-subway">🚇 Line 2 · Hongik Univ. Station Exit 9 (5 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1481833761820-0509d3217039?w=600&q=80" alt="Colline flower cafe Hongdae Seoul floral" onerror="this.src='https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-insta">Full bloom in May</span>
+            <span class="badge badge-must">Couple pick</span>
+          </div>
+          <div class="card-name">Colline</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Hongdae · near Sangsu Station
+          </div>
+          <p class="card-desc">The most romantic cafe in Seoul — a blooming garden cafe where the seasonal floral decor changes every visit. In May, it's at peak bloom. Somehow quiet despite being in busy Hongdae. Seasonal brunch plates made with fresh ingredients. Perfect for couple content. One of Seoul's most genuinely beautiful cafes.</p>
+          <div class="card-price">₩14,000–25,000 (~Rp 165–295K)</div>
+          <div class="card-subway">🚇 Line 6 · Sangsu Station Exit 1 (3 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80" alt="Daelim Changgo industrial warehouse cafe Seongsu" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Industrial chic</span>
+          </div>
+          <div class="card-name">Daelim Changgo (대림창고)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Seongsu-dong, Seongdong-gu
+          </div>
+          <p class="card-desc">The quintessential Seongsu experience — a beautifully converted warehouse with exposed brick, high ceilings, and art installations. Stunning pastries, great latte art, and the perfect backdrop for Seongsu content. A TikTok content machine that also happens to have genuinely excellent coffee.</p>
+          <div class="card-price">₩7,000–14,000 (~Rp 82–165K)</div>
+          <div class="card-subway">🚇 Line 2 · Seongsu Station Exit 3 (6 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1534040385115-33dcb3acba5b?w=600&q=80" alt="Green Mile Coffee Bukchon Hanok rooftop view" onerror="this.src='https://images.unsplash.com/photo-1567097815736-4aea27d3fd5d?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-insta">Best views in Seoul</span>
+          </div>
+          <div class="card-name">Green Mile Coffee</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Jongno-gu, near Bukchon Hanok Village
+          </div>
+          <p class="card-desc">A sleek, modern interior cafe with an unbeatable rooftop terrace offering unobstructed panoramic views over Bukchon's traditional tiled hanok rooftops. One of the most visually dramatic cafes in Seoul. Visit during golden hour (4–6pm) for the best light. Pair with a Bukchon alley walk beforehand.</p>
+          <div class="card-price">₩7,000–13,000 (~Rp 82–155K)</div>
+          <div class="card-subway">🚇 Line 3 · Anguk Station Exit 1 (7 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80" alt="Soha Salt Pond Ikseon-dong hanok cafe" onerror="this.src='https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-insta">Hanok heritage</span>
+          </div>
+          <div class="card-name">Soha Salt Pond (소하염전) — Ikseon-dong</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Ikseon-dong (익선동), Jongno-gu
+          </div>
+          <p class="card-desc">Set in Seoul's most photogenic hanok alley district. Traditional Korean house converted into a cozy modern cafe. Ikseon-dong itself is a must-visit — every alley is a photo op. Pair with Mil Toast and Cheese Industry nearby for a full morning of cafe hopping.</p>
+          <div class="card-price">₩8,000–15,000 (~Rp 95–175K)</div>
+          <div class="card-subway">🚇 Line 1 · Jongno 3-ga Station Exit 4 (3 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80" alt="Waterfall cafe Seoul TikTok viral" onerror="this.src='https://images.unsplash.com/photo-1533158307587-828f0a76ef46?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-tiktok">Viral waterfall cafe</span>
+          </div>
+          <div class="card-name">Waterfall Cafe (폭포카페)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Outskirts of Seoul (day trip)
+          </div>
+          <p class="card-desc">"More waterfall than cafe" — TikTok went crazy for this. Front-row seats to a spectacular natural waterfall inside the cafe. Take a drink out and explore the surrounding trails with river and mountain views. A beautiful half-day escape from the city — best content on the whole trip.</p>
+          <div class="card-price">₩7,000–12,000 (~Rp 82–140K)</div>
+          <div class="card-subway">🚌 Bus from central Seoul (approx 1hr, worth it!)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STORES ===================== -->
+<div id="s-store" class="section">
+  <div class="section-inner">
+    <h2 class="sec-title">Concept Stores & Activewear</h2>
+    <p class="sec-sub">Retail inspo for Happyfit · Korean athleisure brands · Future-of-retail concepts</p>
+
+    <div class="tip-box">
+      <strong>Happyfit strategy:</strong> Seoul's activewear retail scene in 2025 is arguably the most advanced in Asia. Alo Yoga's first Asia flagship + Lululemon's Korean flagship just opened. Study how these brands do experiential retail — it's the blueprint for growing a local activewear brand.
+    </div>
+
+    <div class="card-grid">
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&q=80" alt="Haus Nowhere Gentle Monster Seongsu Seoul 2025" onerror="this.src='https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-concept">Best concept store 2025</span>
+            <span class="badge badge-must">Don't miss</span>
+          </div>
+          <div class="card-name">Haus Nowhere (하우스 노웨어) — Gentle Monster</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Seongsu-dong (13-story building)
+          </div>
+          <p class="card-desc">Opened September 2025 — Gentle Monster's most ambitious project. 13 stories housing Gentle Monster eyewear, Tamburins fragrance, ATiiSSU headwear, and Nudake cafe. AI-powered installations, a giant animatronic breathing dachshund, and sci-fi art environments on every floor. Called "the future of retail" by global press. Free entry.</p>
+          <div class="card-price">Free entry · Products ₩50K–₩600K</div>
+          <div class="card-subway">🚇 Line 2 · Seongsu Station Exit 3 (8 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="Haus Dosan Gentle Monster Seoul interior" onerror="this.src='https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-concept">Original concept store</span>
+          </div>
+          <div class="card-name">Haus Dosan (하우스 도산)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Apgujeong, Gangnam-gu (50 Apgujeong-ro 46-gil)
+          </div>
+          <p class="card-desc">The OG blueprint for experiential retail in Korea — 5-floor gallery-store. B1F: Nudake artisan dessert cafe. 2F–3F: Gentle Monster eyewear with rotating art installations. 4F: Tamburins fragrance flagship. Each floor tells a different story. Kinetic sculptures, art collabs, and an experience unlike any standard store. Open 11am–9pm.</p>
+          <div class="card-price">Free entry · Nudake desserts ₩15K–30K</div>
+          <div class="card-subway">🚇 Line 3 · Apgujeong Station Exit 2 (12 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80" alt="Alo Yoga Seoul flagship store Dosan Park" onerror="this.src='https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-flagship">Alo's first Asia flagship</span>
+            <span class="badge badge-must">Happyfit inspo #1</span>
+          </div>
+          <div class="card-name">Alo Yoga Seoul — Dosan Park</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Dosan Park area, Gangnam-gu
+          </div>
+          <p class="card-desc">Opened July 2025 — Alo's first Asia flagship with 6 full floors: yoga studios, rooftop wellness lounge, brand cafe, immersive product experiences. Ambassadors: BLACKPINK's Jisoo, BTS's Jin. This is how the world's fastest-growing athleisure brand builds community. The single most important store visit for Happyfit's future concept.</p>
+          <div class="card-price">Free entry · Apparel ₩80K–₩250K</div>
+          <div class="card-subway">🚇 Line 3 · Apgujeong Station Exit 2 (10 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1467043237213-65f2da53396f?w=600&q=80" alt="Lululemon Seoul flagship Gangnam" onerror="this.src='https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-flagship">Lululemon Korean flagship</span>
+            <span class="badge badge-must">Happyfit inspo #2</span>
+          </div>
+          <div class="card-name">Lululemon Gangnam Flagship</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Gangnam district, Seoul
+          </div>
+          <p class="card-desc">Korea's first Lululemon flagship — 9,000 sqft across 3 floors, opened late 2025. New retail concept centered on movement and sensory engagement. Custom 3D-printed recycled exterior. Full women's floor + dedicated menswear floor. Korea is Lululemon's fastest-growing APAC market. Study the VM, product storytelling, and community activations.</p>
+          <div class="card-price">Free entry · Apparel ₩80K–₩300K</div>
+          <div class="card-subway">🚇 Line 2 · Gangnam Station Exit 10 (7 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80" alt="VERISH Korean Lululemon activewear Seongsu" onerror="this.src='https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-korean">"Korean Lululemon"</span>
+            <span class="badge badge-must">Happyfit inspo #3</span>
+          </div>
+          <div class="card-name">VERISH (베리쉬)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            26 Yeonmujang-gil, Seongdong-gu (Seongsu)
+          </div>
+          <p class="card-desc">Dubbed the "Korean Lululemon" — clean minimal aesthetics, incredibly flattering fits, pilates-to-brunch athleisure positioning. 2-story Seongsu flagship is beautifully designed. Campaign directed by Jiyeon from Single's Inferno 3 — certified cool by Korean pop culture. Super relevant direct comparison for Happyfit's positioning vs international brands.</p>
+          <div class="card-price">₩40,000–120,000 (~Rp 470K–1.4Mn)</div>
+          <div class="card-subway">🚇 Line 2 · Seongsu Station Exit 3 (5 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1588117305388-c2631a279f82?w=600&q=80" alt="XEXYMIX Korean activewear store Gangnam" onerror="this.src='https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-korean">Korean activewear</span>
+          </div>
+          <div class="card-name">XEXYMIX (제이믹스)</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Gangnam Station standalone store
+          </div>
+          <p class="card-desc">Korea's most commercially successful activewear brand — praised for flattering, functional leggings that rival Lululemon at a fraction of the price. Worn by K-pop idols including Mamamoo's Solar. Wide color range, high-quality fabric. Excellent retail design. See how a Korean brand scales athleisure in their home market.</p>
+          <div class="card-price">₩40,000–150,000 (~Rp 470K–1.75Mn)</div>
+          <div class="card-subway">🚇 Line 2 · Gangnam Station Exit 10 (2 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80" alt="CLOVE Korean tennis golf athleisure store Seoul" onerror="this.src='https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-korean">Tennis & golf athleisure</span>
+          </div>
+          <div class="card-name">CLOVE</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            1F, 30 Eonju-ro 168-gil, Gangnam-gu
+          </div>
+          <p class="card-desc">Beautifully curated Korean athleisure brand focused on tennis and golf lifestyle. Vibrant color palettes, incredible store design, female-forward aesthetic. Community events and active local following. A masterclass in how to build a niche activewear brand with strong community DNA — very relevant Happyfit inspo.</p>
+          <div class="card-price">₩45,000–100,000 (~Rp 530K–1.2Mn)</div>
+          <div class="card-subway">🚇 Line 9 · Sinnonhyeon Station Exit 5 (8 min walk)</div>
+        </div>
+      </div>
+
+      <div class="spot-card">
+        <img class="card-img" src="https://images.unsplash.com/photo-1539794830467-1f1755804d13?w=600&q=80" alt="MAB Seoul multi-brand running concept store" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80'">
+        <div class="card-body">
+          <div class="card-badge-row">
+            <span class="badge badge-concept">Multi-brand concept</span>
+          </div>
+          <div class="card-name">MAB Seoul</div>
+          <div class="card-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Near Jamwon Han River Park · Sinsa Station area
+          </div>
+          <p class="card-desc">Premium multi-brand concept store for runners and active lifestyle near Han River. Curated mix of premium sports brands in a clean, community-focused space. Hosts training sessions and community runs — a great model for how to build authentic brand community around sport.</p>
+          <div class="card-price">Free entry · Products vary by brand</div>
+          <div class="card-subway">🚇 Line 3 · Sinsa Station Exit 8 (5 min walk)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STAY ===================== -->
+<div id="s-stay" class="section">
+  <div class="section-inner">
+    <h2 class="sec-title">Where to Stay</h2>
+    <p class="sec-sub">Budget ≤ Rp 2 Jt/night · All near subway stations · Stylish picks</p>
+
+    <div class="tip-box">
+      <strong>Budget note:</strong> Rp 2 Jt ≈ ₩200,000–210,000 KRW ≈ ~USD 120–130/night. In May (shoulder season before summer crowds), this gets you genuinely stylish mid-range hotels in prime locations. <strong>Book 6+ weeks ahead</strong> — Seoul fills up fast in spring. All picks below are within 3–10 min walk of a subway station.
+    </div>
+
+    <div class="stay-grid">
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="L7 Hongdae by Lotte Hotel Seoul rooftop pool" onerror="this.src='https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-hotel">Hotel</span>
+            <span class="badge badge-must">Top Pick</span>
+          </div>
+          <div class="stay-name">L7 Hongdae by Lotte</div>
+          <div class="stay-loc">Hongdae, Mapo-gu · Hongik Univ. Station</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩150K–190K</span>
+            <span class="stay-price-note">≈ Rp 1.75–2.2 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 2 + Airport Line — Hongik Univ. Station (Exit 1, 3 min walk)</span>
+          <div class="stay-desc">Rooftop pool, trendy cocktail bar, stylish rooms with floor-to-ceiling city views. Right in the heart of Hongdae's artsy district — cafes, street art, indie shops and nightlife all walking distance. Airport express line stops here, so arrival/departure is super easy. The best value at this budget.</div>
+        </div>
+      </div>
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="Nine Tree Hotel Myeongdong Seoul" onerror="this.src='https://images.unsplash.com/photo-1590073242678-70ee3fc28f8e?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-hotel">Hotel</span>
+            <span class="badge">Most central</span>
+          </div>
+          <div class="stay-name">Nine Tree Premier Myeongdong</div>
+          <div class="stay-loc">Myeongdong, Jung-gu · Lines 2 & 4</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩120K–160K</span>
+            <span class="stay-price-note">≈ Rp 1.4–1.85 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 4 · Myeongdong Station (Exit 7, 2 min walk)</span>
+          <div class="stay-desc">Stylish design hotel in Seoul's most central area. Optional rooms with N Seoul Tower views. Steps from Myeongdong night market, Shinsegae department store, and major subway interchange. Best choice for first-timers — you can walk everywhere. Lines 2 and 4 connect to every major neighborhood.</div>
+        </div>
+      </div>
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80" alt="Ryse Autograph Marriott Hongdae Seoul" onerror="this.src='https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-hotel">Hotel</span>
+            <span class="badge badge-kol">Design hotel</span>
+          </div>
+          <div class="stay-name">Ryse Autograph Collection (Marriott)</div>
+          <div class="stay-loc">Hongdae, Mapo-gu</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩180K–220K</span>
+            <span class="stay-price-note">≈ Rp 2.1–2.6 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 2 · Hongik Univ. Station (Exit 9, 5 min walk)</span>
+          <div class="stay-desc">Floor-to-ceiling windows, street art aesthetic throughout, 24hr gym, rooftop cocktail bar, and Blue Bottle Coffee in-house. Slightly over the 2Jt budget but worth it for a special night. One of Seoul's most design-forward hotels. Splurge for 1–2 nights and stay at Nine Tree the rest.</div>
+        </div>
+      </div>
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80" alt="Seongsu Airbnb studio apartment Seoul" onerror="this.src='https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-airbnb">Airbnb</span>
+            <span class="badge">Local vibe</span>
+          </div>
+          <div class="stay-name">Seongsu-dong Studio / Officetel</div>
+          <div class="stay-loc">Seongsu, Seongdong-gu · Line 2</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩100K–150K</span>
+            <span class="stay-price-note">≈ Rp 1.15–1.75 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 2 · Seongsu Station (Exit 3, 5 min walk)</span>
+          <div class="stay-desc">Studio apartment in Seoul's trendiest neighborhood — walk to Haus Nowhere, VERISH, Daelim Changgo, Seoul Forest. Best for living the actual Seongsu lifestyle. Look for Superhost-verified listings with business registration (required post-Jan 2026 regulation). Great for content-creator mode — neighborhood is a perpetual photoshoot.</div>
+        </div>
+      </div>
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1569074187119-c87815b476da?w=600&q=80" alt="Hanok guesthouse Ikseon-dong Seoul traditional" onerror="this.src='https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-airbnb">Airbnb</span>
+            <span class="badge badge-must">Most romantic</span>
+          </div>
+          <div class="stay-name">Hanok Stay, Ikseon-dong</div>
+          <div class="stay-loc">Jongno-gu · heritage district</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩120K–180K</span>
+            <span class="stay-price-note">≈ Rp 1.4–2.1 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 1 · Jongno 3-ga Station (Exit 4, 4 min walk)</span>
+          <div class="stay-desc">Stay inside a traditional Korean house in Seoul's most picturesque alley district. Waking up in a hanok surrounded by tile rooftops and stone walls is an experience unlike anything else. Perfect for a couple — incredibly romantic and unique. Line 1 connects you to the whole city.</div>
+        </div>
+      </div>
+
+      <div class="stay-card">
+        <img class="stay-img" src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&q=80" alt="Ibis Styles Ambassador Gangnam Seoul hotel" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'">
+        <div class="stay-body">
+          <div class="card-badge-row">
+            <span class="badge badge-hotel">Hotel</span>
+            <span class="badge">Gangnam access</span>
+          </div>
+          <div class="stay-name">Ibis Styles Ambassador Gangnam</div>
+          <div class="stay-loc">Gangnam, Seocho-gu</div>
+          <div class="stay-price-row">
+            <span class="stay-price">~₩110K–150K</span>
+            <span class="stay-price-note">≈ Rp 1.3–1.75 Jt/night</span>
+          </div>
+          <span class="stay-subway">🚇 Line 2 · Gangnam Station (Exit 10, 5 min walk)</span>
+          <div class="stay-desc">Modern, comfortable rooms with rooftop garden lounge. Walking distance to Haus Dosan, Alo Yoga, Lululemon flagship, XEXYMIX, and COEX Mall. Best base if the activewear store research is the main priority — you can walk to 3+ flagship stores from here. Great price-to-location ratio.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DAY-BY-DAY ===================== -->
+<div id="s-plan" class="section">
+  <div class="section-inner">
+    <h2 class="sec-title">Day-by-Day Itinerary</h2>
+    <p class="sec-sub">18–25 May · 8 days · Seoul</p>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot dot-fnb"></div> F&B</div>
+      <div class="leg-item"><div class="leg-dot dot-cafe"></div> Cafe</div>
+      <div class="leg-item"><div class="leg-dot dot-store"></div> Concept Store</div>
+      <div class="leg-item"><div class="leg-dot dot-travel"></div> Travel / Rest</div>
+    </div>
+
+    <div class="days-wrap">
+
+      <!-- DAY 1 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">1</div>
+          <div class="day-head-text">
+            <div class="day-title">Sunday 18 May — Arrival & Hongdae Night</div>
+            <div class="day-sub-text">Check in · first meal · street art stroll</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1557409518-691ebcd96038?w=400&q=80" alt="Incheon Airport Seoul" onerror="this.src='https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80" alt="Gwangjang Market Seoul street food" onerror="this.src='https://images.unsplash.com/photo-1567337710282-00832b415979?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=400&q=80" alt="Hongdae street Seoul nightlife" onerror="this.src='https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-travel"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">Arrive ICN → AREX → L7 Hongdae</div>
+              <div class="event-detail">Take the AREX express from Incheon (₩9,500, ~60 min) to Hongik Univ. Station. Check in, freshen up. The hotel is literally 3 min walk from the station exit.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Eve</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Gwangjang Market — first Korean meal</div>
+              <div class="event-detail">Bindaetteok, tteokbokki, raw beef bibimbap. 30 min by subway. Great introduction to Seoul's street food culture and incredible content at night.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>Night</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ 943 King's Cross cafe + Hongdae stroll</div>
+              <div class="event-detail">Harry Potter cafe for Butterbeer drinks and broomstick photos. Then walk Hongdae's street art district. Ease into Seoul gently — you've been flying all day!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">2</div>
+          <div class="day-head-text">
+            <div class="day-title">Monday 19 May — Full Seongsu Day</div>
+            <div class="day-sub-text">Seoul's "Brooklyn" · cafes · concept stores · VERISH</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=80" alt="Daelim Changgo cafe Seongsu" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=80" alt="Haus Nowhere Gentle Monster Seongsu" onerror="this.src='https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&q=80" alt="VERISH activewear Seongsu Seoul" onerror="this.src='https://images.unsplash.com/photo-1543168256-418811576931?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Daelim Changgo + Seongsu Cafe Street</div>
+              <div class="event-detail">Industrial warehouse cafe to start the day. Stroll the famous Cafe Street before 11am — best light, fewer crowds, maximum content potential.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Noon</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Local lunch in Seongsu</div>
+              <div class="event-detail">Seongsu has excellent local eateries. Try a gomtang (beef bone soup) spot or simple Korean bibimbap near the main strip.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-store"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">🏪 Haus Nowhere (Gentle Monster 13F) + VERISH</div>
+              <div class="event-detail">2+ hours in Gentle Monster's insane 13-floor retail temple. Then walk 5 min to VERISH's 2-floor activewear flagship for key Happyfit inspo. Both in Seongsu — very easy day.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>Late PM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Seoul Angmusae + Seoul Forest sunset walk</div>
+              <div class="event-detail">The viral parrot cafe — draw on your plates with markers, try the Queen Amann pastries. Then golden hour walk through adjacent Seoul Forest. Perfect end to Seongsu day.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 3 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">3</div>
+          <div class="day-head-text">
+            <div class="day-title">Tuesday 20 May — Gangnam Activewear Day</div>
+            <div class="day-sub-text">Alo Yoga · Haus Dosan · Lululemon · XEXYMIX</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80" alt="Alo Yoga Seoul flagship" onerror="this.src='https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=80" alt="Haus Dosan Gentle Monster" onerror="this.src='https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1467043237213-65f2da53396f?w=400&q=80" alt="Lululemon flagship store" onerror="this.src='https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-store"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">🏪 Alo Yoga — 6-floor Asia flagship (Dosan Park)</div>
+              <div class="event-detail">Alo's first store in all of Asia. Yoga studio, rooftop wellness lounge, brand cafe. Allow 2 hours. The most important single store visit for Happyfit's future concept — take notes on everything.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-store"></div>Noon</div>
+            <div class="event-content-col">
+              <div class="event-name">🏪 Haus Dosan + lunch at Nudake cafe (B1)</div>
+              <div class="event-detail">5-floor Gentle Monster gallery-store, then artisan lunch at Nudake in the basement. The OG experiential retail blueprint. Compare to Haus Nowhere — same brand, very different execution.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-store"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">🏪 Lululemon Gangnam Flagship + XEXYMIX</div>
+              <div class="event-detail">Korea's biggest Lululemon (9,000sqft, 3 floors, opened late 2025). Then XEXYMIX at Gangnam Station — compare Korean vs Western activewear retail experience side by side.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Eve</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Garosu-gil dinner stroll</div>
+              <div class="event-detail">Apgujeong's beautiful tree-lined boulevard. Dinner at one of the many excellent local restaurants — the area is packed with great options. Lovely evening walk after a full shopping day.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 4 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">4</div>
+          <div class="day-head-text">
+            <div class="day-title">Wednesday 21 May — Heritage & Michelin Crab</div>
+            <div class="day-sub-text">Palaces · Ikseon-dong · Gebangsikdang dinner</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1534040385115-33dcb3acba5b?w=400&q=80" alt="Bukchon Hanok Village Seoul alley" onerror="this.src='https://images.unsplash.com/photo-1556741533-6e6a62bd8b49?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80" alt="Ikseon-dong hanok cafe Seoul alley" onerror="this.src='https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&q=80" alt="Gebangsikdang soy crab Michelin" onerror="this.src='https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-travel"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">Gyeongbokgung Palace + Bukchon Hanok Village</div>
+              <div class="event-detail">Rent a hanbok for free palace entry — wearing one is mandatory. Bukchon's alleyways are the most photographed spots in Seoul. Go before 10am to avoid crowds. Bring a tripod!</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>Noon</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Ikseon-dong hanok cafe hopping</div>
+              <div class="event-detail">Soha Salt Pond + Mil Toast + Cheese Industry — all in Ikseon-dong's adorable hanok alleys. The most photogenic cafe district in Seoul for couples.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Green Mile Coffee — Bukchon panoramic views</div>
+              <div class="event-detail">Rooftop terrace with unobstructed hanok rooftop views. Order early, grab the best window seat. Afternoon golden hour light makes for incredible content.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Eve</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Gebangsikdang — Michelin crab dinner (centerpiece!)</div>
+              <div class="event-detail">The crown jewel of the F&B itinerary. Arrive 30 min before opening to secure a spot. Order soy crab set (₩36K) — the banchan alone is worth the trip. Pure, unforgettable experience.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 5 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">5</div>
+          <div class="day-head-text">
+            <div class="day-title">Thursday 22 May — Euljiro + Tosokchon</div>
+            <div class="day-sub-text">Ginseng chicken · salt bread · charcoal BBQ</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80" alt="Tosokchon samgyetang ginseng chicken soup" onerror="this.src='https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&q=80" alt="Korean salt bread bakery" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1544025162-d76594e917c4?w=400&q=80" alt="Korean BBQ charcoal Euljiro" onerror="this.src='https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Tosokchon — legendary samgyetang</div>
+              <div class="event-detail">Opens at 10am, queue starts forming before then on weekdays. ~20–30 min wait. Whole ginseng chicken soup — healing, nourishing, and deeply photogenic. Every Indonesian KOL's must-do.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Noon</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Jayeondo Salt Bread hunt</div>
+              <div class="event-detail">Race to a branch that still has stock (they sell out by noon!). Best warm, straight from the bag while walking. The viral Seoul snack everyone has to try.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-travel"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">Euljiro exploration + vintage/indie shop hunting</div>
+              <div class="event-detail">Seoul's hipster industrial district — vintage stores, indie cafes, graffiti walls, creative studios. The "old Seoul" that the cool kids discovered. Great afternoon content zone.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Eve</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Sancheong Charcoal Garden — authentic BBQ dinner</div>
+              <div class="event-detail">Retro-atmosphere Korean BBQ in Euljiro. Charcoal-grilled pork belly, DIY wrapping in lettuce leaves. A classic Korean dinner experience that every Indonesian KOL visits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 6 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">6</div>
+          <div class="day-head-text">
+            <div class="day-title">Friday 23 May — Flowers, CLOVE & Woomoolzip</div>
+            <div class="day-sub-text">Colline brunch · CLOVE store · private hot pot dinner</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&q=80" alt="Colline flower cafe Hongdae Seoul" onerror="this.src='https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80" alt="CLOVE Korean tennis athleisure store" onerror="this.src='https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400&q=80" alt="Woomoolzip private hot pot Seoul dining" onerror="this.src='https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Colline flower cafe — peak May bloom brunch</div>
+              <div class="event-detail">The most romantic cafe in Seoul, in full bloom in May. Book a terrace seat. Fresh seasonal brunch + flower-filled interior = the best couple content of the whole trip.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-store"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">🏪 CLOVE + MAB Seoul (Sinsa area)</div>
+              <div class="event-detail">CLOVE's gorgeous tennis/golf athleisure store, then MAB Seoul's premium multi-brand running concept store near Garosu-gil. Both within walking distance. Last major activewear research stops for Happyfit inspo.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Eve</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Woomoolzip — private hot pot dinner (special!)</div>
+              <div class="event-detail">Reserve via Catchtable app weeks in advance. Intimate, beautiful, the kind of dinner you'll remember forever. A celebration of the trip with a perfect couple meal.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 7 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">7</div>
+          <div class="day-head-text">
+            <div class="day-title">Saturday 24 May — Fruits, River & Last Night</div>
+            <div class="day-sub-text">Rafre Fruits · Sol Sot · Han River · speakeasy chicken</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1513530534585-c7b1394c6d51?w=400&q=80" alt="Rafre Fruits seasonal fruit cafe Seoul" onerror="this.src='https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1590587406893-93552e30d51c?w=400&q=80" alt="Han River Seoul sunset picnic" onerror="this.src='https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80" alt="Seoul fried chicken speakeasy" onerror="this.src='https://images.unsplash.com/photo-1619961602105-16fa2a5465c7?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ Rafre Fruits — mango & melon season!</div>
+              <div class="event-detail">Go at opening (typically 11am). May = mango and melon season — the most beautiful menu of the year. Mango bingsu, fruit crepe cakes, Jeju OJ. Arrive early — sells out fast on weekends.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Noon</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Sol Sot — crispy dolsot rice lunch</div>
+              <div class="event-detail">The ASMR stone pot rice experience. Film the moment the crispy rice crust scrapes off for a guaranteed TikTok. Curated beautiful toppings. Myeongdong branch is easiest to reach.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-travel"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">Han River picnic + sunset</div>
+              <div class="event-detail">Grab GS25 or CU convenience store snacks — ramen cup, corn dog, banana milk, yakult. Join the Han River picnic scene. Blanket on the grass, watching the sunset. The most Seoul thing you can do. Pure bliss.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-fnb"></div>Night</div>
+            <div class="event-content-col">
+              <div class="event-name">🍜 Speakeasy Fried Chicken, Itaewon — final night dinner</div>
+              <div class="event-detail">Hunt down the viral speakeasy-concept fried chicken in Itaewon. The search is the experience. End the last full night in Seoul with crispy chicken and the satisfaction of finding it!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 8 -->
+      <div class="day-block">
+        <div class="day-head">
+          <div class="day-num">8</div>
+          <div class="day-head-text">
+            <div class="day-title">Sunday 25 May — Departure Day</div>
+            <div class="day-sub-text">Last cafe · pack up · airport · fly home</div>
+          </div>
+        </div>
+        <div class="day-photos">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80" alt="Seoul cafe last morning coffee" onerror="this.src='https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80'">
+          <img class="day-photo" src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=400&q=80" alt="Incheon Airport departure duty free" onerror="this.src='https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80'">
+        </div>
+        <div class="events">
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-cafe"></div>AM</div>
+            <div class="event-content-col">
+              <div class="event-name">☕ One last Seoul cafe near hotel</div>
+              <div class="event-detail">Seoul has incredible cafes everywhere — find one near your hotel, take it slow. Grab one last Americano and a fresh-baked pastry. Let the city sink in.</div>
+            </div>
+          </div>
+          <div class="event-row">
+            <div class="event-time-col"><div class="event-dot dot-travel"></div>PM</div>
+            <div class="event-content-col">
+              <div class="event-name">Check out → AREX → Incheon Airport</div>
+              <div class="event-detail">AREX express: 43 min direct to ICN Terminal 1. Incheon duty free is excellent — Sulwhasoo, Innisfree, Korean snacks, beauty, and brands. Allow 3 hours before your flight. Fly home with full hearts and full suitcases!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
